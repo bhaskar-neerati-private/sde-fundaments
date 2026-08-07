@@ -1,0 +1,408 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>1.1 Programming Fundamentals</title>
+<style>
+:root {
+  --bg: #fdfdfb; --fg: #24292f; --muted: #5b6470; --border: #e1e4e8;
+  --code-bg: #f3f4f6; --link: #0b5fff; --accent: #6a3fd1; --chip: #f0edfb;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg:#1a1d23; --fg:#dadee3; --muted:#98a0ab; --border:#2f343c; --code-bg:#20242b; --link:#7aa2ff; --accent:#b79cff; --chip:#242233; }
+}
+:root[data-theme="dark"] { --bg:#1a1d23; --fg:#dadee3; --muted:#98a0ab; --border:#2f343c; --code-bg:#20242b; --link:#7aa2ff; --accent:#b79cff; --chip:#242233; }
+.theme-toggle { margin-left: .5rem; background: none; border: 1px solid var(--border); border-radius: 999px; width: 1.9rem; height: 1.9rem; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; font-size: .95rem; color: var(--fg); line-height: 1; padding: 0; }
+.theme-toggle:hover { border-color: var(--accent); }
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.65; margin: 0;
+}
+.page { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 6rem; }
+.topnav {
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; flex-wrap: wrap; gap: .9rem;
+  background: var(--bg); border-bottom: 1px solid var(--border);
+  padding: .7rem 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,.08);
+}
+.topnav a.back, .topnav .home { text-decoration: none; font-weight: 600; font-size: .92rem; white-space: nowrap; color: var(--fg); }
+.phase-pills { display: flex; gap: .35rem; flex-wrap: wrap; margin-left: auto; }
+.phase-pills a {
+  text-decoration: none; color: var(--muted); font-size: .8rem; font-weight: 600;
+  border: 1px solid var(--border); border-radius: 999px; padding: .2rem .6rem;
+}
+.phase-pills a:hover { border-color: var(--accent); color: var(--accent); }
+.phase-pills a.current { background: var(--accent); border-color: var(--accent); color: #fff; }
+h1, h2, h3, h4 { line-height: 1.3; }
+h1 { font-size: 1.9rem; border-bottom: 2px solid var(--accent); padding-bottom: .5rem; }
+h2 { font-size: 1.4rem; margin-top: 2.5rem; border-bottom: 1px solid var(--border); padding-bottom: .3rem; }
+h3 { font-size: 1.15rem; margin-top: 2rem; color: var(--accent); }
+a { color: var(--link); }
+p code, li code, td code { background: var(--code-bg); padding: .15em .4em; border-radius: 4px; font-size: .9em; word-break: break-word; }
+pre { background: var(--code-bg); padding: 1rem; border-radius: 8px; overflow-x: auto; border: 1px solid var(--border); }
+pre code { background: none; padding: 0; }
+table { border-collapse: collapse; width: 100%; margin: 1rem 0; display: block; overflow-x: auto; }
+th, td { border: 1px solid var(--border); padding: .5rem .75rem; text-align: left; }
+th { background: var(--code-bg); }
+blockquote { border-left: 3px solid var(--accent); margin: 1rem 0; padding: .2rem 1rem; color: var(--muted); }
+hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+.nav { margin-bottom: 1.5rem; font-size: .9rem; }
+.nav a { text-decoration: none; }
+ul, ol { padding-left: 1.4rem; }
+li { margin: .3rem 0; }
+img { max-width: 100%; }
+.chk { display: inline-block; width: .9em; height: .9em; border: 1.5px solid var(--muted); border-radius: 3px; margin-right: .4em; vertical-align: middle; }
+.chk.done { background: var(--accent); border-color: var(--accent); color: #fff; text-align: center; line-height: .85em; font-size: .75em; }
+.codehilite { background: var(--code-bg) !important; border-radius: 8px; }
+pre { line-height: 125%; }
+td.linenos .normal { color: #666666; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: #666666; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+.codehilite .hll { background-color: #ffffcc }
+.codehilite { background: #f0f0f0; }
+.codehilite .c { color: #60A0B0; font-style: italic } /* Comment */
+.codehilite .err { border: 1px solid #F00 } /* Error */
+.codehilite .k { color: #007020; font-weight: bold } /* Keyword */
+.codehilite .o { color: #666 } /* Operator */
+.codehilite .ch { color: #60A0B0; font-style: italic } /* Comment.Hashbang */
+.codehilite .cm { color: #60A0B0; font-style: italic } /* Comment.Multiline */
+.codehilite .cp { color: #007020 } /* Comment.Preproc */
+.codehilite .cpf { color: #60A0B0; font-style: italic } /* Comment.PreprocFile */
+.codehilite .c1 { color: #60A0B0; font-style: italic } /* Comment.Single */
+.codehilite .cs { color: #60A0B0; background-color: #FFF0F0 } /* Comment.Special */
+.codehilite .gd { color: #A00000 } /* Generic.Deleted */
+.codehilite .ge { font-style: italic } /* Generic.Emph */
+.codehilite .ges { font-weight: bold; font-style: italic } /* Generic.EmphStrong */
+.codehilite .gr { color: #F00 } /* Generic.Error */
+.codehilite .gh { color: #000080; font-weight: bold } /* Generic.Heading */
+.codehilite .gi { color: #00A000 } /* Generic.Inserted */
+.codehilite .go { color: #888 } /* Generic.Output */
+.codehilite .gp { color: #C65D09; font-weight: bold } /* Generic.Prompt */
+.codehilite .gs { font-weight: bold } /* Generic.Strong */
+.codehilite .gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+.codehilite .gt { color: #04D } /* Generic.Traceback */
+.codehilite .kc { color: #007020; font-weight: bold } /* Keyword.Constant */
+.codehilite .kd { color: #007020; font-weight: bold } /* Keyword.Declaration */
+.codehilite .kn { color: #007020; font-weight: bold } /* Keyword.Namespace */
+.codehilite .kp { color: #007020 } /* Keyword.Pseudo */
+.codehilite .kr { color: #007020; font-weight: bold } /* Keyword.Reserved */
+.codehilite .kt { color: #902000 } /* Keyword.Type */
+.codehilite .m { color: #40A070 } /* Literal.Number */
+.codehilite .s { color: #4070A0 } /* Literal.String */
+.codehilite .na { color: #4070A0 } /* Name.Attribute */
+.codehilite .nb { color: #007020 } /* Name.Builtin */
+.codehilite .nc { color: #0E84B5; font-weight: bold } /* Name.Class */
+.codehilite .no { color: #60ADD5 } /* Name.Constant */
+.codehilite .nd { color: #555; font-weight: bold } /* Name.Decorator */
+.codehilite .ni { color: #D55537; font-weight: bold } /* Name.Entity */
+.codehilite .ne { color: #007020 } /* Name.Exception */
+.codehilite .nf { color: #06287E } /* Name.Function */
+.codehilite .nl { color: #002070; font-weight: bold } /* Name.Label */
+.codehilite .nn { color: #0E84B5; font-weight: bold } /* Name.Namespace */
+.codehilite .nt { color: #062873; font-weight: bold } /* Name.Tag */
+.codehilite .nv { color: #BB60D5 } /* Name.Variable */
+.codehilite .ow { color: #007020; font-weight: bold } /* Operator.Word */
+.codehilite .w { color: #BBB } /* Text.Whitespace */
+.codehilite .mb { color: #40A070 } /* Literal.Number.Bin */
+.codehilite .mf { color: #40A070 } /* Literal.Number.Float */
+.codehilite .mh { color: #40A070 } /* Literal.Number.Hex */
+.codehilite .mi { color: #40A070 } /* Literal.Number.Integer */
+.codehilite .mo { color: #40A070 } /* Literal.Number.Oct */
+.codehilite .sa { color: #4070A0 } /* Literal.String.Affix */
+.codehilite .sb { color: #4070A0 } /* Literal.String.Backtick */
+.codehilite .sc { color: #4070A0 } /* Literal.String.Char */
+.codehilite .dl { color: #4070A0 } /* Literal.String.Delimiter */
+.codehilite .sd { color: #4070A0; font-style: italic } /* Literal.String.Doc */
+.codehilite .s2 { color: #4070A0 } /* Literal.String.Double */
+.codehilite .se { color: #4070A0; font-weight: bold } /* Literal.String.Escape */
+.codehilite .sh { color: #4070A0 } /* Literal.String.Heredoc */
+.codehilite .si { color: #70A0D0; font-style: italic } /* Literal.String.Interpol */
+.codehilite .sx { color: #C65D09 } /* Literal.String.Other */
+.codehilite .sr { color: #235388 } /* Literal.String.Regex */
+.codehilite .s1 { color: #4070A0 } /* Literal.String.Single */
+.codehilite .ss { color: #517918 } /* Literal.String.Symbol */
+.codehilite .bp { color: #007020 } /* Name.Builtin.Pseudo */
+.codehilite .fm { color: #06287E } /* Name.Function.Magic */
+.codehilite .vc { color: #BB60D5 } /* Name.Variable.Class */
+.codehilite .vg { color: #BB60D5 } /* Name.Variable.Global */
+.codehilite .vi { color: #BB60D5 } /* Name.Variable.Instance */
+.codehilite .vm { color: #BB60D5 } /* Name.Variable.Magic */
+.codehilite .il { color: #40A070 } /* Literal.Number.Integer.Long */</style>
+<script>
+(function(){
+  try {
+    var t = localStorage.getItem('theme');
+    if (t) document.documentElement.setAttribute('data-theme', t);
+  } catch (e) {}
+})();
+function getEffectiveTheme(){
+  var attr = document.documentElement.getAttribute('data-theme');
+  if (attr) return attr;
+  return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+}
+function toggleTheme(){
+  var next = getEffectiveTheme() === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  try { localStorage.setItem('theme', next); } catch (e) {}
+  updateThemeToggleIcon();
+}
+function updateThemeToggleIcon(){
+  var btn = document.querySelector('.theme-toggle');
+  if (btn) btn.textContent = getEffectiveTheme() === 'dark' ? '☀️' : '🌙';
+}
+document.addEventListener('DOMContentLoaded', updateThemeToggleIcon);
+</script>
+</head>
+<body>
+<nav class="topnav">
+<a class="back" href="../../index.html">&larr; Back to index</a>
+<div class="phase-pills"><a class="current" href="../../index.html#phase-1" title="Phase 1">Phase1</a><a href="../../index.html#phase-2" title="Phase 2">Phase2</a><a href="../../index.html#phase-3" title="Phase 3">Phase3</a><a href="../../index.html#phase-4" title="Phase 4">Phase4</a><a href="../../index.html#phase-5" title="Phase 5">Phase5</a><a href="../../index.html#phase-6" title="Phase 6">Phase6</a></div>
+<button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle color theme" title="Toggle color theme">🌙</button>
+</nav>
+<div class="page">
+<h1>1.1 Programming Fundamentals (Python)</h1>
+<p>Objective: close the gap between "comfortable writing code" and actually knowing the language - OOP internals, comprehensions/generators, decorators, context managers, and exception design.</p>
+<hr />
+<h2>1.1a Objects, Classes &amp; Dunder Methods</h2>
+<p><strong>Class vs. object.</strong> A <strong>class</strong> is a blueprint defining what attributes (data) and methods (behavior) its instances will have - it holds no per-object data itself, it's a template. An <strong>object</strong> is an instance of a class, with its own copy of instance attributes. <strong>Instantiation</strong> is creating an object by calling the class, e.g. <code>Dog('Rex', 'Lab')</code>.</p>
+<p><em>Plain English:</em> the class is the recipe, the object is the actual cake you baked from it. Every cake baked from the same recipe can have different toppings (instance attributes) even though they share the same steps (methods).</p>
+<p><strong><code>__init__</code> (the constructor):</strong> a special method Python calls automatically, exactly once, immediately after a new object is created, used to initialize that object's instance attributes.</p>
+<p><strong><code>self</code>:</strong> the conventional name for the first parameter of every instance method - a reference to the specific object the method was called on, letting the method read/modify that object's own attributes.</p>
+<p><strong>Attribute:</strong> a variable bound to an object (<em>instance attribute</em>, e.g. <code>self.name</code>, unique per object) or to the class itself (<em>class attribute</em>, shared by all instances).</p>
+<p><strong>Method:</strong> a function defined inside a class that operates on its instances (or on the class itself, for <code>classmethod</code>/<code>staticmethod</code>).</p>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">Dog</span><span class="p">:</span>
+    <span class="n">species</span> <span class="o">=</span> <span class="s2">&quot;Canis familiaris&quot;</span>      <span class="c1"># class attribute - shared by every Dog</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">breed</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>              <span class="c1"># instance attribute - unique per Dog</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">breed</span> <span class="o">=</span> <span class="n">breed</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">bark</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> says woof!&quot;</span>
+</code></pre></div>
+
+<p><strong>Inheritance:</strong> a mechanism where a new class (subclass) derives the attributes and methods of an existing class (superclass), enabling code reuse and modeling "is-a" relationships. <strong><code>super()</code></strong> is used inside the subclass to call the superclass's version of a method (most often <code>__init__</code>).</p>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">Puppy</span><span class="p">(</span><span class="n">Dog</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="n">breed</span><span class="p">,</span> <span class="n">age_months</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">breed</span><span class="p">)</span>   <span class="c1"># reuse Dog&#39;s setup instead of duplicating it</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">age_months</span> <span class="o">=</span> <span class="n">age_months</span>
+</code></pre></div>
+
+<p><em>Analogy:</em> inheritance is like a franchise restaurant - the local branch (subclass) automatically gets the parent company's recipes and processes (methods), but can add its own local specials (extra methods) or override a recipe for local taste (override a method) without changing the original company's recipe book.</p>
+<p><strong>Dunder ("double underscore") methods</strong> are special methods Python calls to implement built-in syntax (<code>print()</code>, <code>==</code>, <code>len()</code>, <code>+</code>, ...). Without them, your objects behave nothing like Python's built-ins:</p>
+<ul>
+<li><code>__repr__</code> / <code>__str__</code> - what's shown by <code>print()</code>/<code>repr()</code>; the default is a useless memory address like <code>&lt;Dog object at 0x7f...&gt;</code>.</li>
+<li><code>__eq__</code> - defines <code>==</code>; the default compares <em>identity</em> (same object in memory), not data. Two <code>Dog</code> objects with identical name/breed are <code>!=</code> by default until you define <code>__eq__</code>.</li>
+<li><code>__len__</code> - defines <code>len(obj)</code>; without it, <code>len()</code> raises <code>TypeError</code>.</li>
+<li><code>__add__</code> - defines <code>+</code>.</li>
+</ul>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">Fraction</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">num</span><span class="p">,</span> <span class="n">den</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">num</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">den</span> <span class="o">=</span> <span class="n">num</span><span class="p">,</span> <span class="n">den</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__repr__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;Fraction(</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">num</span><span class="si">}</span><span class="s2">, </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">den</span><span class="si">}</span><span class="s2">)&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__eq__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">other</span><span class="p">,</span> <span class="n">Fraction</span><span class="p">):</span>
+            <span class="k">return</span> <span class="bp">NotImplemented</span>          <span class="c1"># not False! see note below</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">num</span> <span class="o">*</span> <span class="n">other</span><span class="o">.</span><span class="n">den</span> <span class="o">==</span> <span class="n">other</span><span class="o">.</span><span class="n">num</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">den</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__add__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">other</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">Fraction</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">num</span> <span class="o">*</span> <span class="n">other</span><span class="o">.</span><span class="n">den</span> <span class="o">+</span> <span class="n">other</span><span class="o">.</span><span class="n">num</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">den</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">den</span> <span class="o">*</span> <span class="n">other</span><span class="o">.</span><span class="n">den</span><span class="p">)</span>
+</code></pre></div>
+
+<p><strong>Why <code>__eq__</code> should return <code>NotImplemented</code>, not <code>False</code>, for an unrecognized type:</strong> <code>NotImplemented</code> is a signal to Python's comparison machinery, not a final answer. When <code>a == b</code> runs, Python calls <code>a.__eq__(b)</code>. If that returns <code>NotImplemented</code>, Python retries with <code>b.__eq__(a)</code> before giving up and falling back to identity comparison. Returning <code>False</code> directly would assert "definitely not equal" even in cases where the <em>other</em> object might know how to compare itself to you correctly - short-circuiting that fallback.</p>
+<p><strong>Why defining <code>__eq__</code> makes a class unhashable by default:</strong> Python protects the invariant that <em>equal objects must have equal hashes</em> (required for correct behavior in sets/dict keys). The default <code>__hash__</code> (inherited from <code>object</code>) hashes by identity, which is consistent with the default identity-based <code>__eq__</code> - but the moment you override <code>__eq__</code> to be value-based, that inherited hash becomes inconsistent (two value-equal objects could hash differently). Rather than leave that landmine, Python sets <code>__hash__</code> to <code>None</code> automatically whenever <code>__eq__</code> is defined without <code>__hash__</code>, making the class explicitly unhashable until you provide a hash consistent with your new equality. Fix: implement <code>__hash__</code> yourself, normalizing any representation quirks (e.g. sign, reduced form) so equal-by-<code>__eq__</code> objects always hash equal too.</p>
+<hr />
+<h2>1.1b Comprehensions &amp; Generators</h2>
+<p><strong>Comprehension:</strong> a concise expression that builds a new collection (list/set/dict) by applying an operation to each item of an iterable, optionally filtered - evaluated <strong>eagerly</strong>: the entire collection is computed and stored in memory immediately.</p>
+<p><em>Analogy:</em> a buffet restaurant - the kitchen cooks every dish and lays it all out before a single guest walks in. All the work happens upfront, and you get a full, ready-made collection sitting in memory.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">squares</span> <span class="o">=</span> <span class="p">[</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)]</span>                          <span class="c1"># list: [0, 1, 4] - all computed now</span>
+<span class="n">unique_lengths</span> <span class="o">=</span> <span class="p">{</span><span class="nb">len</span><span class="p">(</span><span class="n">w</span><span class="p">)</span> <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;cat&#39;</span><span class="p">,</span> <span class="s1">&#39;dog&#39;</span><span class="p">,</span> <span class="s1">&#39;bee&#39;</span><span class="p">]}</span>     <span class="c1"># set: {3}</span>
+<span class="n">word_lengths</span> <span class="o">=</span> <span class="p">{</span><span class="n">w</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">w</span><span class="p">)</span> <span class="k">for</span> <span class="n">w</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;cat&#39;</span><span class="p">,</span> <span class="s1">&#39;dog&#39;</span><span class="p">,</span> <span class="s1">&#39;bee&#39;</span><span class="p">]}</span>    <span class="c1"># dict: {&#39;cat&#39;: 3, &#39;dog&#39;: 3, &#39;bee&#39;: 3}</span>
+</code></pre></div>
+
+<p><strong>Generator expression:</strong> written with parentheses instead of brackets, returns a <strong>generator object</strong> - a lazy iterator that computes and yields exactly one value per call to <code>next()</code>, on demand, rather than computing and storing the entire sequence upfront.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">squares_gen</span> <span class="o">=</span> <span class="p">(</span><span class="n">x</span><span class="o">**</span><span class="mi">2</span> <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">))</span>   <span class="c1"># nothing computed yet - just a &quot;recipe&quot; object</span>
+<span class="nb">next</span><span class="p">(</span><span class="n">squares_gen</span><span class="p">)</span>   <span class="c1"># -&gt; compute 0**2, return 0, then PAUSE</span>
+<span class="nb">next</span><span class="p">(</span><span class="n">squares_gen</span><span class="p">)</span>   <span class="c1"># -&gt; resume, compute 1**2, return 1, PAUSE</span>
+<span class="nb">next</span><span class="p">(</span><span class="n">squares_gen</span><span class="p">)</span>   <span class="c1"># -&gt; resume, compute 2**2, return 2, PAUSE</span>
+<span class="nb">next</span><span class="p">(</span><span class="n">squares_gen</span><span class="p">)</span>   <span class="c1"># -&gt; nothing left, raises StopIteration</span>
+</code></pre></div>
+
+<p>Concretely, on <code>nums = list(range(100_000))</code>, <code>[n*n for n in nums if n%2==0]</code> costs hundreds of KB (the whole result list exists at once), while <code>(n*n for n in nums if n%2==0)</code> costs a couple hundred bytes regardless of <code>nums</code>'s size - the generator object's size never changes because it's just holding "where am I paused," not the data.</p>
+<p><strong>Generator function:</strong> any function containing at least one <code>yield</code>. Calling it does not run the body - it immediately returns a generator object. Each <code>next()</code> call resumes the function from exactly where it paused, runs until the next <code>yield</code>, returns that value, and pauses again, preserving all local variables in between calls.</p>
+<p><em>Analogy:</em> a bookmark in a book. When you stop reading (<code>yield</code>), you place a bookmark holding your exact position. When you pick the book back up (<code>next()</code>), you resume from that bookmark - not page 1 - with everything about where you were exactly as you left it.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">count_up_to</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;=</span> <span class="n">n</span><span class="p">:</span>
+        <span class="k">yield</span> <span class="n">i</span>        <span class="c1"># pause here, hand back i, remember everything</span>
+        <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>         <span class="c1"># resumes here on the next next() call</span>
+
+<span class="n">counter</span> <span class="o">=</span> <span class="n">count_up_to</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="nb">next</span><span class="p">(</span><span class="n">counter</span><span class="p">)</span>   <span class="c1"># 1</span>
+<span class="nb">next</span><span class="p">(</span><span class="n">counter</span><span class="p">)</span>   <span class="c1"># 2</span>
+<span class="nb">next</span><span class="p">(</span><span class="n">counter</span><span class="p">)</span>   <span class="c1"># 3</span>
+<span class="nb">next</span><span class="p">(</span><span class="n">counter</span><span class="p">)</span>   <span class="c1"># raises StopIteration</span>
+</code></pre></div>
+
+<hr />
+<h2>1.1c Decorators</h2>
+<p><strong>Decorator:</strong> a callable that takes a function as input and returns a new function (usually wrapping the original), used via <code>@decorator_name</code> syntax placed above a function definition - syntactic sugar for <code>func = decorator_name(func)</code>.</p>
+<p><em>Plain English:</em> a decorator lets you inject behavior <em>before</em> and/or <em>after</em> a function runs - logging, timing, access control, caching - without editing the function's own body, and without every caller needing to remember to call some extra setup/teardown code themselves.</p>
+<p><em>Analogy:</em> gift wrapping. The gift (the original function) doesn't change at all - you're wrapping it in paper (extra behavior) that happens as it's handed over and unwrapped, without altering the gift itself. You can wrap the same gift in different paper (apply different decorators) without ever touching what's inside.</p>
+<p>This relies on two foundational Python facts:</p>
+<ul>
+<li><strong>Functions are first-class objects</strong> - they can be passed as arguments, returned from other functions, and assigned to variables, exactly like any other value.</li>
+<li><strong>Closures</strong> - an inner function defined inside an outer function "remembers" the variables from the outer function's scope even after the outer function has finished running.</li>
+</ul>
+<div class="codehilite"><pre><span></span><code><span class="kn">import</span><span class="w"> </span><span class="nn">functools</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">log_calls</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+    <span class="nd">@functools</span><span class="o">.</span><span class="n">wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>              <span class="c1"># preserves func&#39;s __name__, docstring, etc.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="n">args_repr</span> <span class="o">=</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="k">for</span> <span class="n">a</span> <span class="ow">in</span> <span class="n">args</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Calling </span><span class="si">{</span><span class="n">func</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">(</span><span class="si">{</span><span class="n">args_repr</span><span class="si">}</span><span class="s2">)&quot;</span><span class="p">)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">func</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2"> returned </span><span class="si">{</span><span class="n">result</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span>
+    <span class="k">return</span> <span class="n">wrapper</span>
+
+<span class="nd">@log_calls</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">add</span><span class="p">(</span><span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">):</span>
+    <span class="k">return</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span>
+
+<span class="n">add</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+<span class="c1"># Calling add(3, 5)</span>
+<span class="c1"># add returned 8</span>
+<span class="k">assert</span> <span class="n">add</span><span class="o">.</span><span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;add&quot;</span>   <span class="c1"># true only because of functools.wraps</span>
+</code></pre></div>
+
+<p><strong>Why <code>functools.wraps</code> matters:</strong> without it, <code>add.__name__</code> would be <code>"wrapper"</code> and <code>add.__doc__</code> would be <code>wrapper</code>'s (empty) docstring - the decorator would silently erase the original function's identity, breaking introspection tools, debuggers, and anything else that inspects <code>__name__</code>/<code>__doc__</code>. <code>functools.wraps(func)</code> copies that metadata from the original onto the wrapper.</p>
+<p><strong>Decorators with arguments</strong> (a decorator factory - a function that returns a decorator):</p>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">repeat</span><span class="p">(</span><span class="n">times</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">decorator</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+        <span class="nd">@functools</span><span class="o">.</span><span class="n">wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+        <span class="k">def</span><span class="w"> </span><span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+            <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">times</span><span class="p">):</span>
+                <span class="n">result</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">result</span>
+        <span class="k">return</span> <span class="n">wrapper</span>
+    <span class="k">return</span> <span class="n">decorator</span>
+
+<span class="nd">@repeat</span><span class="p">(</span><span class="n">times</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">greet</span><span class="p">(</span><span class="n">name</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Hello, </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="n">greet</span><span class="p">(</span><span class="s2">&quot;Alice&quot;</span><span class="p">)</span>   <span class="c1"># prints &quot;Hello, Alice&quot; three times</span>
+</code></pre></div>
+
+<p><code>@repeat(times=3)</code> first calls <code>repeat(3)</code>, which returns the actual <code>decorator</code> function, which is then applied to <code>greet</code> - one extra layer of function-returning-a-function versus a plain decorator.</p>
+<hr />
+<h2>1.1d Context Managers &amp; Custom Exceptions</h2>
+<p><strong>Context manager:</strong> an object implementing <code>__enter__(self)</code> and <code>__exit__(self, exc_type, exc_val, exc_tb)</code>, used via <code>with</code> to guarantee setup/teardown code runs regardless of whether the block completes normally or raises.</p>
+<p><em>Analogy:</em> a gym locker with an automatic-locking wristband. Tap in (<code>__enter__</code>) - the locker opens. No matter what happens during your workout (the <code>with</code> block), tapping out (<code>__exit__</code>) always locks the locker - even if your workout ended badly (an exception).</p>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">Timer</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__enter__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__exit__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_val</span><span class="p">,</span> <span class="n">exc_tb</span><span class="p">):</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+        <span class="n">elapsed</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">start</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Elapsed: </span><span class="si">{</span><span class="n">elapsed</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">s&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="kc">False</span>   <span class="c1"># False/None = don&#39;t suppress the exception; True = swallow it</span>
+
+<span class="k">with</span> <span class="n">Timer</span><span class="p">():</span>
+    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;test&quot;</span><span class="p">)</span>
+<span class="c1"># prints &quot;Elapsed: ...&quot; FIRST, then the ValueError still propagates</span>
+</code></pre></div>
+
+<p><code>__exit__</code>'s three parameters are <code>None, None, None</code> if the block exited normally, or filled in if an exception occurred - that's how <code>__exit__</code> knows something went wrong. Its <strong>return value controls suppression</strong>: <code>True</code> swallows the exception, <code>False</code>/<code>None</code> (the default) lets it re-raise. An accidental <code>return True</code> deep in cleanup logic silently eats every exception ever raised inside that block - a genuinely nasty bug class.</p>
+<p><strong>Function-based, via <code>@contextmanager</code>:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">contextlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">contextmanager</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
+
+<span class="nd">@contextmanager</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">timer</span><span class="p">():</span>
+    <span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">yield</span>                     <span class="c1"># code inside &quot;with&quot; runs here</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Elapsed: </span><span class="si">{</span><span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start</span><span class="si">:</span><span class="s2">.4f</span><span class="si">}</span><span class="s2">s&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<p>Everything before <code>yield</code> is <code>__enter__</code>; everything after, inside <code>finally</code>, is <code>__exit__</code>. Omit the <code>try/finally</code> and an exception inside the block skips the code after <code>yield</code> entirely - defeating the guarantee.</p>
+<p><strong>Suppressing exceptions with <code>@contextmanager</code>:</strong> there's no <code>return True</code> here - control comes from ordinary exception handling around <code>yield</code>, because <code>contextlib</code> calls <code>gen.throw(...)</code> to re-raise the exception at the <code>yield</code> point:</p>
+<ul>
+<li><code>try: yield / finally: ...</code> → <strong>not suppressed</strong> (finally doesn't catch, just guarantees cleanup runs on the way past).</li>
+<li><code>try: yield / except SomeError: ...</code> (no re-raise, function returns normally) → <strong>suppressed</strong> - equivalent to <code>__exit__</code> returning <code>True</code>.</li>
+<li>Catch one exception, <code>raise NewError(...) from e</code> → translates the exception into a different, more meaningful one.</li>
+</ul>
+<p><strong>Class-based vs. <code>@contextmanager</code> - when to pick which:</strong> class-based when you need the object reusable across multiple <code>with</code> blocks (a generator is exhausted after one use - reusing the same generator object a second time raises an error), need extra attributes readable <em>after</em> the block ends (e.g. <code>timer.elapsed</code>), or want subclassing. Otherwise, default to <code>@contextmanager</code> - less boilerplate for the same guarantee.</p>
+<p><strong>Custom exceptions.</strong> A <strong>custom exception</strong> is a user-defined class inheriting from <code>Exception</code> (or a built-in subclass), representing a specific, named error condition. Since <code>except</code> matches a class <em>and its subclasses</em>, a hierarchy lets you catch broadly or narrowly.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">StackError</span><span class="p">(</span><span class="ne">Exception</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for all Stack-related errors.&quot;&quot;&quot;</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">EmptyStackError</span><span class="p">(</span><span class="n">StackError</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">message</span><span class="o">=</span><span class="s2">&quot;pop from an empty stack&quot;</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">message</span><span class="p">)</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Stack</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_items</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">push</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">item</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_items</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">item</span><span class="p">)</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">pop</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_items</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">EmptyStackError</span><span class="p">()</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_items</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+
+<span class="n">s</span> <span class="o">=</span> <span class="n">Stack</span><span class="p">()</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+<span class="k">except</span> <span class="n">EmptyStackError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>      <span class="c1"># specific catch</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Specific: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">s</span><span class="o">.</span><span class="n">pop</span><span class="p">()</span>
+<span class="k">except</span> <span class="n">StackError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>            <span class="c1"># general catch - still works, EmptyStackError IS-A StackError</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;General: </span><span class="si">{</span><span class="n">e</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<p><em>Analogy:</em> hospital alarm codes - "Code Blue," "Code Red," "Code Silver" are all "emergencies" (the base class), but specific enough that the right team responds without everyone converging on every alarm.</p>
+<p><strong>Why a shared base pays off concretely:</strong> generic call sites (logging/retry wrappers) that want "catch anything in this family" write <code>except StackError:</code> once, and it automatically covers subclasses added <em>later</em> - no need to hunt down and update a tuple of exception types every time a new one is added. This mirrors Python's own built-ins: <code>IndexError</code> and <code>KeyError</code> both inherit from <code>LookupError</code>, so <code>except LookupError:</code> catches "couldn't find it by key/index" generically.</p>
+<p><strong>Exception chaining - <code>raise ... from ...</code>:</strong> preserves <em>why</em> a new exception happened.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">try</span><span class="p">:</span>
+    <span class="nb">int</span><span class="p">(</span><span class="s2">&quot;not_a_number&quot;</span><span class="p">)</span>
+<span class="k">except</span> <span class="ne">ValueError</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="k">raise</span> <span class="n">ConfigError</span><span class="p">(</span><span class="s2">&quot;bad config value&quot;</span><span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">e</span>
+</code></pre></div>
+
+<ul>
+<li>Just <code>raise NewError(...)</code> inside an <code>except</code> block → Python <strong>automatically</strong> records the original as <code>__context__</code> (implicit chaining) - traceback says <em>"During handling of the above exception, another exception occurred."</em> This happens whether you want it or not, as long as the raise happens while still inside the <code>except</code> block.</li>
+<li><code>raise NewError(...) from e</code> → sets <code>__cause__</code> explicitly, traceback says <em>"The above exception was the direct cause of the following exception."</em> - you're asserting the causal link, not just noting coincidence.</li>
+<li><code>raise NewError(...) from None</code> → suppresses all trace of the original. Use only when the original is genuinely irrelevant - almost always, keep it, since it's often the real debugging clue.</li>
+</ul>
+<hr />
+<h2>Watch / Read / Do / Checkpoint</h2>
+<p><strong>Watch:</strong> <a href="https://www.youtube.com/watch?v=rfscVS0vtbw">Learn Python - Full Course for Beginners (freeCodeCamp)</a> (~4.5 hrs - skim/skip what you already know cold, but don't skip OOP and exception handling), plus three targeted Corey Schafer videos: <a href="https://www.youtube.com/watch?v=3dt4OGnU5sM">Comprehensions</a>, <a href="https://www.youtube.com/watch?v=bD05uGo_sVI">Generators</a>, <a href="https://www.youtube.com/watch?v=FsAPt_9Bf3U">Decorators</a><br />
+<strong>Read:</strong> <a href="https://docs.python.org/3/tutorial/">The Python Tutorial - official docs</a></p>
+<p><strong>Do / Checkpoint</strong> - 5 specific problems, closed-book, no reference material:</p>
+<ul>
+<li><span class="chk"></span> <code>Fraction</code> class: <code>__repr__</code> as <code>Fraction(a, b)</code>, <code>__eq__</code> by value, <code>__add__</code> producing a correct sum.</li>
+<li><span class="chk"></span> Compare a list comprehension vs. generator expression on <code>range(100_000)</code> via <code>sys.getsizeof</code>, explain the size difference.</li>
+<li><span class="chk"></span> <code>@log_calls</code> decorator using <code>functools.wraps</code>, proving <code>__name__</code> is preserved.</li>
+<li><span class="chk"></span> <code>Timer</code> context manager proving cleanup runs even when the block raises.</li>
+<li><span class="chk"></span> <code>Stack</code> with <code>EmptyStackError(StackError)</code>, caught both specifically and via the base class.</li>
+</ul>
+<p><em>(Already completed and passed live, 2026-07-31 - full problem statements in <a href="../../phase-1-foundations.md">../../phase-1-foundations.md</a>.)</em></p>
+<div class="nav"><a href="../../index.html">&larr; Back to index</a></div>
+</div>
+</body>
+</html>

@@ -1,0 +1,309 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>2.4 REST API Design Principles</title>
+<style>
+:root {
+  --bg: #fdfdfb; --fg: #24292f; --muted: #5b6470; --border: #e1e4e8;
+  --code-bg: #f3f4f6; --link: #0b5fff; --accent: #6a3fd1; --chip: #f0edfb;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg:#1a1d23; --fg:#dadee3; --muted:#98a0ab; --border:#2f343c; --code-bg:#20242b; --link:#7aa2ff; --accent:#b79cff; --chip:#242233; }
+}
+:root[data-theme="dark"] { --bg:#1a1d23; --fg:#dadee3; --muted:#98a0ab; --border:#2f343c; --code-bg:#20242b; --link:#7aa2ff; --accent:#b79cff; --chip:#242233; }
+.theme-toggle { margin-left: .5rem; background: none; border: 1px solid var(--border); border-radius: 999px; width: 1.9rem; height: 1.9rem; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; font-size: .95rem; color: var(--fg); line-height: 1; padding: 0; }
+.theme-toggle:hover { border-color: var(--accent); }
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.65; margin: 0;
+}
+.page { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 6rem; }
+.topnav {
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; flex-wrap: wrap; gap: .9rem;
+  background: var(--bg); border-bottom: 1px solid var(--border);
+  padding: .7rem 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,.08);
+}
+.topnav a.back, .topnav .home { text-decoration: none; font-weight: 600; font-size: .92rem; white-space: nowrap; color: var(--fg); }
+.phase-pills { display: flex; gap: .35rem; flex-wrap: wrap; margin-left: auto; }
+.phase-pills a {
+  text-decoration: none; color: var(--muted); font-size: .8rem; font-weight: 600;
+  border: 1px solid var(--border); border-radius: 999px; padding: .2rem .6rem;
+}
+.phase-pills a:hover { border-color: var(--accent); color: var(--accent); }
+.phase-pills a.current { background: var(--accent); border-color: var(--accent); color: #fff; }
+h1, h2, h3, h4 { line-height: 1.3; }
+h1 { font-size: 1.9rem; border-bottom: 2px solid var(--accent); padding-bottom: .5rem; }
+h2 { font-size: 1.4rem; margin-top: 2.5rem; border-bottom: 1px solid var(--border); padding-bottom: .3rem; }
+h3 { font-size: 1.15rem; margin-top: 2rem; color: var(--accent); }
+a { color: var(--link); }
+p code, li code, td code { background: var(--code-bg); padding: .15em .4em; border-radius: 4px; font-size: .9em; word-break: break-word; }
+pre { background: var(--code-bg); padding: 1rem; border-radius: 8px; overflow-x: auto; border: 1px solid var(--border); }
+pre code { background: none; padding: 0; }
+table { border-collapse: collapse; width: 100%; margin: 1rem 0; display: block; overflow-x: auto; }
+th, td { border: 1px solid var(--border); padding: .5rem .75rem; text-align: left; }
+th { background: var(--code-bg); }
+blockquote { border-left: 3px solid var(--accent); margin: 1rem 0; padding: .2rem 1rem; color: var(--muted); }
+hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+.nav { margin-bottom: 1.5rem; font-size: .9rem; }
+.nav a { text-decoration: none; }
+ul, ol { padding-left: 1.4rem; }
+li { margin: .3rem 0; }
+img { max-width: 100%; }
+.chk { display: inline-block; width: .9em; height: .9em; border: 1.5px solid var(--muted); border-radius: 3px; margin-right: .4em; vertical-align: middle; }
+.chk.done { background: var(--accent); border-color: var(--accent); color: #fff; text-align: center; line-height: .85em; font-size: .75em; }
+.codehilite { background: var(--code-bg) !important; border-radius: 8px; }
+pre { line-height: 125%; }
+td.linenos .normal { color: #666666; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: #666666; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+.codehilite .hll { background-color: #ffffcc }
+.codehilite { background: #f0f0f0; }
+.codehilite .c { color: #60A0B0; font-style: italic } /* Comment */
+.codehilite .err { border: 1px solid #F00 } /* Error */
+.codehilite .k { color: #007020; font-weight: bold } /* Keyword */
+.codehilite .o { color: #666 } /* Operator */
+.codehilite .ch { color: #60A0B0; font-style: italic } /* Comment.Hashbang */
+.codehilite .cm { color: #60A0B0; font-style: italic } /* Comment.Multiline */
+.codehilite .cp { color: #007020 } /* Comment.Preproc */
+.codehilite .cpf { color: #60A0B0; font-style: italic } /* Comment.PreprocFile */
+.codehilite .c1 { color: #60A0B0; font-style: italic } /* Comment.Single */
+.codehilite .cs { color: #60A0B0; background-color: #FFF0F0 } /* Comment.Special */
+.codehilite .gd { color: #A00000 } /* Generic.Deleted */
+.codehilite .ge { font-style: italic } /* Generic.Emph */
+.codehilite .ges { font-weight: bold; font-style: italic } /* Generic.EmphStrong */
+.codehilite .gr { color: #F00 } /* Generic.Error */
+.codehilite .gh { color: #000080; font-weight: bold } /* Generic.Heading */
+.codehilite .gi { color: #00A000 } /* Generic.Inserted */
+.codehilite .go { color: #888 } /* Generic.Output */
+.codehilite .gp { color: #C65D09; font-weight: bold } /* Generic.Prompt */
+.codehilite .gs { font-weight: bold } /* Generic.Strong */
+.codehilite .gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+.codehilite .gt { color: #04D } /* Generic.Traceback */
+.codehilite .kc { color: #007020; font-weight: bold } /* Keyword.Constant */
+.codehilite .kd { color: #007020; font-weight: bold } /* Keyword.Declaration */
+.codehilite .kn { color: #007020; font-weight: bold } /* Keyword.Namespace */
+.codehilite .kp { color: #007020 } /* Keyword.Pseudo */
+.codehilite .kr { color: #007020; font-weight: bold } /* Keyword.Reserved */
+.codehilite .kt { color: #902000 } /* Keyword.Type */
+.codehilite .m { color: #40A070 } /* Literal.Number */
+.codehilite .s { color: #4070A0 } /* Literal.String */
+.codehilite .na { color: #4070A0 } /* Name.Attribute */
+.codehilite .nb { color: #007020 } /* Name.Builtin */
+.codehilite .nc { color: #0E84B5; font-weight: bold } /* Name.Class */
+.codehilite .no { color: #60ADD5 } /* Name.Constant */
+.codehilite .nd { color: #555; font-weight: bold } /* Name.Decorator */
+.codehilite .ni { color: #D55537; font-weight: bold } /* Name.Entity */
+.codehilite .ne { color: #007020 } /* Name.Exception */
+.codehilite .nf { color: #06287E } /* Name.Function */
+.codehilite .nl { color: #002070; font-weight: bold } /* Name.Label */
+.codehilite .nn { color: #0E84B5; font-weight: bold } /* Name.Namespace */
+.codehilite .nt { color: #062873; font-weight: bold } /* Name.Tag */
+.codehilite .nv { color: #BB60D5 } /* Name.Variable */
+.codehilite .ow { color: #007020; font-weight: bold } /* Operator.Word */
+.codehilite .w { color: #BBB } /* Text.Whitespace */
+.codehilite .mb { color: #40A070 } /* Literal.Number.Bin */
+.codehilite .mf { color: #40A070 } /* Literal.Number.Float */
+.codehilite .mh { color: #40A070 } /* Literal.Number.Hex */
+.codehilite .mi { color: #40A070 } /* Literal.Number.Integer */
+.codehilite .mo { color: #40A070 } /* Literal.Number.Oct */
+.codehilite .sa { color: #4070A0 } /* Literal.String.Affix */
+.codehilite .sb { color: #4070A0 } /* Literal.String.Backtick */
+.codehilite .sc { color: #4070A0 } /* Literal.String.Char */
+.codehilite .dl { color: #4070A0 } /* Literal.String.Delimiter */
+.codehilite .sd { color: #4070A0; font-style: italic } /* Literal.String.Doc */
+.codehilite .s2 { color: #4070A0 } /* Literal.String.Double */
+.codehilite .se { color: #4070A0; font-weight: bold } /* Literal.String.Escape */
+.codehilite .sh { color: #4070A0 } /* Literal.String.Heredoc */
+.codehilite .si { color: #70A0D0; font-style: italic } /* Literal.String.Interpol */
+.codehilite .sx { color: #C65D09 } /* Literal.String.Other */
+.codehilite .sr { color: #235388 } /* Literal.String.Regex */
+.codehilite .s1 { color: #4070A0 } /* Literal.String.Single */
+.codehilite .ss { color: #517918 } /* Literal.String.Symbol */
+.codehilite .bp { color: #007020 } /* Name.Builtin.Pseudo */
+.codehilite .fm { color: #06287E } /* Name.Function.Magic */
+.codehilite .vc { color: #BB60D5 } /* Name.Variable.Class */
+.codehilite .vg { color: #BB60D5 } /* Name.Variable.Global */
+.codehilite .vi { color: #BB60D5 } /* Name.Variable.Instance */
+.codehilite .vm { color: #BB60D5 } /* Name.Variable.Magic */
+.codehilite .il { color: #40A070 } /* Literal.Number.Integer.Long */</style>
+<script>
+(function(){
+  try {
+    var t = localStorage.getItem('theme');
+    if (t) document.documentElement.setAttribute('data-theme', t);
+  } catch (e) {}
+})();
+function getEffectiveTheme(){
+  var attr = document.documentElement.getAttribute('data-theme');
+  if (attr) return attr;
+  return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+}
+function toggleTheme(){
+  var next = getEffectiveTheme() === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  try { localStorage.setItem('theme', next); } catch (e) {}
+  updateThemeToggleIcon();
+}
+function updateThemeToggleIcon(){
+  var btn = document.querySelector('.theme-toggle');
+  if (btn) btn.textContent = getEffectiveTheme() === 'dark' ? '☀️' : '🌙';
+}
+document.addEventListener('DOMContentLoaded', updateThemeToggleIcon);
+</script>
+</head>
+<body>
+<nav class="topnav">
+<a class="back" href="../../index.html">&larr; Back to index</a>
+<div class="phase-pills"><a href="../../index.html#phase-1" title="Phase 1">Phase1</a><a class="current" href="../../index.html#phase-2" title="Phase 2">Phase2</a><a href="../../index.html#phase-3" title="Phase 3">Phase3</a><a href="../../index.html#phase-4" title="Phase 4">Phase4</a><a href="../../index.html#phase-5" title="Phase 5">Phase5</a><a href="../../index.html#phase-6" title="Phase 6">Phase6</a></div>
+<button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle color theme" title="Toggle color theme">🌙</button>
+</nav>
+<div class="page">
+<h1>2.4 REST API Design Principles</h1>
+<p>Objective: design a REST API's resources, HTTP methods, status codes, and versioning strategy correctly - before writing a line of implementation code.</p>
+<hr />
+<p><strong>REST</strong> (REpresentational State Transfer) is an architectural style organizing APIs around <strong>resources</strong> (nouns, e.g. <code>/users</code>, <code>/orders</code>) manipulated via a small, standard set of HTTP <strong>methods</strong> (verbs: <code>GET</code>, <code>POST</code>, <code>PUT</code>, <code>PATCH</code>, <code>DELETE</code>) mapping to CRUD-like operations, using HTTP status codes to communicate outcome, with each request <strong>stateless</strong> - the server holds no memory of prior requests; all necessary context travels with each request.</p>
+<p><em>Plain English:</em> instead of inventing custom action-named endpoints for everything (<code>/getUserById</code>, <code>/createNewOrder</code> - "RPC-style"), REST organizes around resources: the <em>same</em> URL (<code>/users/42</code>) means different things depending on which HTTP verb is used (<code>GET</code> = fetch, <code>PUT</code>/<code>PATCH</code> = update, <code>DELETE</code> = remove). A small, predictable, reusable vocabulary instead of an ever-growing list of bespoke endpoint names.</p>
+<p><em>Analogy:</em> resources are shelf locations in a warehouse; HTTP verbs are a small fixed set of actions a forklift operator can perform at <em>any</em> shelf (pick up = <code>GET</code>, place a new item = <code>POST</code>, replace what's there = <code>PUT</code>, remove it = <code>DELETE</code>) - no unique tool needed per shelf, because the action is decoupled from which shelf you're at.</p>
+<p><strong>Resource naming:</strong> plural nouns for collections (<code>/users</code>, not <code>/getUsers</code>); nested resources for relationships (<code>/users/42/orders</code>); avoid verbs in URLs where possible - model actions as state changes instead (<code>PATCH /orders/42</code> with <code>{"status": "cancelled"}</code> rather than <code>/orders/42/cancel</code>, though the latter is borderline-acceptable for actions that don't map cleanly to CRUD).</p>
+<p><strong>HTTP methods:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>GET /users</code></td>
+<td>list (safe, no side effects, cacheable)</td>
+</tr>
+<tr>
+<td><code>GET /users/42</code></td>
+<td>fetch one</td>
+</tr>
+<tr>
+<td><code>POST /users</code></td>
+<td>create new (server assigns the ID)</td>
+</tr>
+<tr>
+<td><code>PUT /users/42</code></td>
+<td>replace entirely</td>
+</tr>
+<tr>
+<td><code>PATCH /users/42</code></td>
+<td>partial update</td>
+</tr>
+<tr>
+<td><code>DELETE /users/42</code></td>
+<td>remove</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Status codes:</strong></p>
+<table>
+<thead>
+<tr>
+<th>Code</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>200 OK</td>
+<td>success (GET, successful PUT/PATCH)</td>
+</tr>
+<tr>
+<td>201 Created</td>
+<td>successful POST that created a resource</td>
+</tr>
+<tr>
+<td>204 No Content</td>
+<td>success, nothing to return (e.g. DELETE)</td>
+</tr>
+<tr>
+<td>400 Bad Request</td>
+<td>malformed request</td>
+</tr>
+<tr>
+<td>401 Unauthorized</td>
+<td>missing/invalid authentication</td>
+</tr>
+<tr>
+<td>403 Forbidden</td>
+<td>authenticated but not allowed</td>
+</tr>
+<tr>
+<td>404 Not Found</td>
+<td>resource doesn't exist</td>
+</tr>
+<tr>
+<td>422 Unprocessable Entity</td>
+<td>well-formed request, validation failed</td>
+</tr>
+<tr>
+<td>500 Internal Server Error</td>
+<td>server's fault</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Versioning:</strong> URL versioning (<code>/v1/users</code> - simplest, most visible) vs. header versioning (<code>Accept: application/vnd.myapi.v1+json</code> - cleaner URLs, less discoverable). URL versioning is the more common default in practice.</p>
+<p><strong>Pagination:</strong> offset/limit (<code>?offset=20&amp;limit=10</code> - simple, but can skip/duplicate items if data changes mid-pagination) vs. cursor-based (<code>?cursor=abc123</code> - stable under concurrent inserts/deletes, preferred for large or frequently-changing datasets).</p>
+<p><strong>Putting it together - what actual requests/responses look like:</strong></p>
+<div class="codehilite"><pre><span></span><code>POST /users HTTP/1.1
+Content-Type: application/json
+
+{&quot;name&quot;: &quot;Alice&quot;, &quot;email&quot;: &quot;alice@example.com&quot;}
+
+HTTP/1.1 201 Created
+Location: /users/42
+Content-Type: application/json
+
+{&quot;id&quot;: 42, &quot;name&quot;: &quot;Alice&quot;, &quot;email&quot;: &quot;alice@example.com&quot;}
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code>GET /users?limit=10&amp;offset=20 HTTP/1.1
+
+HTTP/1.1 200 OK
+Content-Type: application/json
+
+{
+  &quot;items&quot;: [{&quot;id&quot;: 21, &quot;name&quot;: &quot;...&quot;}, ...],
+  &quot;limit&quot;: 10,
+  &quot;offset&quot;: 20,
+  &quot;total&quot;: 143
+}
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code>GET /users/999 HTTP/1.1
+
+HTTP/1.1 404 Not Found
+Content-Type: application/json
+
+{&quot;error&quot;: &quot;User 999 not found&quot;}
+</code></pre></div>
+
+<p>Three separate requests to the <em>same</em> general shape of URL (<code>/users</code>), each producing a different, predictable status code and body - this predictability, not any specific framework, is what "RESTful" actually buys you.</p>
+<hr />
+<h2>Watch / Read / Do / Checkpoint</h2>
+<p><strong>Watch:</strong> <a href="https://www.youtube.com/watch?v=k5abZLzsQc0">FastAPI Intro – Full CRUD REST API Tutorial</a> (~1 hr, watch for the design/conventions parts - you'll build it in 2.5)<br />
+<strong>Read:</strong> <a href="https://restfulapi.net/">restfulapi.net - REST API design guide</a></p>
+<p><strong>Do:</strong></p>
+<ul>
+<li><span class="chk"></span> On paper, design the resource model, endpoints, and status codes for a "task management" API (users, projects, tasks) before writing any code.</li>
+</ul>
+<p><strong>Checkpoint:</strong></p>
+<ul>
+<li><span class="chk"></span> Closed-book - given unseen requirements, design correct REST endpoints (naming, verbs, status codes, pagination) in 20 minutes.</li>
+</ul>
+<p><em>(Deferred - tracked in <a href="../../deferred-exercises.md">../../deferred-exercises.md</a>.)</em></p>
+<div class="nav"><a href="../../index.html">&larr; Back to index</a></div>
+</div>
+</body>
+</html>

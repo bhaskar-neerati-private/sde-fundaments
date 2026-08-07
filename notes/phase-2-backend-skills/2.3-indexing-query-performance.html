@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>2.3 Indexing & Query Performance</title>
+<style>
+:root {
+  --bg: #fdfdfb; --fg: #24292f; --muted: #5b6470; --border: #e1e4e8;
+  --code-bg: #f3f4f6; --link: #0b5fff; --accent: #6a3fd1; --chip: #f0edfb;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg:#1a1d23; --fg:#dadee3; --muted:#98a0ab; --border:#2f343c; --code-bg:#20242b; --link:#7aa2ff; --accent:#b79cff; --chip:#242233; }
+}
+:root[data-theme="dark"] { --bg:#1a1d23; --fg:#dadee3; --muted:#98a0ab; --border:#2f343c; --code-bg:#20242b; --link:#7aa2ff; --accent:#b79cff; --chip:#242233; }
+.theme-toggle { margin-left: .5rem; background: none; border: 1px solid var(--border); border-radius: 999px; width: 1.9rem; height: 1.9rem; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; font-size: .95rem; color: var(--fg); line-height: 1; padding: 0; }
+.theme-toggle:hover { border-color: var(--accent); }
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.65; margin: 0;
+}
+.page { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 6rem; }
+.topnav {
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; flex-wrap: wrap; gap: .9rem;
+  background: var(--bg); border-bottom: 1px solid var(--border);
+  padding: .7rem 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,.08);
+}
+.topnav a.back, .topnav .home { text-decoration: none; font-weight: 600; font-size: .92rem; white-space: nowrap; color: var(--fg); }
+.phase-pills { display: flex; gap: .35rem; flex-wrap: wrap; margin-left: auto; }
+.phase-pills a {
+  text-decoration: none; color: var(--muted); font-size: .8rem; font-weight: 600;
+  border: 1px solid var(--border); border-radius: 999px; padding: .2rem .6rem;
+}
+.phase-pills a:hover { border-color: var(--accent); color: var(--accent); }
+.phase-pills a.current { background: var(--accent); border-color: var(--accent); color: #fff; }
+h1, h2, h3, h4 { line-height: 1.3; }
+h1 { font-size: 1.9rem; border-bottom: 2px solid var(--accent); padding-bottom: .5rem; }
+h2 { font-size: 1.4rem; margin-top: 2.5rem; border-bottom: 1px solid var(--border); padding-bottom: .3rem; }
+h3 { font-size: 1.15rem; margin-top: 2rem; color: var(--accent); }
+a { color: var(--link); }
+p code, li code, td code { background: var(--code-bg); padding: .15em .4em; border-radius: 4px; font-size: .9em; word-break: break-word; }
+pre { background: var(--code-bg); padding: 1rem; border-radius: 8px; overflow-x: auto; border: 1px solid var(--border); }
+pre code { background: none; padding: 0; }
+table { border-collapse: collapse; width: 100%; margin: 1rem 0; display: block; overflow-x: auto; }
+th, td { border: 1px solid var(--border); padding: .5rem .75rem; text-align: left; }
+th { background: var(--code-bg); }
+blockquote { border-left: 3px solid var(--accent); margin: 1rem 0; padding: .2rem 1rem; color: var(--muted); }
+hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+.nav { margin-bottom: 1.5rem; font-size: .9rem; }
+.nav a { text-decoration: none; }
+ul, ol { padding-left: 1.4rem; }
+li { margin: .3rem 0; }
+img { max-width: 100%; }
+.chk { display: inline-block; width: .9em; height: .9em; border: 1.5px solid var(--muted); border-radius: 3px; margin-right: .4em; vertical-align: middle; }
+.chk.done { background: var(--accent); border-color: var(--accent); color: #fff; text-align: center; line-height: .85em; font-size: .75em; }
+.codehilite { background: var(--code-bg) !important; border-radius: 8px; }
+pre { line-height: 125%; }
+td.linenos .normal { color: #666666; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: #666666; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+.codehilite .hll { background-color: #ffffcc }
+.codehilite { background: #f0f0f0; }
+.codehilite .c { color: #60A0B0; font-style: italic } /* Comment */
+.codehilite .err { border: 1px solid #F00 } /* Error */
+.codehilite .k { color: #007020; font-weight: bold } /* Keyword */
+.codehilite .o { color: #666 } /* Operator */
+.codehilite .ch { color: #60A0B0; font-style: italic } /* Comment.Hashbang */
+.codehilite .cm { color: #60A0B0; font-style: italic } /* Comment.Multiline */
+.codehilite .cp { color: #007020 } /* Comment.Preproc */
+.codehilite .cpf { color: #60A0B0; font-style: italic } /* Comment.PreprocFile */
+.codehilite .c1 { color: #60A0B0; font-style: italic } /* Comment.Single */
+.codehilite .cs { color: #60A0B0; background-color: #FFF0F0 } /* Comment.Special */
+.codehilite .gd { color: #A00000 } /* Generic.Deleted */
+.codehilite .ge { font-style: italic } /* Generic.Emph */
+.codehilite .ges { font-weight: bold; font-style: italic } /* Generic.EmphStrong */
+.codehilite .gr { color: #F00 } /* Generic.Error */
+.codehilite .gh { color: #000080; font-weight: bold } /* Generic.Heading */
+.codehilite .gi { color: #00A000 } /* Generic.Inserted */
+.codehilite .go { color: #888 } /* Generic.Output */
+.codehilite .gp { color: #C65D09; font-weight: bold } /* Generic.Prompt */
+.codehilite .gs { font-weight: bold } /* Generic.Strong */
+.codehilite .gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+.codehilite .gt { color: #04D } /* Generic.Traceback */
+.codehilite .kc { color: #007020; font-weight: bold } /* Keyword.Constant */
+.codehilite .kd { color: #007020; font-weight: bold } /* Keyword.Declaration */
+.codehilite .kn { color: #007020; font-weight: bold } /* Keyword.Namespace */
+.codehilite .kp { color: #007020 } /* Keyword.Pseudo */
+.codehilite .kr { color: #007020; font-weight: bold } /* Keyword.Reserved */
+.codehilite .kt { color: #902000 } /* Keyword.Type */
+.codehilite .m { color: #40A070 } /* Literal.Number */
+.codehilite .s { color: #4070A0 } /* Literal.String */
+.codehilite .na { color: #4070A0 } /* Name.Attribute */
+.codehilite .nb { color: #007020 } /* Name.Builtin */
+.codehilite .nc { color: #0E84B5; font-weight: bold } /* Name.Class */
+.codehilite .no { color: #60ADD5 } /* Name.Constant */
+.codehilite .nd { color: #555; font-weight: bold } /* Name.Decorator */
+.codehilite .ni { color: #D55537; font-weight: bold } /* Name.Entity */
+.codehilite .ne { color: #007020 } /* Name.Exception */
+.codehilite .nf { color: #06287E } /* Name.Function */
+.codehilite .nl { color: #002070; font-weight: bold } /* Name.Label */
+.codehilite .nn { color: #0E84B5; font-weight: bold } /* Name.Namespace */
+.codehilite .nt { color: #062873; font-weight: bold } /* Name.Tag */
+.codehilite .nv { color: #BB60D5 } /* Name.Variable */
+.codehilite .ow { color: #007020; font-weight: bold } /* Operator.Word */
+.codehilite .w { color: #BBB } /* Text.Whitespace */
+.codehilite .mb { color: #40A070 } /* Literal.Number.Bin */
+.codehilite .mf { color: #40A070 } /* Literal.Number.Float */
+.codehilite .mh { color: #40A070 } /* Literal.Number.Hex */
+.codehilite .mi { color: #40A070 } /* Literal.Number.Integer */
+.codehilite .mo { color: #40A070 } /* Literal.Number.Oct */
+.codehilite .sa { color: #4070A0 } /* Literal.String.Affix */
+.codehilite .sb { color: #4070A0 } /* Literal.String.Backtick */
+.codehilite .sc { color: #4070A0 } /* Literal.String.Char */
+.codehilite .dl { color: #4070A0 } /* Literal.String.Delimiter */
+.codehilite .sd { color: #4070A0; font-style: italic } /* Literal.String.Doc */
+.codehilite .s2 { color: #4070A0 } /* Literal.String.Double */
+.codehilite .se { color: #4070A0; font-weight: bold } /* Literal.String.Escape */
+.codehilite .sh { color: #4070A0 } /* Literal.String.Heredoc */
+.codehilite .si { color: #70A0D0; font-style: italic } /* Literal.String.Interpol */
+.codehilite .sx { color: #C65D09 } /* Literal.String.Other */
+.codehilite .sr { color: #235388 } /* Literal.String.Regex */
+.codehilite .s1 { color: #4070A0 } /* Literal.String.Single */
+.codehilite .ss { color: #517918 } /* Literal.String.Symbol */
+.codehilite .bp { color: #007020 } /* Name.Builtin.Pseudo */
+.codehilite .fm { color: #06287E } /* Name.Function.Magic */
+.codehilite .vc { color: #BB60D5 } /* Name.Variable.Class */
+.codehilite .vg { color: #BB60D5 } /* Name.Variable.Global */
+.codehilite .vi { color: #BB60D5 } /* Name.Variable.Instance */
+.codehilite .vm { color: #BB60D5 } /* Name.Variable.Magic */
+.codehilite .il { color: #40A070 } /* Literal.Number.Integer.Long */</style>
+<script>
+(function(){
+  try {
+    var t = localStorage.getItem('theme');
+    if (t) document.documentElement.setAttribute('data-theme', t);
+  } catch (e) {}
+})();
+function getEffectiveTheme(){
+  var attr = document.documentElement.getAttribute('data-theme');
+  if (attr) return attr;
+  return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+}
+function toggleTheme(){
+  var next = getEffectiveTheme() === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  try { localStorage.setItem('theme', next); } catch (e) {}
+  updateThemeToggleIcon();
+}
+function updateThemeToggleIcon(){
+  var btn = document.querySelector('.theme-toggle');
+  if (btn) btn.textContent = getEffectiveTheme() === 'dark' ? '☀️' : '🌙';
+}
+document.addEventListener('DOMContentLoaded', updateThemeToggleIcon);
+</script>
+</head>
+<body>
+<nav class="topnav">
+<a class="back" href="../../index.html">&larr; Back to index</a>
+<div class="phase-pills"><a href="../../index.html#phase-1" title="Phase 1">Phase1</a><a class="current" href="../../index.html#phase-2" title="Phase 2">Phase2</a><a href="../../index.html#phase-3" title="Phase 3">Phase3</a><a href="../../index.html#phase-4" title="Phase 4">Phase4</a><a href="../../index.html#phase-5" title="Phase 5">Phase5</a><a href="../../index.html#phase-6" title="Phase 6">Phase6</a></div>
+<button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle color theme" title="Toggle color theme">🌙</button>
+</nav>
+<div class="page">
+<h1>2.3 Indexing &amp; Query Performance</h1>
+<p>Objective: explain how a B-tree index speeds up lookups, when an index helps vs. hurts, and read a query plan (<code>EXPLAIN</code>) to diagnose a slow query.</p>
+<hr />
+<p>A database <strong>index</strong> is a separate, auxiliary data structure (most commonly a <strong>B-tree</strong>) storing a sorted mapping from a column's values to the physical location of matching rows - letting the database find matches via <strong>O(log n)</strong> lookups instead of an <strong>O(n)</strong> full table scan. An index speeds up reads that filter/sort/join on the indexed column(s), but <strong>slows down writes</strong> (<code>INSERT</code>/<code>UPDATE</code>/<code>DELETE</code>), since the index itself must also be updated on every write, and it consumes extra disk space.</p>
+<p><em>Plain English:</em> without an index, finding matching rows means checking every row (a "full table scan," O(n)) - like flipping through every page of a book to find a topic. An index is the book's index page: sorted, pointing directly to the right page, O(log n) via a B-tree's balanced structure (same complexity story as 1.10's balanced BST - a B-tree is a wider, shallower generalization tuned for disk access). Writes get slower because every write touching an indexed column must also update the index's own sorted structure (rebalance the B-tree) - more indexes means more work per write, not just more disk space.</p>
+<p><em>Analogy:</em> an index is a library's card catalog - instead of walking every aisle checking every spine (full scan), look up the topic in the catalog and go straight to the shelf. But every new book arriving also requires updating the catalog - that's the write cost of maintaining it; skip that step and the catalog goes stale.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">CREATE</span><span class="w"> </span><span class="k">INDEX</span><span class="w"> </span><span class="n">idx_orders_user_id</span><span class="w"> </span><span class="k">ON</span><span class="w"> </span><span class="n">orders</span><span class="p">(</span><span class="n">user_id</span><span class="p">);</span>
+
+<span class="k">EXPLAIN</span><span class="w"> </span><span class="k">SELECT</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="k">FROM</span><span class="w"> </span><span class="n">orders</span><span class="w"> </span><span class="k">WHERE</span><span class="w"> </span><span class="n">user_id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">42</span><span class="p">;</span>
+<span class="c1">-- before index: &quot;Seq Scan on orders&quot;                        (full table scan, O(n))</span>
+<span class="c1">-- after index:  &quot;Index Scan using idx_orders_user_id&quot;        (O(log n) + retrieval)</span>
+</code></pre></div>
+
+<p><strong>When an index actually hurts:</strong> on a column with <strong>low cardinality</strong> (few distinct values, e.g. a boolean <code>is_active</code>), an index often isn't worth it - the query planner may skip it anyway, since filtering on a near-50/50 split doesn't narrow things down much, yet the index still pays its full write-maintenance cost on every insert/update. Same logic for columns rarely queried, or on a write-heavy, rarely-read table - you're trading write speed for a read benefit that's rarely cashed in.</p>
+<hr />
+<h2>Watch / Read / Do / Checkpoint</h2>
+<p><strong>Read:</strong> <a href="https://www.postgresql.org/docs/current/tutorial.html">PostgreSQL Tutorial - official docs</a> plus the <code>EXPLAIN</code> documentation (search "Using EXPLAIN" in the same docs)</p>
+<p><strong>Do:</strong></p>
+<ul>
+<li><span class="chk"></span> Load a table with 100k+ synthetic rows, run a query without an index, note the plan and timing, add an index on the filtered column, rerun, and compare - for at least 2 query patterns (equality filter, range filter).</li>
+</ul>
+<p><strong>Checkpoint:</strong></p>
+<ul>
+<li><span class="chk"></span> Closed-book - walk through what happens internally when you add an index (B-tree structure, why lookups go from O(n) to O(log n)), and explain a scenario where adding an index would make writes worse without helping reads.</li>
+</ul>
+<p><em>(Deferred - tracked in <a href="../../deferred-exercises.md">../../deferred-exercises.md</a>.)</em></p>
+<div class="nav"><a href="../../index.html">&larr; Back to index</a></div>
+</div>
+</body>
+</html>

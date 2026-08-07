@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>6.2 Kubernetes Fundamentals</title>
+<style>
+:root {
+  --bg: #fdfdfb; --fg: #24292f; --muted: #5b6470; --border: #e1e4e8;
+  --code-bg: #f3f4f6; --link: #0b5fff; --accent: #6a3fd1; --chip: #f0edfb;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg:#1a1d23; --fg:#dadee3; --muted:#98a0ab; --border:#2f343c; --code-bg:#20242b; --link:#7aa2ff; --accent:#b79cff; --chip:#242233; }
+}
+:root[data-theme="dark"] { --bg:#1a1d23; --fg:#dadee3; --muted:#98a0ab; --border:#2f343c; --code-bg:#20242b; --link:#7aa2ff; --accent:#b79cff; --chip:#242233; }
+.theme-toggle { margin-left: .5rem; background: none; border: 1px solid var(--border); border-radius: 999px; width: 1.9rem; height: 1.9rem; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; font-size: .95rem; color: var(--fg); line-height: 1; padding: 0; }
+.theme-toggle:hover { border-color: var(--accent); }
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.65; margin: 0;
+}
+.page { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 6rem; }
+.topnav {
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; flex-wrap: wrap; gap: .9rem;
+  background: var(--bg); border-bottom: 1px solid var(--border);
+  padding: .7rem 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,.08);
+}
+.topnav a.back, .topnav .home { text-decoration: none; font-weight: 600; font-size: .92rem; white-space: nowrap; color: var(--fg); }
+.phase-pills { display: flex; gap: .35rem; flex-wrap: wrap; margin-left: auto; }
+.phase-pills a {
+  text-decoration: none; color: var(--muted); font-size: .8rem; font-weight: 600;
+  border: 1px solid var(--border); border-radius: 999px; padding: .2rem .6rem;
+}
+.phase-pills a:hover { border-color: var(--accent); color: var(--accent); }
+.phase-pills a.current { background: var(--accent); border-color: var(--accent); color: #fff; }
+h1, h2, h3, h4 { line-height: 1.3; }
+h1 { font-size: 1.9rem; border-bottom: 2px solid var(--accent); padding-bottom: .5rem; }
+h2 { font-size: 1.4rem; margin-top: 2.5rem; border-bottom: 1px solid var(--border); padding-bottom: .3rem; }
+h3 { font-size: 1.15rem; margin-top: 2rem; color: var(--accent); }
+a { color: var(--link); }
+p code, li code, td code { background: var(--code-bg); padding: .15em .4em; border-radius: 4px; font-size: .9em; word-break: break-word; }
+pre { background: var(--code-bg); padding: 1rem; border-radius: 8px; overflow-x: auto; border: 1px solid var(--border); }
+pre code { background: none; padding: 0; }
+table { border-collapse: collapse; width: 100%; margin: 1rem 0; display: block; overflow-x: auto; }
+th, td { border: 1px solid var(--border); padding: .5rem .75rem; text-align: left; }
+th { background: var(--code-bg); }
+blockquote { border-left: 3px solid var(--accent); margin: 1rem 0; padding: .2rem 1rem; color: var(--muted); }
+hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+.nav { margin-bottom: 1.5rem; font-size: .9rem; }
+.nav a { text-decoration: none; }
+ul, ol { padding-left: 1.4rem; }
+li { margin: .3rem 0; }
+img { max-width: 100%; }
+.chk { display: inline-block; width: .9em; height: .9em; border: 1.5px solid var(--muted); border-radius: 3px; margin-right: .4em; vertical-align: middle; }
+.chk.done { background: var(--accent); border-color: var(--accent); color: #fff; text-align: center; line-height: .85em; font-size: .75em; }
+.codehilite { background: var(--code-bg) !important; border-radius: 8px; }
+pre { line-height: 125%; }
+td.linenos .normal { color: #666666; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: #666666; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+.codehilite .hll { background-color: #ffffcc }
+.codehilite { background: #f0f0f0; }
+.codehilite .c { color: #60A0B0; font-style: italic } /* Comment */
+.codehilite .err { border: 1px solid #F00 } /* Error */
+.codehilite .k { color: #007020; font-weight: bold } /* Keyword */
+.codehilite .o { color: #666 } /* Operator */
+.codehilite .ch { color: #60A0B0; font-style: italic } /* Comment.Hashbang */
+.codehilite .cm { color: #60A0B0; font-style: italic } /* Comment.Multiline */
+.codehilite .cp { color: #007020 } /* Comment.Preproc */
+.codehilite .cpf { color: #60A0B0; font-style: italic } /* Comment.PreprocFile */
+.codehilite .c1 { color: #60A0B0; font-style: italic } /* Comment.Single */
+.codehilite .cs { color: #60A0B0; background-color: #FFF0F0 } /* Comment.Special */
+.codehilite .gd { color: #A00000 } /* Generic.Deleted */
+.codehilite .ge { font-style: italic } /* Generic.Emph */
+.codehilite .ges { font-weight: bold; font-style: italic } /* Generic.EmphStrong */
+.codehilite .gr { color: #F00 } /* Generic.Error */
+.codehilite .gh { color: #000080; font-weight: bold } /* Generic.Heading */
+.codehilite .gi { color: #00A000 } /* Generic.Inserted */
+.codehilite .go { color: #888 } /* Generic.Output */
+.codehilite .gp { color: #C65D09; font-weight: bold } /* Generic.Prompt */
+.codehilite .gs { font-weight: bold } /* Generic.Strong */
+.codehilite .gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+.codehilite .gt { color: #04D } /* Generic.Traceback */
+.codehilite .kc { color: #007020; font-weight: bold } /* Keyword.Constant */
+.codehilite .kd { color: #007020; font-weight: bold } /* Keyword.Declaration */
+.codehilite .kn { color: #007020; font-weight: bold } /* Keyword.Namespace */
+.codehilite .kp { color: #007020 } /* Keyword.Pseudo */
+.codehilite .kr { color: #007020; font-weight: bold } /* Keyword.Reserved */
+.codehilite .kt { color: #902000 } /* Keyword.Type */
+.codehilite .m { color: #40A070 } /* Literal.Number */
+.codehilite .s { color: #4070A0 } /* Literal.String */
+.codehilite .na { color: #4070A0 } /* Name.Attribute */
+.codehilite .nb { color: #007020 } /* Name.Builtin */
+.codehilite .nc { color: #0E84B5; font-weight: bold } /* Name.Class */
+.codehilite .no { color: #60ADD5 } /* Name.Constant */
+.codehilite .nd { color: #555; font-weight: bold } /* Name.Decorator */
+.codehilite .ni { color: #D55537; font-weight: bold } /* Name.Entity */
+.codehilite .ne { color: #007020 } /* Name.Exception */
+.codehilite .nf { color: #06287E } /* Name.Function */
+.codehilite .nl { color: #002070; font-weight: bold } /* Name.Label */
+.codehilite .nn { color: #0E84B5; font-weight: bold } /* Name.Namespace */
+.codehilite .nt { color: #062873; font-weight: bold } /* Name.Tag */
+.codehilite .nv { color: #BB60D5 } /* Name.Variable */
+.codehilite .ow { color: #007020; font-weight: bold } /* Operator.Word */
+.codehilite .w { color: #BBB } /* Text.Whitespace */
+.codehilite .mb { color: #40A070 } /* Literal.Number.Bin */
+.codehilite .mf { color: #40A070 } /* Literal.Number.Float */
+.codehilite .mh { color: #40A070 } /* Literal.Number.Hex */
+.codehilite .mi { color: #40A070 } /* Literal.Number.Integer */
+.codehilite .mo { color: #40A070 } /* Literal.Number.Oct */
+.codehilite .sa { color: #4070A0 } /* Literal.String.Affix */
+.codehilite .sb { color: #4070A0 } /* Literal.String.Backtick */
+.codehilite .sc { color: #4070A0 } /* Literal.String.Char */
+.codehilite .dl { color: #4070A0 } /* Literal.String.Delimiter */
+.codehilite .sd { color: #4070A0; font-style: italic } /* Literal.String.Doc */
+.codehilite .s2 { color: #4070A0 } /* Literal.String.Double */
+.codehilite .se { color: #4070A0; font-weight: bold } /* Literal.String.Escape */
+.codehilite .sh { color: #4070A0 } /* Literal.String.Heredoc */
+.codehilite .si { color: #70A0D0; font-style: italic } /* Literal.String.Interpol */
+.codehilite .sx { color: #C65D09 } /* Literal.String.Other */
+.codehilite .sr { color: #235388 } /* Literal.String.Regex */
+.codehilite .s1 { color: #4070A0 } /* Literal.String.Single */
+.codehilite .ss { color: #517918 } /* Literal.String.Symbol */
+.codehilite .bp { color: #007020 } /* Name.Builtin.Pseudo */
+.codehilite .fm { color: #06287E } /* Name.Function.Magic */
+.codehilite .vc { color: #BB60D5 } /* Name.Variable.Class */
+.codehilite .vg { color: #BB60D5 } /* Name.Variable.Global */
+.codehilite .vi { color: #BB60D5 } /* Name.Variable.Instance */
+.codehilite .vm { color: #BB60D5 } /* Name.Variable.Magic */
+.codehilite .il { color: #40A070 } /* Literal.Number.Integer.Long */</style>
+<script>
+(function(){
+  try {
+    var t = localStorage.getItem('theme');
+    if (t) document.documentElement.setAttribute('data-theme', t);
+  } catch (e) {}
+})();
+function getEffectiveTheme(){
+  var attr = document.documentElement.getAttribute('data-theme');
+  if (attr) return attr;
+  return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+}
+function toggleTheme(){
+  var next = getEffectiveTheme() === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  try { localStorage.setItem('theme', next); } catch (e) {}
+  updateThemeToggleIcon();
+}
+function updateThemeToggleIcon(){
+  var btn = document.querySelector('.theme-toggle');
+  if (btn) btn.textContent = getEffectiveTheme() === 'dark' ? '☀️' : '🌙';
+}
+document.addEventListener('DOMContentLoaded', updateThemeToggleIcon);
+</script>
+</head>
+<body>
+<nav class="topnav">
+<a class="back" href="../../index.html">&larr; Back to index</a>
+<div class="phase-pills"><a href="../../index.html#phase-1" title="Phase 1">Phase1</a><a href="../../index.html#phase-2" title="Phase 2">Phase2</a><a href="../../index.html#phase-3" title="Phase 3">Phase3</a><a href="../../index.html#phase-4" title="Phase 4">Phase4</a><a href="../../index.html#phase-5" title="Phase 5">Phase5</a><a class="current" href="../../index.html#phase-6" title="Phase 6">Phase6</a></div>
+<button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle color theme" title="Toggle color theme">🌙</button>
+</nav>
+<div class="page">
+<h1>6.2 Kubernetes Fundamentals</h1>
+<p>Objective: deploy the containerized service to a local Kubernetes cluster and understand what Pods, Deployments, Services, and ConfigMaps actually do - not just copy-paste YAML.</p>
+<hr />
+<h2>6.2a Pods &amp; Deployments</h2>
+<p>A <strong>Pod</strong> is the smallest deployable unit in Kubernetes - one or more tightly-coupled containers always scheduled together on the same node, sharing a network namespace (same IP/localhost) and optionally storage volumes; most commonly, one container per pod. A <strong>Deployment</strong> is a higher-level controller managing a set of <em>identical</em> pod replicas (via an underlying ReplicaSet), ensuring the desired number are always running (auto-replacing crashed ones) and managing <strong>rolling updates</strong>.</p>
+<p><em>Plain English:</em> you almost never create bare Pods directly - you create a Deployment, and Kubernetes creates/manages Pods for you per the Deployment's spec. If a Pod crashes, the Deployment notices the actual count doesn't match the desired count and starts a replacement automatically - this "keep actual state matching desired state" reconciliation loop is the core idea behind essentially everything in Kubernetes.</p>
+<p><em>Analogy:</em> a Pod is a single food truck at an event - self-contained. A Deployment is a franchise owner committed to always having exactly 3 trucks running - if one breaks down, a replacement is dispatched immediately to maintain the count, without anyone manually noticing and ordering a new one.</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">apps/v1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Deployment</span>
+<span class="nt">metadata</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">api-deployment</span>
+<span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">replicas</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">3</span><span class="w">                        </span><span class="c1"># desired state: always 3 pods running</span>
+<span class="w">  </span><span class="nt">selector</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">matchLabels</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> app</span><span class="p">:</span><span class="w"> </span><span class="nv">api</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<span class="w">  </span><span class="nt">template</span><span class="p">:</span>
+<span class="w">    </span><span class="nt">metadata</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">labels</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> app</span><span class="p">:</span><span class="w"> </span><span class="nv">api</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<span class="w">    </span><span class="nt">spec</span><span class="p">:</span>
+<span class="w">      </span><span class="nt">containers</span><span class="p">:</span>
+
+<span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">api</span>
+<span class="w">        </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">myapp:latest</span>
+<span class="w">        </span><span class="nt">ports</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[{</span><span class="nt"> containerPort</span><span class="p">:</span><span class="w"> </span><span class="nv">8000</span><span class="w"> </span><span class="p p-Indicator">}]</span>
+</code></pre></div>
+
+<div class="codehilite"><pre><span></span><code>kubectl<span class="w"> </span>apply<span class="w"> </span>-f<span class="w"> </span>deployment.yaml
+kubectl<span class="w"> </span>get<span class="w"> </span>pods<span class="w">                          </span><span class="c1"># shows 3 running pods</span>
+kubectl<span class="w"> </span>delete<span class="w"> </span>pod<span class="w"> </span>api-deployment-xyz<span class="w">       </span><span class="c1"># kill one manually -- Deployment automatically replaces it</span>
+</code></pre></div>
+
+<hr />
+<h2>6.2b Services, ConfigMaps/Secrets &amp; Rolling Updates</h2>
+<p>Pods are <strong>ephemeral</strong> (IP changes every time one is recreated), so a <strong>Service</strong> provides a stable network address (fixed virtual IP + DNS name) that automatically load-balances traffic across whichever pods <em>currently</em> match its label selector. Types: <strong>ClusterIP</strong> (internal-only, default), <strong>NodePort</strong> (exposes a static port on every node), <strong>LoadBalancer</strong> (provisions an external cloud load balancer - the typical production public entry point).</p>
+<p><strong>ConfigMaps/Secrets</strong> externalize configuration out of the image (ConfigMap: non-sensitive, e.g. a DB URL; Secret: sensitive, e.g. passwords/API keys, base64-encoded, access-restricted), injected as environment variables or mounted files at runtime.</p>
+<p><em>Plain English:</em> without a Service, a replaced Pod's new IP would break anything talking to the old IP directly - a Service gives a stable name that automatically tracks whichever pods currently exist and are healthy. ConfigMaps/Secrets exist so the <em>same</em> image can run in dev/staging/prod, just with different values injected at deploy time, rather than baking environment-specific values into the image itself.</p>
+<p><em>Analogy:</em> a Service is a company's single published customer-service phone number, always connecting you to <em>whoever's</em> currently staffing the desk, even as individual staff (pods) rotate - callers never track individual employees' numbers. ConfigMaps/Secrets are the same uniform/instructions given to any staff member regardless of branch, plus a branch-specific badge and access code handed over once they arrive - the core instructions (the image) don't change, just the environment-specific details.</p>
+<div class="codehilite"><pre><span></span><code><span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">Service</span>
+<span class="nt">metadata</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> name</span><span class="p">:</span><span class="w"> </span><span class="nv">api-service</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<span class="nt">spec</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">selector</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> app</span><span class="p">:</span><span class="w"> </span><span class="nv">api</span><span class="w"> </span><span class="p p-Indicator">}</span><span class="w">              </span><span class="c1"># routes to any pod with this label -- tracks the Deployment&#39;s pods</span>
+<span class="w">  </span><span class="nt">ports</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[{</span><span class="nt"> port</span><span class="p">:</span><span class="w"> </span><span class="nv">80</span><span class="p p-Indicator">,</span><span class="nt"> targetPort</span><span class="p">:</span><span class="w"> </span><span class="nv">8000</span><span class="w"> </span><span class="p p-Indicator">}]</span>
+<span class="w">  </span><span class="nt">type</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ClusterIP</span>
+<span class="nn">---</span>
+<span class="nt">apiVersion</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">v1</span>
+<span class="nt">kind</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">ConfigMap</span>
+<span class="nt">metadata</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> name</span><span class="p">:</span><span class="w"> </span><span class="nv">api-config</span><span class="w"> </span><span class="p p-Indicator">}</span>
+<span class="nt">data</span><span class="p">:</span>
+<span class="w">  </span><span class="nt">DATABASE_URL</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;postgres://db:5432/mydb&quot;</span>
+</code></pre></div>
+
+<p><strong>Rolling update:</strong></p>
+<div class="codehilite"><pre><span></span><code>kubectl<span class="w"> </span><span class="nb">set</span><span class="w"> </span>image<span class="w"> </span>deployment/api-deployment<span class="w"> </span><span class="nv">api</span><span class="o">=</span>myapp:v2
+kubectl<span class="w"> </span>rollout<span class="w"> </span>status<span class="w"> </span>deployment/api-deployment
+</code></pre></div>
+
+<p><strong>What Kubernetes does during it:</strong> gradually creates new pods on the new image, waits for each to pass health checks ("ready"), then terminates a corresponding old pod - a few at a time (<code>maxSurge</code>/<code>maxUnavailable</code>), never taking the whole Deployment down at once, so the Service always has <em>some</em> healthy pods (old or new) to route traffic to throughout the update. This is the mechanism behind zero-downtime deploys.</p>
+<hr />
+<h2>Watch / Read / Do / Checkpoint</h2>
+<p><strong>Watch:</strong> <a href="https://www.youtube.com/watch?v=s_o8dwzRlu4">Kubernetes Crash Course for Absolute Beginners - TechWorld with Nana</a><br />
+<strong>Read:</strong> <a href="https://kubernetes.io/docs/concepts/">Kubernetes official documentation - Concepts</a></p>
+<p><strong>Do:</strong></p>
+<ul>
+<li><span class="chk"></span> Using Minikube (or kind), deploy your API as a Deployment with a Service in front of it, move config into a ConfigMap and secrets into a Secret, and scale the Deployment to 3 replicas.</li>
+</ul>
+<p><strong>Checkpoint:</strong></p>
+<ul>
+<li><span class="chk"></span> Closed-book - explain the difference between a Pod and a Deployment, and between a ClusterIP and a NodePort/LoadBalancer Service.</li>
+<li><span class="chk"></span> Demonstrate a rolling update (change the image tag, <code>kubectl apply</code>, show zero-downtime rollout) and explain what Kubernetes is doing during it.</li>
+</ul>
+<p><em>(Deferred - tracked in <a href="../../deferred-exercises.md">../../deferred-exercises.md</a>.)</em></p>
+<div class="nav"><a href="../../index.html">&larr; Back to index</a></div>
+</div>
+</body>
+</html>

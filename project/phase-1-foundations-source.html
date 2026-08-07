@@ -1,0 +1,432 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phase 1 source (Watch/Read/Do/Checkpoint)</title>
+<style>
+:root {
+  --bg: #fdfdfb; --fg: #24292f; --muted: #5b6470; --border: #e1e4e8;
+  --code-bg: #f3f4f6; --link: #0b5fff; --accent: #6a3fd1; --chip: #f0edfb;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg:#1a1d23; --fg:#dadee3; --muted:#98a0ab; --border:#2f343c; --code-bg:#20242b; --link:#7aa2ff; --accent:#b79cff; --chip:#242233; }
+}
+:root[data-theme="dark"] { --bg:#1a1d23; --fg:#dadee3; --muted:#98a0ab; --border:#2f343c; --code-bg:#20242b; --link:#7aa2ff; --accent:#b79cff; --chip:#242233; }
+.theme-toggle { margin-left: .5rem; background: none; border: 1px solid var(--border); border-radius: 999px; width: 1.9rem; height: 1.9rem; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; font-size: .95rem; color: var(--fg); line-height: 1; padding: 0; }
+.theme-toggle:hover { border-color: var(--accent); }
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.65; margin: 0;
+}
+.page { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 6rem; }
+.topnav {
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; flex-wrap: wrap; gap: .9rem;
+  background: var(--bg); border-bottom: 1px solid var(--border);
+  padding: .7rem 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,.08);
+}
+.topnav a.back, .topnav .home { text-decoration: none; font-weight: 600; font-size: .92rem; white-space: nowrap; color: var(--fg); }
+.phase-pills { display: flex; gap: .35rem; flex-wrap: wrap; margin-left: auto; }
+.phase-pills a {
+  text-decoration: none; color: var(--muted); font-size: .8rem; font-weight: 600;
+  border: 1px solid var(--border); border-radius: 999px; padding: .2rem .6rem;
+}
+.phase-pills a:hover { border-color: var(--accent); color: var(--accent); }
+.phase-pills a.current { background: var(--accent); border-color: var(--accent); color: #fff; }
+h1, h2, h3, h4 { line-height: 1.3; }
+h1 { font-size: 1.9rem; border-bottom: 2px solid var(--accent); padding-bottom: .5rem; }
+h2 { font-size: 1.4rem; margin-top: 2.5rem; border-bottom: 1px solid var(--border); padding-bottom: .3rem; }
+h3 { font-size: 1.15rem; margin-top: 2rem; color: var(--accent); }
+a { color: var(--link); }
+p code, li code, td code { background: var(--code-bg); padding: .15em .4em; border-radius: 4px; font-size: .9em; word-break: break-word; }
+pre { background: var(--code-bg); padding: 1rem; border-radius: 8px; overflow-x: auto; border: 1px solid var(--border); }
+pre code { background: none; padding: 0; }
+table { border-collapse: collapse; width: 100%; margin: 1rem 0; display: block; overflow-x: auto; }
+th, td { border: 1px solid var(--border); padding: .5rem .75rem; text-align: left; }
+th { background: var(--code-bg); }
+blockquote { border-left: 3px solid var(--accent); margin: 1rem 0; padding: .2rem 1rem; color: var(--muted); }
+hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+.nav { margin-bottom: 1.5rem; font-size: .9rem; }
+.nav a { text-decoration: none; }
+ul, ol { padding-left: 1.4rem; }
+li { margin: .3rem 0; }
+img { max-width: 100%; }
+.chk { display: inline-block; width: .9em; height: .9em; border: 1.5px solid var(--muted); border-radius: 3px; margin-right: .4em; vertical-align: middle; }
+.chk.done { background: var(--accent); border-color: var(--accent); color: #fff; text-align: center; line-height: .85em; font-size: .75em; }
+.codehilite { background: var(--code-bg) !important; border-radius: 8px; }
+pre { line-height: 125%; }
+td.linenos .normal { color: #666666; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: #666666; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+.codehilite .hll { background-color: #ffffcc }
+.codehilite { background: #f0f0f0; }
+.codehilite .c { color: #60A0B0; font-style: italic } /* Comment */
+.codehilite .err { border: 1px solid #F00 } /* Error */
+.codehilite .k { color: #007020; font-weight: bold } /* Keyword */
+.codehilite .o { color: #666 } /* Operator */
+.codehilite .ch { color: #60A0B0; font-style: italic } /* Comment.Hashbang */
+.codehilite .cm { color: #60A0B0; font-style: italic } /* Comment.Multiline */
+.codehilite .cp { color: #007020 } /* Comment.Preproc */
+.codehilite .cpf { color: #60A0B0; font-style: italic } /* Comment.PreprocFile */
+.codehilite .c1 { color: #60A0B0; font-style: italic } /* Comment.Single */
+.codehilite .cs { color: #60A0B0; background-color: #FFF0F0 } /* Comment.Special */
+.codehilite .gd { color: #A00000 } /* Generic.Deleted */
+.codehilite .ge { font-style: italic } /* Generic.Emph */
+.codehilite .ges { font-weight: bold; font-style: italic } /* Generic.EmphStrong */
+.codehilite .gr { color: #F00 } /* Generic.Error */
+.codehilite .gh { color: #000080; font-weight: bold } /* Generic.Heading */
+.codehilite .gi { color: #00A000 } /* Generic.Inserted */
+.codehilite .go { color: #888 } /* Generic.Output */
+.codehilite .gp { color: #C65D09; font-weight: bold } /* Generic.Prompt */
+.codehilite .gs { font-weight: bold } /* Generic.Strong */
+.codehilite .gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+.codehilite .gt { color: #04D } /* Generic.Traceback */
+.codehilite .kc { color: #007020; font-weight: bold } /* Keyword.Constant */
+.codehilite .kd { color: #007020; font-weight: bold } /* Keyword.Declaration */
+.codehilite .kn { color: #007020; font-weight: bold } /* Keyword.Namespace */
+.codehilite .kp { color: #007020 } /* Keyword.Pseudo */
+.codehilite .kr { color: #007020; font-weight: bold } /* Keyword.Reserved */
+.codehilite .kt { color: #902000 } /* Keyword.Type */
+.codehilite .m { color: #40A070 } /* Literal.Number */
+.codehilite .s { color: #4070A0 } /* Literal.String */
+.codehilite .na { color: #4070A0 } /* Name.Attribute */
+.codehilite .nb { color: #007020 } /* Name.Builtin */
+.codehilite .nc { color: #0E84B5; font-weight: bold } /* Name.Class */
+.codehilite .no { color: #60ADD5 } /* Name.Constant */
+.codehilite .nd { color: #555; font-weight: bold } /* Name.Decorator */
+.codehilite .ni { color: #D55537; font-weight: bold } /* Name.Entity */
+.codehilite .ne { color: #007020 } /* Name.Exception */
+.codehilite .nf { color: #06287E } /* Name.Function */
+.codehilite .nl { color: #002070; font-weight: bold } /* Name.Label */
+.codehilite .nn { color: #0E84B5; font-weight: bold } /* Name.Namespace */
+.codehilite .nt { color: #062873; font-weight: bold } /* Name.Tag */
+.codehilite .nv { color: #BB60D5 } /* Name.Variable */
+.codehilite .ow { color: #007020; font-weight: bold } /* Operator.Word */
+.codehilite .w { color: #BBB } /* Text.Whitespace */
+.codehilite .mb { color: #40A070 } /* Literal.Number.Bin */
+.codehilite .mf { color: #40A070 } /* Literal.Number.Float */
+.codehilite .mh { color: #40A070 } /* Literal.Number.Hex */
+.codehilite .mi { color: #40A070 } /* Literal.Number.Integer */
+.codehilite .mo { color: #40A070 } /* Literal.Number.Oct */
+.codehilite .sa { color: #4070A0 } /* Literal.String.Affix */
+.codehilite .sb { color: #4070A0 } /* Literal.String.Backtick */
+.codehilite .sc { color: #4070A0 } /* Literal.String.Char */
+.codehilite .dl { color: #4070A0 } /* Literal.String.Delimiter */
+.codehilite .sd { color: #4070A0; font-style: italic } /* Literal.String.Doc */
+.codehilite .s2 { color: #4070A0 } /* Literal.String.Double */
+.codehilite .se { color: #4070A0; font-weight: bold } /* Literal.String.Escape */
+.codehilite .sh { color: #4070A0 } /* Literal.String.Heredoc */
+.codehilite .si { color: #70A0D0; font-style: italic } /* Literal.String.Interpol */
+.codehilite .sx { color: #C65D09 } /* Literal.String.Other */
+.codehilite .sr { color: #235388 } /* Literal.String.Regex */
+.codehilite .s1 { color: #4070A0 } /* Literal.String.Single */
+.codehilite .ss { color: #517918 } /* Literal.String.Symbol */
+.codehilite .bp { color: #007020 } /* Name.Builtin.Pseudo */
+.codehilite .fm { color: #06287E } /* Name.Function.Magic */
+.codehilite .vc { color: #BB60D5 } /* Name.Variable.Class */
+.codehilite .vg { color: #BB60D5 } /* Name.Variable.Global */
+.codehilite .vi { color: #BB60D5 } /* Name.Variable.Instance */
+.codehilite .vm { color: #BB60D5 } /* Name.Variable.Magic */
+.codehilite .il { color: #40A070 } /* Literal.Number.Integer.Long */</style>
+<script>
+(function(){
+  try {
+    var t = localStorage.getItem('theme');
+    if (t) document.documentElement.setAttribute('data-theme', t);
+  } catch (e) {}
+})();
+function getEffectiveTheme(){
+  var attr = document.documentElement.getAttribute('data-theme');
+  if (attr) return attr;
+  return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+}
+function toggleTheme(){
+  var next = getEffectiveTheme() === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  try { localStorage.setItem('theme', next); } catch (e) {}
+  updateThemeToggleIcon();
+}
+function updateThemeToggleIcon(){
+  var btn = document.querySelector('.theme-toggle');
+  if (btn) btn.textContent = getEffectiveTheme() === 'dark' ? '☀️' : '🌙';
+}
+document.addEventListener('DOMContentLoaded', updateThemeToggleIcon);
+</script>
+</head>
+<body>
+<nav class="topnav">
+<a class="back" href="../index.html">&larr; Back to index</a>
+<div class="phase-pills"><a class="current" href="../index.html#phase-1" title="Phase 1">Phase1</a><a href="../index.html#phase-2" title="Phase 2">Phase2</a><a href="../index.html#phase-3" title="Phase 3">Phase3</a><a href="../index.html#phase-4" title="Phase 4">Phase4</a><a href="../index.html#phase-5" title="Phase 5">Phase5</a><a href="../index.html#phase-6" title="Phase 6">Phase6</a></div>
+<button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle color theme" title="Toggle color theme">🌙</button>
+</nav>
+<div class="page">
+<h1>Phase 1: Foundations</h1>
+<ul>
+<li><strong>Duration:</strong> 3.5–4.5 weeks at 15–20 hrs/week (~50–75 hrs total)</li>
+<li><strong>Builds on:</strong> nothing - this is the base layer.</li>
+<li><strong>Unlocks:</strong> everything else. Phase 4 (design) and Phase 5 (distributed systems) assume you can reason about time/space complexity and pick the right data structure without hesitating.</li>
+<li><strong>Adjusted for your profile:</strong> nothing is skipped, including Programming Fundamentals (1.1) - but it isn't taught as a beginner crawl either. Since you already write code comfortably, that lesson is framed as a rigorous audit: surface the gaps "comfortable" hides (dunder methods, generators, decorators, exception design) rather than re-teaching syntax you already know.</li>
+</ul>
+<p>Read <a href="README.md">the tutor model in the README</a> before starting if you haven't - every checkpoint below is a gate, not a suggestion.</p>
+<p><strong>How to read this file:</strong> each numbered lesson (1.1, 1.2, ...) is a unit with its own Watch/Read/Do/Checkpoint - that's the thing that must pass before you move on. Underneath each one, <strong>"Teaching sessions"</strong> breaks it into the ~40-minute chunks I'll actually teach you in chat, one sitting at a time. A lesson with only one teaching session is small enough to cover in a single sitting; a lesson with 1.4a/1.4b/1.4c means we'll do it across 3 sittings before its checkpoint.</p>
+<h2>Lessons</h2>
+<ul>
+<li><span class="chk done">&#10003;</span> 1.1 Programming Fundamentals (Python)</li>
+<li><span class="chk done">&#10003;</span> 1.1a Objects, Classes &amp; Dunder Methods</li>
+<li><span class="chk done">&#10003;</span> 1.1b Comprehensions &amp; Generators</li>
+<li><span class="chk done">&#10003;</span> 1.1c Decorators</li>
+<li><span class="chk done">&#10003;</span> 1.1d Context Managers &amp; Custom Exceptions</li>
+<li><span class="chk done">&#10003;</span> 1.2 Git &amp; GitHub Essentials</li>
+<li><span class="chk done">&#10003;</span> 1.2a Commits, Branches &amp; Merging</li>
+<li><span class="chk done">&#10003;</span> 1.2b Rebasing &amp; Conflict Resolution</li>
+<li><span class="chk done">&#10003;</span> 1.3 Big-O and Algorithmic Thinking</li>
+<li><span class="chk"></span> 1.4 Arrays &amp; Strings</li>
+<li><span class="chk"></span> 1.4a Two Pointers</li>
+<li><span class="chk"></span> 1.4b Sliding Window</li>
+<li><span class="chk"></span> 1.4c Prefix Sums</li>
+<li><span class="chk"></span> 1.5 Linked Lists</li>
+<li><span class="chk"></span> 1.5a Singly Linked Lists</li>
+<li><span class="chk"></span> 1.5b Doubly Linked Lists, Cycle Detection &amp; Merging</li>
+<li><span class="chk"></span> 1.6 Stacks &amp; Queues</li>
+<li><span class="chk"></span> 1.6a Stacks &amp; the Monotonic Stack Pattern</li>
+<li><span class="chk"></span> 1.6b Queues &amp; BFS Ordering</li>
+<li><span class="chk"></span> 1.7 Hash Tables</li>
+<li><span class="chk"></span> 1.7a What Hashing Actually Is</li>
+<li><span class="chk"></span> 1.7b Collision Resolution &amp; Building One From Scratch</li>
+<li><span class="chk"></span> 1.8 Recursion &amp; Backtracking</li>
+<li><span class="chk"></span> 1.8a Recursion Fundamentals</li>
+<li><span class="chk"></span> 1.8b Backtracking</li>
+<li><span class="chk"></span> 1.9 Sorting &amp; Searching</li>
+<li><span class="chk"></span> 1.9a Merge Sort &amp; Quicksort</li>
+<li><span class="chk"></span> 1.9b Binary Search</li>
+<li><span class="chk"></span> 1.10 Trees &amp; Binary Search Trees</li>
+<li><span class="chk"></span> 1.10a Tree Traversals</li>
+<li><span class="chk"></span> 1.10b Binary Search Trees</li>
+<li><span class="chk"></span> 1.11 Heaps &amp; Priority Queues</li>
+<li><span class="chk"></span> 1.12 Graphs</li>
+<li><span class="chk"></span> 1.12a Graph Representation, BFS &amp; DFS</li>
+<li><span class="chk"></span> 1.12b Topological Sort</li>
+<li><span class="chk"></span> 1.12c Dijkstra's Algorithm</li>
+<li><span class="chk"></span> 1.13 Dynamic Programming &amp; Greedy Algorithms</li>
+<li><span class="chk"></span> 1.13a From Recursion to Memoization to Tabulation</li>
+<li><span class="chk"></span> 1.13b Classic DP Patterns (Knapsack, LCS, LIS)</li>
+<li><span class="chk"></span> 1.13c Greedy Algorithms</li>
+<li><span class="chk"></span> 1.14 Phase Capstone</li>
+</ul>
+<hr />
+<h3>1.1 Programming Fundamentals (Python)</h3>
+<p><strong>Objective:</strong> Close the gap between "comfortable writing code" and actually knowing the language - control flow, functions, OOP, exceptions, and the features many self-taught-comfortable coders never formally learn (comprehensions, generators, decorators, context managers). This lesson is an audit, not a first exposure: move fast through what you already know, slow down hard on whatever you don't.</p>
+<p><strong>Teaching sessions (~40 min each):</strong></p>
+<ul>
+<li><strong>1.1a Objects, Classes &amp; Dunder Methods</strong> - classes, <code>__init__</code>, inheritance, and the "magic methods" (<code>__repr__</code>, <code>__eq__</code>, etc.) that make your objects behave like Python's built-ins.</li>
+<li><strong>1.1b Comprehensions &amp; Generators</strong> - list/dict/set comprehensions, and generator expressions/<code>yield</code> for when you shouldn't build the whole list at once.</li>
+<li><strong>1.1c Decorators</strong> - functions as first-class objects, closures, and the <code>@decorator</code> syntax.</li>
+<li>
+<p><strong>1.1d Context Managers &amp; Custom Exceptions</strong> - the <code>with</code> statement, <code>__enter__</code>/<code>__exit__</code>, and designing your own exception classes instead of over-using generic ones.</p>
+</li>
+<li>
+<p><strong>Watch:</strong> <a href="https://www.youtube.com/watch?v=rfscVS0vtbw">Learn Python - Full Course for Beginners (freeCodeCamp)</a> (~4.5 hrs - skim or skip sections you can already do blind, but don't skip OOP and exception handling), plus three targeted Corey Schafer videos on the features a "comfortable" coder most often never properly learned: <a href="https://www.youtube.com/watch?v=3dt4OGnU5sM">Comprehensions</a>, <a href="https://www.youtube.com/watch?v=bD05uGo_sVI">Generators</a>, and <a href="https://www.youtube.com/watch?v=FsAPt_9Bf3U">Decorators</a></p>
+</li>
+<li><strong>Read:</strong> <a href="https://docs.python.org/3/tutorial/">The Python Tutorial - official docs</a></li>
+<li><strong>Do / Checkpoint - 5 specific problems, no reference material, closed-book.</strong> Solve all five, then walk through each solution and justify every choice under questioning - "I copied the pattern but can't explain it" fails, regardless of whether the code runs.<br />
+  1. <strong>Dunders:</strong> Build a <code>Fraction</code> class storing a numerator and denominator. Implement <code>__repr__</code> returning exactly <code>Fraction(a, b)</code> format. Implement <code>__eq__</code> so it compares <em>by value</em>, not identity - <code>Fraction(1, 2) == Fraction(2, 4)</code> must be <code>True</code>. Implement <code>__add__</code> so <code>Fraction(1, 2) + Fraction(1, 3)</code> returns a <code>Fraction</code> equal to <code>Fraction(5, 6)</code>.<br />
+  2. <strong>Comprehension vs. generator:</strong> Given <code>nums = list(range(100_000))</code>, write a list comprehension producing the squares of only the even numbers, then the identical logic as a generator expression. Using <code>sys.getsizeof</code>, print the actual byte size of each and explain the difference in one sentence tied to eager vs. lazy evaluation.<br />
+  3. <strong>Decorator:</strong> Write <code>@log_calls</code>, applied to <code>def add(a, b): return a + b</code>, that prints <code>Calling add(3, 5)</code> before running it and <code>add returned 8</code> after. Use <code>functools.wraps</code> and prove it worked by asserting <code>add.__name__ == "add"</code> after decoration (not <code>"wrapper"</code>).<br />
+  4. <strong>Context manager:</strong> Write a <code>Timer</code> context manager (class-based or <code>@contextmanager</code>, your choice - be ready to justify which and why) that prints the elapsed time when a <code>with</code> block exits. Prove the guarantee: put <code>raise ValueError("test")</code> inside the block and show the elapsed-time message still prints before the exception propagates.<br />
+  5. <strong>Custom exceptions:</strong> Build a <code>Stack</code> with a <code>pop()</code> that raises <code>EmptyStackError</code> (inheriting from a base <code>StackError</code>) when called on an empty stack, carrying a message. Show it caught two ways: once via <code>except EmptyStackError</code>, once via <code>except StackError</code> - both must work, proving the hierarchy.</li>
+</ul>
+<h3>1.2 Git &amp; GitHub Essentials</h3>
+<p><strong>Objective:</strong> Use Git confidently for branching, merging, rebasing, and resolving conflicts - not just <code>add</code>/<code>commit</code>/<code>push</code>.</p>
+<p><strong>Teaching sessions (~40 min each):</strong></p>
+<ul>
+<li><strong>1.2a Commits, Branches &amp; Merging</strong> - what a commit actually is, how branches work, and what merge is doing under the hood.</li>
+<li>
+<p><strong>1.2b Rebasing &amp; Conflict Resolution</strong> - interactive rebase, squashing, and resolving conflicts by hand instead of panicking.</p>
+</li>
+<li>
+<p><strong>Watch:</strong>  <a href="https://www.youtube.com/watch?v=mAFoROnOfHs">Git &amp; GitHub Crash Course for Beginners (freeCodeCamp, 2026)</a> (~81 min)</p>
+</li>
+<li><strong>Read:</strong> <a href="https://docs.github.com/en/get-started/start-your-journey/git-and-github-learning-resources">Git and GitHub learning resources - GitHub Docs</a></li>
+<li><strong>Do:</strong> Create a throwaway repo. Make 3 branches, deliberately create a merge conflict between two of them and resolve it by hand. Then do an interactive rebase to squash 3 commits into 1.</li>
+</ul>
+<p><strong>Checkpoint:</strong></p>
+<ul>
+<li>Closed-book: explain the difference between <code>merge</code> and <code>rebase</code>, and when you'd use each, without looking anything up.</li>
+<li>Practical: show the resolved merge conflict and the squashed history from the exercise.</li>
+<li>Pass bar: correct explanation + working repo history. If you can't explain <em>why</em> rebase rewrites history, redo before moving on.</li>
+</ul>
+<h3>1.3 Big-O and Algorithmic Thinking</h3>
+<p><strong>Objective:</strong> Look at any snippet of code and state its time/space complexity within seconds; know when O(n log n) vs O(n²) actually matters in practice.</p>
+<p><strong>Teaching sessions (~40 min):</strong> one sitting - this is a single coherent idea (how to measure "how much work code does") taught progressively; no split needed.</p>
+<ul>
+<li><strong>Watch:</strong>  <a href="https://www.youtube.com/watch?v=BgLTDT03QtU">Big-O Notation - For Coding Interviews (NeetCode)</a></li>
+<li><strong>Read:</strong> <a href="https://www.khanacademy.org/computing/computer-science/algorithms/asymptotic-notation/a/big-o-notation">Big-O Notation - Khan Academy</a> and <a href="https://runestone.academy/ns/books/published/pythonds/AlgorithmAnalysis/BigONotation.html">§3.3 Big-O Notation - Runestone Academy, <em>Problem Solving with Algorithms and Data Structures using Python</em>, Analysis chapter</a></li>
+<li><strong>Do:</strong> Write 10 short Python snippets of your own (nested loops, recursion, hash lookups, string slicing) and annotate each with its time and space complexity plus a one-sentence justification.</li>
+</ul>
+<p><strong>Checkpoint:</strong> Closed-book - have someone (or me, in this project) give you 5 unseen snippets; state complexity out loud within 30 seconds each, with correct justification. 4/5 minimum to pass.</p>
+<h3>1.4 Arrays &amp; Strings</h3>
+<p><strong>Objective:</strong> Fluently apply two-pointer, sliding-window, and prefix-sum techniques.</p>
+<p><strong>Teaching sessions (~40 min each):</strong></p>
+<ul>
+<li><strong>1.4a Two Pointers</strong> - opposite-end pointers closing in on each other.</li>
+<li><strong>1.4b Sliding Window</strong> - a window that grows/shrinks as it moves across the array.</li>
+<li>
+<p><strong>1.4c Prefix Sums</strong> - precomputing running totals so range-sum queries become instant.</p>
+</li>
+<li>
+<p><strong>Watch:</strong>  the Arrays/Strings sections of <a href="https://www.youtube.com/watch?v=pkYVOmU3MgA">Data Structures and Algorithms in Python – Full Course (freeCodeCamp)</a></p>
+</li>
+<li><strong>Read:</strong> <a href="https://usaco.guide/silver/two-pointers">Two Pointers</a> and <a href="https://usaco.guide/silver/prefix-sums">Introduction to Prefix Sums</a> - USACO Guide. <em>Note: the Runestone Academy textbook used elsewhere in this phase doesn't cover these interview-style array patterns at all (it's a classical-ADT textbook, not a pattern guide) - USACO Guide is the best free, well-structured alternative for this specific topic.</em></li>
+<li><strong>Do:</strong> Using the <a href="https://neetcode.io/roadmap">NeetCode roadmap</a>, solve 8 Arrays/Two-Pointers problems unaided and closed-book before checking any solution.</li>
+</ul>
+<p><strong>Checkpoint:</strong> Timed - 3 medium-difficulty array/string problems in 60 minutes, no notes. 2/3 correct minimum, and before coding each you must state out loud which technique (two-pointer / sliding-window / prefix-sum) applies and why.</p>
+<h3>1.5 Linked Lists</h3>
+<p><strong>Objective:</strong> Implement singly and doubly linked lists from scratch and manipulate them (reverse, detect cycle, merge) without relying on Python's built-in <code>list</code>.</p>
+<p><strong>Teaching sessions (~40 min each):</strong></p>
+<ul>
+<li><strong>1.5a Singly Linked Lists</strong> - nodes, pointers, insert/delete/reverse.</li>
+<li>
+<p><strong>1.5b Doubly Linked Lists, Cycle Detection &amp; Merging</strong> - backward pointers, Floyd's cycle-detection ("tortoise and hare"), merging two sorted lists.</p>
+</li>
+<li>
+<p><strong>Watch:</strong>  the Linked Lists section of <a href="https://www.youtube.com/watch?v=pkYVOmU3MgA">Data Structures and Algorithms in Python (freeCodeCamp)</a></p>
+</li>
+<li><strong>Read:</strong> §4.19–4.23 ("Lists" through "Implementing an Ordered List") in the <a href="https://runestone.academy/ns/books/published/pythonds/BasicDS/toctree.html">Basic Data Structures chapter - Runestone Academy, <em>Problem Solving with Algorithms and Data Structures using Python</em></a> - note: there's no standalone "Linked Lists chapter" in this book; linked lists are the last third of the Basic Data Structures chapter, alongside stacks/queues/deques.</li>
+<li><strong>Do:</strong> Implement a singly linked list class (insert front/back, delete, reverse) and a doubly linked list, from raw node objects - no <code>collections.deque</code>, no built-in list. Then solve 5 NeetCode linked-list problems (reverse list, detect/remove cycle, merge two sorted lists).</li>
+</ul>
+<p><strong>Checkpoint:</strong> Build from scratch, unaided - reverse a linked list in-place with O(1) space, on a whiteboard/blank file, no reference code visible. Must get pointer manipulation correct without off-by-one errors on the first or second attempt.</p>
+<h3>1.6 Stacks &amp; Queues</h3>
+<p><strong>Objective:</strong> Know when a problem is secretly a stack or queue problem (matching brackets, monotonic stack, BFS ordering) and implement both from scratch.</p>
+<p><strong>Teaching sessions (~40 min each):</strong></p>
+<ul>
+<li><strong>1.6a Stacks &amp; the Monotonic Stack Pattern</strong> - LIFO, matching brackets, and the monotonic-stack trick for "next greater element"-style problems.</li>
+<li>
+<p><strong>1.6b Queues &amp; BFS Ordering</strong> - FIFO, and why BFS specifically needs a queue (not a stack).</p>
+</li>
+<li>
+<p><strong>Watch:</strong>  the Stacks/Queues section of <a href="https://www.youtube.com/watch?v=pkYVOmU3MgA">Data Structures and Algorithms in Python (freeCodeCamp)</a></p>
+</li>
+<li><strong>Read:</strong> §4.5–4.18 (Stacks through Deques) in the <a href="https://runestone.academy/ns/books/published/pythonds/BasicDS/toctree.html">Basic Data Structures chapter - Runestone Academy, <em>Problem Solving with Algorithms and Data Structures using Python</em></a> - one chapter, not two separate ones as the name might suggest.</li>
+<li><strong>Do:</strong> Implement a stack and a queue using only arrays (no <code>collections.deque</code>). Solve NeetCode's Stack section (valid parentheses, min stack, monotonic stack problem, evaluate RPN).</li>
+</ul>
+<p><strong>Checkpoint:</strong> Closed-book - given an unseen problem, correctly identify within 2 minutes whether it's a stack or queue pattern and justify why. Then implement the solution correctly.</p>
+<h3>1.7 Hash Tables</h3>
+<p><strong>Objective:</strong> Understand how a hash map actually works under the hood (buckets, collision resolution, amortized O(1)) - not just <code>dict[key] = value</code>.</p>
+<p><strong>Teaching sessions (~40 min each):</strong></p>
+<ul>
+<li><strong>1.7a What Hashing Actually Is</strong> - hash functions, buckets, why lookup is (usually) O(1).</li>
+<li>
+<p><strong>1.7b Collision Resolution &amp; Building One From Scratch</strong> - separate chaining vs. open addressing, then implementing a hash map yourself.</p>
+</li>
+<li>
+<p><strong>Watch:</strong>  the Hashing section of <a href="https://www.youtube.com/watch?v=pkYVOmU3MgA">Data Structures and Algorithms in Python (freeCodeCamp)</a></p>
+</li>
+<li><strong>Read:</strong> <a href="https://runestone.academy/ns/books/published/pythonds/SortSearch/Hashing.html">§6.5 Hashing - Runestone Academy, <em>Problem Solving with Algorithms and Data Structures using Python</em>, Sorting and Searching chapter</a> - hashing lives inside the Sorting and Searching chapter in this book, not its own chapter.</li>
+<li><strong>Do:</strong> Implement a hash map from scratch using an array of buckets and separate chaining (or open addressing) for collision resolution - no built-in <code>dict</code>. Then solve NeetCode's Hashing section (two sum, group anagrams, top-k frequent).</li>
+</ul>
+<p><strong>Checkpoint:</strong> Closed-book explanation - explain what happens internally when two keys hash to the same bucket, and why average-case lookup is still O(1). Practical: your from-scratch hash map passes a 20-case unit test you write yourself (insert, lookup, delete, collision cases).</p>
+<h3>1.8 Recursion &amp; Backtracking</h3>
+<p><strong>Objective:</strong> Write recursive solutions without tracing through them on paper first; recognize backtracking problems (permutations, combinations, N-Queens-style) on sight.</p>
+<p><strong>Teaching sessions (~40 min each):</strong></p>
+<ul>
+<li><strong>1.8a Recursion Fundamentals</strong> - base case, recursive case, and how to trust the recursion instead of mentally unwinding the whole call stack.</li>
+<li>
+<p><strong>1.8b Backtracking</strong> - recursion plus "undo the choice and try the next one" - the choice/constraint/goal framework.</p>
+</li>
+<li>
+<p><strong>Watch:</strong>  the Recursion/Backtracking section of <a href="https://www.youtube.com/watch?v=pkYVOmU3MgA">Data Structures and Algorithms in Python (freeCodeCamp)</a></p>
+</li>
+<li><strong>Read:</strong> the <a href="https://runestone.academy/ns/books/published/pythonds/Recursion/toctree.html">Recursion chapter - Runestone Academy, <em>Problem Solving with Algorithms and Data Structures using Python</em></a> for recursion fundamentals, <strong>plus</strong> <a href="https://jeffe.cs.illinois.edu/teaching/algorithms/book/02-backtracking.pdf">Chapter 2: Backtracking - <em>Algorithms</em>, Jeff Erickson (free, UIUC)</a> for backtracking specifically - the Runestone book covers basic recursion but has no backtracking chapter at all, so this is a genuinely different book, not a substitute citation.</li>
+<li><strong>Do:</strong> Solve NeetCode's Backtracking section (subsets, permutations, combination sum, word search) - at least 6 problems, closed-book first attempt.</li>
+</ul>
+<p><strong>Checkpoint:</strong> Build from scratch, unaided - write a backtracking solution to an unseen problem (e.g. generate all valid parentheses combinations) in under 20 minutes, correctly identifying the choice/constraint/goal structure before coding.</p>
+<h3>1.9 Sorting &amp; Searching</h3>
+<p><strong>Objective:</strong> Implement merge sort, quicksort, and binary search from memory; know their complexities and trade-offs cold.</p>
+<p><strong>Teaching sessions (~40 min each):</strong></p>
+<ul>
+<li><strong>1.9a Merge Sort &amp; Quicksort</strong> - divide-and-conquer sorting, and why one is stable/predictable and the other is usually faster in practice but has a worst case.</li>
+<li>
+<p><strong>1.9b Binary Search</strong> - not just "sorted array lookup" - the general pattern of searching any monotonic space, including "search in rotated sorted array."</p>
+</li>
+<li>
+<p><strong>Watch:</strong>  the Sorting/Searching section of <a href="https://www.youtube.com/watch?v=pkYVOmU3MgA">Data Structures and Algorithms in Python (freeCodeCamp)</a></p>
+</li>
+<li><strong>Read:</strong> the <a href="https://runestone.academy/ns/books/published/pythonds/SortSearch/toctree.html">Sorting and Searching chapter - Runestone Academy, <em>Problem Solving with Algorithms and Data Structures using Python</em></a></li>
+<li><strong>Do:</strong> Implement merge sort, quicksort, and binary search (including "search in rotated sorted array" variant) from scratch, no <code>sorted()</code>/<code>sort()</code>. Solve 5 NeetCode binary-search problems.</li>
+</ul>
+<p><strong>Checkpoint:</strong> Closed-book, timed - implement merge sort AND binary search correctly, from memory, in under 25 minutes combined, no reference material.</p>
+<h3>1.10 Trees &amp; Binary Search Trees</h3>
+<p><strong>Objective:</strong> Implement tree traversals (in/pre/post-order, BFS level-order) and BST operations (insert, search, delete) from scratch; reason about balanced vs unbalanced trees.</p>
+<p><strong>Teaching sessions (~40 min each):</strong></p>
+<ul>
+<li><strong>1.10a Tree Traversals</strong> - in-order, pre-order, post-order (recursive) and level-order (BFS with a queue) - and when you'd want each.</li>
+<li>
+<p><strong>1.10b Binary Search Trees</strong> - the BST invariant, insert/search, and the tricky delete-with-two-children case.</p>
+</li>
+<li>
+<p><strong>Watch:</strong>  the Trees section of <a href="https://www.youtube.com/watch?v=pkYVOmU3MgA">Data Structures and Algorithms in Python (freeCodeCamp)</a></p>
+</li>
+<li><strong>Read:</strong> the <a href="https://runestone.academy/ns/books/published/pythonds/Trees/toctree.html">Trees and Tree Algorithms chapter - Runestone Academy, <em>Problem Solving with Algorithms and Data Structures using Python</em></a> (BST specifically is §7.11)</li>
+<li><strong>Do:</strong> Implement a BST with insert/search/delete (including the delete case with two children) and all four traversal orders, recursively and iteratively. Solve NeetCode's Trees section (validate BST, lowest common ancestor, level-order traversal, max depth) - at least 8 problems.</li>
+</ul>
+<p><strong>Checkpoint:</strong> Build from scratch, unaided - implement BST delete with the two-children case correctly (this is the case people get wrong). Closed-book explanation of why an unbalanced BST degrades to O(n).</p>
+<h3>1.11 Heaps &amp; Priority Queues</h3>
+<p><strong>Objective:</strong> Know when a problem needs a heap (top-K, merge-K, running median) and use Python's <code>heapq</code> correctly, plus understand the underlying array-based implementation.</p>
+<p><strong>Teaching sessions (~40 min):</strong> one sitting - the heap invariant, sift-up/sift-down, and <code>heapq</code> usage form one self-contained story; no split needed.</p>
+<ul>
+<li><strong>Watch:</strong>  the Heaps section of <a href="https://www.youtube.com/watch?v=pkYVOmU3MgA">Data Structures and Algorithms in Python (freeCodeCamp)</a></li>
+<li><strong>Read:</strong> §7.8–7.10 ("Priority Queues with Binary Heaps" through "Binary Heap Implementation") in the <a href="https://runestone.academy/ns/books/published/pythonds/Trees/BinaryHeapImplementation.html">Trees and Tree Algorithms chapter - Runestone Academy, <em>Problem Solving with Algorithms and Data Structures using Python</em></a>, and the <a href="https://docs.python.org/3/library/heapq.html">Python <code>heapq</code> docs</a> - heaps are covered inside the Trees chapter here, not as their own chapter.</li>
+<li><strong>Do:</strong> Implement a min-heap from scratch on top of a plain array (sift-up/sift-down), no <code>heapq</code>. Then solve NeetCode's Heap section (kth largest element, top-K frequent, merge K sorted lists) using <code>heapq</code>.</li>
+</ul>
+<p><strong>Checkpoint:</strong> Closed-book - explain how sift-up/sift-down maintain the heap invariant, and why insert/extract-min are O(log n). Practical: from-scratch heap passes your own unit tests.</p>
+<h3>1.12 Graphs</h3>
+<p><strong>Objective:</strong> Implement BFS, DFS, topological sort, and Dijkstra's algorithm from scratch; recognize which traversal a problem needs.</p>
+<p><strong>Teaching sessions (~40 min each):</strong></p>
+<ul>
+<li><strong>1.12a Graph Representation, BFS &amp; DFS</strong> - adjacency lists vs. matrices, and the two fundamental ways to explore a graph.</li>
+<li><strong>1.12b Topological Sort</strong> - ordering tasks with dependencies (Kahn's algorithm).</li>
+<li>
+<p><strong>1.12c Dijkstra's Algorithm</strong> - shortest paths when edges have different costs.</p>
+</li>
+<li>
+<p><strong>Watch:</strong>  the Graphs section of <a href="https://www.youtube.com/watch?v=pkYVOmU3MgA">Data Structures and Algorithms in Python (freeCodeCamp)</a></p>
+</li>
+<li><strong>Read:</strong> the <a href="https://runestone.academy/ns/books/published/pythonds/Graphs/toctree.html">Graphs and Graph Algorithms chapter - Runestone Academy, <em>Problem Solving with Algorithms and Data Structures using Python</em></a></li>
+<li><strong>Do:</strong> Represent a graph with an adjacency list, implement BFS, DFS (recursive and iterative), topological sort (Kahn's algorithm), and Dijkstra's shortest path - all from scratch. Solve NeetCode's Graphs section - at least 8 problems (number of islands, course schedule, clone graph, network delay time).</li>
+</ul>
+<p><strong>Checkpoint:</strong> Timed, closed-book - given an unseen graph problem, correctly choose BFS vs DFS vs Dijkstra within 2 minutes and justify the choice, then implement it correctly in 30 minutes.</p>
+<h3>1.13 Dynamic Programming &amp; Greedy Algorithms</h3>
+<p><strong>Objective:</strong> Recognize overlapping subproblems and optimal substructure; convert a brute-force recursive solution into memoized/tabulated DP; know when greedy is provably correct vs when it isn't.</p>
+<p><strong>Teaching sessions (~40 min each):</strong></p>
+<ul>
+<li><strong>1.13a From Recursion to Memoization to Tabulation</strong> - the DP mindset: brute-force recursion → cache the repeated work → flip it into a bottom-up table.</li>
+<li><strong>1.13b Classic DP Patterns</strong> - knapsack, longest common subsequence, longest increasing subsequence - the "shapes" most DP interview questions are variations of.</li>
+<li>
+<p><strong>1.13c Greedy Algorithms</strong> - making the locally-best choice, and how to tell (and prove) whether that's actually globally optimal.</p>
+</li>
+<li>
+<p><strong>Watch:</strong>  the DP/Greedy section of <a href="https://www.youtube.com/watch?v=pkYVOmU3MgA">Data Structures and Algorithms in Python (freeCodeCamp)</a></p>
+</li>
+<li><strong>Read:</strong> <a href="https://runestone.academy/ns/books/published/pythonds/Recursion/DynamicProgramming.html">§5.12 Dynamic Programming - Runestone Academy, <em>Problem Solving with Algorithms and Data Structures using Python</em>, Recursion chapter</a> for the intro (it's one section inside the Recursion chapter, not its own chapter, and only walks through the coin-change problem) - <strong>plus</strong>, for the depth this lesson actually needs (LCS, knapsack, LIS, and greedy proofs), <a href="https://jeffe.cs.illinois.edu/teaching/algorithms/book/03-dynprog.pdf">Chapter 3: Dynamic Programming</a> and <a href="https://jeffe.cs.illinois.edu/teaching/algorithms/book/04-greedy.pdf">Chapter 4: Greedy Algorithms</a> from <em>Algorithms</em> by Jeff Erickson (free, UIUC)</li>
+<li><strong>Do:</strong> Solve the classic DP progression yourself, closed-book, in order: Fibonacci (memoized), climbing stairs, coin change, longest common subsequence, 0/1 knapsack, longest increasing subsequence. Then 3 greedy problems from NeetCode (jump game, gas station, task scheduler).</li>
+</ul>
+<p><strong>Checkpoint:</strong> Build from scratch, unaided - given an unseen medium DP problem, correctly define the recurrence relation and base case in writing <em>before</em> coding (this is the step people skip and then flail). 45-minute time box.</p>
+<h3>1.14 Phase Capstone</h3>
+<p><strong>Objective:</strong> Prove you can combine everything in this phase, both by building and under interview-like pressure.</p>
+<p><strong>Teaching sessions:</strong> none - this is an assessment, not a taught lesson. It only requires your independent work plus a review conversation once you're done.</p>
+<p><strong>Do - Part A (Build):</strong> Implement a small "DSA library" module in Python: singly + doubly linked list, array-backed stack and queue, min-heap, hash map with collision handling, BST with insert/search/delete, and a graph with BFS/DFS - all from scratch, no relying on <code>list</code>/<code>dict</code>/<code>heapq</code>/<code>deque</code> internals for the core logic. Write unit tests for each.<br />
+<strong>Do - Part B (Timed assessment):</strong> 6 mixed problems from <a href="https://neetcode.io/practice/practice/neetcode150">NeetCode 150</a>, one per major topic (array, linked list, tree, graph, heap, DP), 3 hours, closed-book.</p>
+<p><strong>Checkpoint:</strong></p>
+<ul>
+<li>Your library passes your own unit tests.</li>
+<li>5/6 minimum on the timed set.</li>
+<li>If you fail: identify which topic broke down, redo that lesson's checkpoint, retry the capstone's timed portion (not the whole thing) before starting Phase 2. Log the failure in <a href="mistakes-log.md">mistakes-log.md</a>.</li>
+</ul>
+<div class="nav"><a href="../index.html">&larr; Back to index</a></div>
+</div>
+</body>
+</html>

@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>4.2 SOLID Principles</title>
+<style>
+:root {
+  --bg: #fdfdfb; --fg: #24292f; --muted: #5b6470; --border: #e1e4e8;
+  --code-bg: #f3f4f6; --link: #0b5fff; --accent: #6a3fd1; --chip: #f0edfb;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg:#1a1d23; --fg:#dadee3; --muted:#98a0ab; --border:#2f343c; --code-bg:#20242b; --link:#7aa2ff; --accent:#b79cff; --chip:#242233; }
+}
+:root[data-theme="dark"] { --bg:#1a1d23; --fg:#dadee3; --muted:#98a0ab; --border:#2f343c; --code-bg:#20242b; --link:#7aa2ff; --accent:#b79cff; --chip:#242233; }
+.theme-toggle { margin-left: .5rem; background: none; border: 1px solid var(--border); border-radius: 999px; width: 1.9rem; height: 1.9rem; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; font-size: .95rem; color: var(--fg); line-height: 1; padding: 0; }
+.theme-toggle:hover { border-color: var(--accent); }
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.65; margin: 0;
+}
+.page { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 6rem; }
+.topnav {
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; flex-wrap: wrap; gap: .9rem;
+  background: var(--bg); border-bottom: 1px solid var(--border);
+  padding: .7rem 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,.08);
+}
+.topnav a.back, .topnav .home { text-decoration: none; font-weight: 600; font-size: .92rem; white-space: nowrap; color: var(--fg); }
+.phase-pills { display: flex; gap: .35rem; flex-wrap: wrap; margin-left: auto; }
+.phase-pills a {
+  text-decoration: none; color: var(--muted); font-size: .8rem; font-weight: 600;
+  border: 1px solid var(--border); border-radius: 999px; padding: .2rem .6rem;
+}
+.phase-pills a:hover { border-color: var(--accent); color: var(--accent); }
+.phase-pills a.current { background: var(--accent); border-color: var(--accent); color: #fff; }
+h1, h2, h3, h4 { line-height: 1.3; }
+h1 { font-size: 1.9rem; border-bottom: 2px solid var(--accent); padding-bottom: .5rem; }
+h2 { font-size: 1.4rem; margin-top: 2.5rem; border-bottom: 1px solid var(--border); padding-bottom: .3rem; }
+h3 { font-size: 1.15rem; margin-top: 2rem; color: var(--accent); }
+a { color: var(--link); }
+p code, li code, td code { background: var(--code-bg); padding: .15em .4em; border-radius: 4px; font-size: .9em; word-break: break-word; }
+pre { background: var(--code-bg); padding: 1rem; border-radius: 8px; overflow-x: auto; border: 1px solid var(--border); }
+pre code { background: none; padding: 0; }
+table { border-collapse: collapse; width: 100%; margin: 1rem 0; display: block; overflow-x: auto; }
+th, td { border: 1px solid var(--border); padding: .5rem .75rem; text-align: left; }
+th { background: var(--code-bg); }
+blockquote { border-left: 3px solid var(--accent); margin: 1rem 0; padding: .2rem 1rem; color: var(--muted); }
+hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+.nav { margin-bottom: 1.5rem; font-size: .9rem; }
+.nav a { text-decoration: none; }
+ul, ol { padding-left: 1.4rem; }
+li { margin: .3rem 0; }
+img { max-width: 100%; }
+.chk { display: inline-block; width: .9em; height: .9em; border: 1.5px solid var(--muted); border-radius: 3px; margin-right: .4em; vertical-align: middle; }
+.chk.done { background: var(--accent); border-color: var(--accent); color: #fff; text-align: center; line-height: .85em; font-size: .75em; }
+.codehilite { background: var(--code-bg) !important; border-radius: 8px; }
+pre { line-height: 125%; }
+td.linenos .normal { color: #666666; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: #666666; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+.codehilite .hll { background-color: #ffffcc }
+.codehilite { background: #f0f0f0; }
+.codehilite .c { color: #60A0B0; font-style: italic } /* Comment */
+.codehilite .err { border: 1px solid #F00 } /* Error */
+.codehilite .k { color: #007020; font-weight: bold } /* Keyword */
+.codehilite .o { color: #666 } /* Operator */
+.codehilite .ch { color: #60A0B0; font-style: italic } /* Comment.Hashbang */
+.codehilite .cm { color: #60A0B0; font-style: italic } /* Comment.Multiline */
+.codehilite .cp { color: #007020 } /* Comment.Preproc */
+.codehilite .cpf { color: #60A0B0; font-style: italic } /* Comment.PreprocFile */
+.codehilite .c1 { color: #60A0B0; font-style: italic } /* Comment.Single */
+.codehilite .cs { color: #60A0B0; background-color: #FFF0F0 } /* Comment.Special */
+.codehilite .gd { color: #A00000 } /* Generic.Deleted */
+.codehilite .ge { font-style: italic } /* Generic.Emph */
+.codehilite .ges { font-weight: bold; font-style: italic } /* Generic.EmphStrong */
+.codehilite .gr { color: #F00 } /* Generic.Error */
+.codehilite .gh { color: #000080; font-weight: bold } /* Generic.Heading */
+.codehilite .gi { color: #00A000 } /* Generic.Inserted */
+.codehilite .go { color: #888 } /* Generic.Output */
+.codehilite .gp { color: #C65D09; font-weight: bold } /* Generic.Prompt */
+.codehilite .gs { font-weight: bold } /* Generic.Strong */
+.codehilite .gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+.codehilite .gt { color: #04D } /* Generic.Traceback */
+.codehilite .kc { color: #007020; font-weight: bold } /* Keyword.Constant */
+.codehilite .kd { color: #007020; font-weight: bold } /* Keyword.Declaration */
+.codehilite .kn { color: #007020; font-weight: bold } /* Keyword.Namespace */
+.codehilite .kp { color: #007020 } /* Keyword.Pseudo */
+.codehilite .kr { color: #007020; font-weight: bold } /* Keyword.Reserved */
+.codehilite .kt { color: #902000 } /* Keyword.Type */
+.codehilite .m { color: #40A070 } /* Literal.Number */
+.codehilite .s { color: #4070A0 } /* Literal.String */
+.codehilite .na { color: #4070A0 } /* Name.Attribute */
+.codehilite .nb { color: #007020 } /* Name.Builtin */
+.codehilite .nc { color: #0E84B5; font-weight: bold } /* Name.Class */
+.codehilite .no { color: #60ADD5 } /* Name.Constant */
+.codehilite .nd { color: #555; font-weight: bold } /* Name.Decorator */
+.codehilite .ni { color: #D55537; font-weight: bold } /* Name.Entity */
+.codehilite .ne { color: #007020 } /* Name.Exception */
+.codehilite .nf { color: #06287E } /* Name.Function */
+.codehilite .nl { color: #002070; font-weight: bold } /* Name.Label */
+.codehilite .nn { color: #0E84B5; font-weight: bold } /* Name.Namespace */
+.codehilite .nt { color: #062873; font-weight: bold } /* Name.Tag */
+.codehilite .nv { color: #BB60D5 } /* Name.Variable */
+.codehilite .ow { color: #007020; font-weight: bold } /* Operator.Word */
+.codehilite .w { color: #BBB } /* Text.Whitespace */
+.codehilite .mb { color: #40A070 } /* Literal.Number.Bin */
+.codehilite .mf { color: #40A070 } /* Literal.Number.Float */
+.codehilite .mh { color: #40A070 } /* Literal.Number.Hex */
+.codehilite .mi { color: #40A070 } /* Literal.Number.Integer */
+.codehilite .mo { color: #40A070 } /* Literal.Number.Oct */
+.codehilite .sa { color: #4070A0 } /* Literal.String.Affix */
+.codehilite .sb { color: #4070A0 } /* Literal.String.Backtick */
+.codehilite .sc { color: #4070A0 } /* Literal.String.Char */
+.codehilite .dl { color: #4070A0 } /* Literal.String.Delimiter */
+.codehilite .sd { color: #4070A0; font-style: italic } /* Literal.String.Doc */
+.codehilite .s2 { color: #4070A0 } /* Literal.String.Double */
+.codehilite .se { color: #4070A0; font-weight: bold } /* Literal.String.Escape */
+.codehilite .sh { color: #4070A0 } /* Literal.String.Heredoc */
+.codehilite .si { color: #70A0D0; font-style: italic } /* Literal.String.Interpol */
+.codehilite .sx { color: #C65D09 } /* Literal.String.Other */
+.codehilite .sr { color: #235388 } /* Literal.String.Regex */
+.codehilite .s1 { color: #4070A0 } /* Literal.String.Single */
+.codehilite .ss { color: #517918 } /* Literal.String.Symbol */
+.codehilite .bp { color: #007020 } /* Name.Builtin.Pseudo */
+.codehilite .fm { color: #06287E } /* Name.Function.Magic */
+.codehilite .vc { color: #BB60D5 } /* Name.Variable.Class */
+.codehilite .vg { color: #BB60D5 } /* Name.Variable.Global */
+.codehilite .vi { color: #BB60D5 } /* Name.Variable.Instance */
+.codehilite .vm { color: #BB60D5 } /* Name.Variable.Magic */
+.codehilite .il { color: #40A070 } /* Literal.Number.Integer.Long */</style>
+<script>
+(function(){
+  try {
+    var t = localStorage.getItem('theme');
+    if (t) document.documentElement.setAttribute('data-theme', t);
+  } catch (e) {}
+})();
+function getEffectiveTheme(){
+  var attr = document.documentElement.getAttribute('data-theme');
+  if (attr) return attr;
+  return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+}
+function toggleTheme(){
+  var next = getEffectiveTheme() === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  try { localStorage.setItem('theme', next); } catch (e) {}
+  updateThemeToggleIcon();
+}
+function updateThemeToggleIcon(){
+  var btn = document.querySelector('.theme-toggle');
+  if (btn) btn.textContent = getEffectiveTheme() === 'dark' ? '☀️' : '🌙';
+}
+document.addEventListener('DOMContentLoaded', updateThemeToggleIcon);
+</script>
+</head>
+<body>
+<nav class="topnav">
+<a class="back" href="../../index.html">&larr; Back to index</a>
+<div class="phase-pills"><a href="../../index.html#phase-1" title="Phase 1">Phase1</a><a href="../../index.html#phase-2" title="Phase 2">Phase2</a><a href="../../index.html#phase-3" title="Phase 3">Phase3</a><a class="current" href="../../index.html#phase-4" title="Phase 4">Phase4</a><a href="../../index.html#phase-5" title="Phase 5">Phase5</a><a href="../../index.html#phase-6" title="Phase 6">Phase6</a></div>
+<button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle color theme" title="Toggle color theme">🌙</button>
+</nav>
+<div class="page">
+<h1>4.2 SOLID Principles</h1>
+<p>Objective: identify SOLID violations in real code and fix them - not just recite the five letters.</p>
+<hr />
+<h2>4.2a Single Responsibility &amp; Open/Closed</h2>
+<p><strong>Single Responsibility Principle (SRP):</strong> a class should have only one <strong>reason to change</strong> - responsible for one part/concern of the system, not several unrelated ones bundled together.</p>
+<p><em>Plain English:</em> if a class handles pay calculation <em>and</em> report formatting <em>and</em> database persistence, a change to <em>any</em> of those three unrelated concerns (a tax rule, a report format, a DB switch) forces editing this one class - and each change is driven by a <em>different</em> stakeholder, meaning multiple reasons to change. Split each concern into its own class.</p>
+<p><em>Analogy:</em> an employee whose job description is "accountant AND graphic designer AND database administrator" - three unrelated departments can each demand changes to this one role, and a change for one risks breaking something for another, purely because they were bundled into one job that should've been three.</p>
+<p><strong>Open/Closed Principle (OCP):</strong> software entities should be <strong>open for extension, closed for modification</strong> - add new behavior without editing existing, already-tested code.</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># violates SRP</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Employee</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">calculate_pay</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="o">...</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">format_report</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="o">...</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">save_to_db</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="o">...</span>
+
+<span class="c1"># SRP fix</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">PayCalculator</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">calculate_pay</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">employee</span><span class="p">):</span> <span class="o">...</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ReportFormatter</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">format_report</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">employee</span><span class="p">):</span> <span class="o">...</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">EmployeeRepository</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">employee</span><span class="p">):</span> <span class="o">...</span>
+
+<span class="c1"># violates OCP -- adding a new discount type means editing this function</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">calculate_discount</span><span class="p">(</span><span class="n">customer_type</span><span class="p">,</span> <span class="n">amount</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">customer_type</span> <span class="o">==</span> <span class="s2">&quot;regular&quot;</span><span class="p">:</span> <span class="k">return</span> <span class="n">amount</span> <span class="o">*</span> <span class="mf">0.95</span>
+    <span class="k">elif</span> <span class="n">customer_type</span> <span class="o">==</span> <span class="s2">&quot;vip&quot;</span><span class="p">:</span> <span class="k">return</span> <span class="n">amount</span> <span class="o">*</span> <span class="mf">0.90</span>
+    <span class="c1"># a new case means editing existing, already-tested code</span>
+
+<span class="c1"># OCP fix -- extend via new classes, don&#39;t modify existing ones</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">DiscountStrategy</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">amount</span><span class="p">):</span> <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">RegularDiscount</span><span class="p">(</span><span class="n">DiscountStrategy</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">amount</span><span class="p">):</span> <span class="k">return</span> <span class="n">amount</span> <span class="o">*</span> <span class="mf">0.95</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">VIPDiscount</span><span class="p">(</span><span class="n">DiscountStrategy</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">amount</span><span class="p">):</span> <span class="k">return</span> <span class="n">amount</span> <span class="o">*</span> <span class="mf">0.90</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">EmployeeDiscount</span><span class="p">(</span><span class="n">DiscountStrategy</span><span class="p">):</span>    <span class="c1"># NEW -- added without touching existing classes</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">apply</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">amount</span><span class="p">):</span> <span class="k">return</span> <span class="n">amount</span> <span class="o">*</span> <span class="mf">0.80</span>
+</code></pre></div>
+
+<hr />
+<h2>4.2b Liskov Substitution &amp; Interface Segregation</h2>
+<p><strong>Liskov Substitution Principle (LSP):</strong> objects of a subclass must be substitutable for objects of the superclass without breaking program correctness - a subclass shouldn't strengthen preconditions, weaken postconditions, or otherwise violate behavior callers reasonably expect. This is the formal name for 4.1's Penguin/<code>fly()</code> problem - if code written against the parent's promised behavior breaks when handed a child instance, LSP is violated, even if it type-checks fine.</p>
+<p><strong>Interface Segregation Principle (ISP):</strong> clients shouldn't be forced to depend on methods they don't use - prefer several small, specific interfaces over one large, general-purpose one.</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># violates LSP</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Rectangle</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span><span class="p">):</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">h</span> <span class="o">=</span> <span class="n">w</span><span class="p">,</span> <span class="n">h</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_width</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">w</span><span class="p">):</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span> <span class="o">=</span> <span class="n">w</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_height</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">h</span><span class="p">):</span> <span class="bp">self</span><span class="o">.</span><span class="n">h</span> <span class="o">=</span> <span class="n">h</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">area</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">h</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Square</span><span class="p">(</span><span class="n">Rectangle</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_width</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">w</span><span class="p">):</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">h</span> <span class="o">=</span> <span class="n">w</span>      <span class="c1"># forces height to match --</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">set_height</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">h</span><span class="p">):</span> <span class="bp">self</span><span class="o">.</span><span class="n">w</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">h</span> <span class="o">=</span> <span class="n">h</span>       <span class="c1"># breaks the parent&#39;s &quot;set independently&quot; assumption</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">resize</span><span class="p">(</span><span class="n">rect</span><span class="p">):</span>
+    <span class="n">rect</span><span class="o">.</span><span class="n">set_width</span><span class="p">(</span><span class="mi">5</span><span class="p">);</span> <span class="n">rect</span><span class="o">.</span><span class="n">set_height</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+    <span class="k">assert</span> <span class="n">rect</span><span class="o">.</span><span class="n">area</span><span class="p">()</span> <span class="o">==</span> <span class="mi">20</span>     <span class="c1"># passes for Rectangle, FAILS for Square (area=16) -- LSP violated</span>
+
+<span class="c1"># violates ISP -- one bloated interface</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Worker</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">work</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="o">...</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">eat</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="o">...</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">sleep</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="o">...</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">RobotWorker</span><span class="p">(</span><span class="n">Worker</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">work</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="k">return</span> <span class="s2">&quot;working&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">eat</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;robots don&#39;t eat&quot;</span><span class="p">)</span>     <span class="c1"># forced, meaningless</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">sleep</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;robots don&#39;t sleep&quot;</span><span class="p">)</span>
+
+<span class="c1"># ISP fix -- split into role-specific interfaces</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Workable</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">work</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="o">...</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Eatable</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">eat</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="o">...</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Sleepable</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">sleep</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="o">...</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">RobotWorker</span><span class="p">(</span><span class="n">Workable</span><span class="p">):</span>                 <span class="c1"># only depends on what it needs</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">work</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="k">return</span> <span class="s2">&quot;working&quot;</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">HumanWorker</span><span class="p">(</span><span class="n">Workable</span><span class="p">,</span> <span class="n">Eatable</span><span class="p">,</span> <span class="n">Sleepable</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">work</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="k">return</span> <span class="s2">&quot;working&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">eat</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="k">return</span> <span class="s2">&quot;eating&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">sleep</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="k">return</span> <span class="s2">&quot;sleeping&quot;</span>
+</code></pre></div>
+
+<hr />
+<h2>4.2c Dependency Inversion</h2>
+<p><strong>Dependency Inversion Principle (DIP):</strong> high-level modules should not depend on low-level modules - both should depend on <strong>abstractions</strong>; abstractions should not depend on details, details should depend on abstractions. This is the principle that makes the other four actually enforceable in practice.</p>
+<p><em>Plain English:</em> if high-level business logic directly instantiates a <em>specific</em> low-level implementation (a specific database class), you can't swap it without editing the high-level code (violating OCP), and can't test the high-level logic in isolation (stuck with the real database). Instead, high-level code depends on an <em>abstract</em> interface ("something that can save data"), and the specific implementation is plugged in from outside (dependency injection).</p>
+<p><em>Analogy:</em> a wall socket (the abstraction) vs. wiring a lamp directly into the house's wiring (a concrete dependency). Appliances don't hard-wire to one specific power plant's wiring - they plug into a standardized socket, and the power source behind it can change (generator, solar, battery) without the appliance ever needing rewiring.</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># violates DIP</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">MySQLDatabase</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span> <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saving </span><span class="si">{</span><span class="n">data</span><span class="si">}</span><span class="s2"> to MySQL&quot;</span><span class="p">)</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">OrderService</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db</span> <span class="o">=</span> <span class="n">MySQLDatabase</span><span class="p">()</span>      <span class="c1"># hard-wired to one specific implementation</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">place_order</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">order</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">order</span><span class="p">)</span>
+
+<span class="c1"># DIP fix -- depend on an abstraction, inject the concrete implementation</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Database</span><span class="p">:</span>                          <span class="c1"># abstraction</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span> <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">MySQLDatabase</span><span class="p">(</span><span class="n">Database</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span> <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saving </span><span class="si">{</span><span class="n">data</span><span class="si">}</span><span class="s2"> to MySQL&quot;</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">PostgresDatabase</span><span class="p">(</span><span class="n">Database</span><span class="p">):</span>          <span class="c1"># swap freely -- OrderService never changes</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">data</span><span class="p">):</span> <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Saving </span><span class="si">{</span><span class="n">data</span><span class="si">}</span><span class="s2"> to Postgres&quot;</span><span class="p">)</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">OrderService</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">db</span><span class="p">:</span> <span class="n">Database</span><span class="p">):</span>        <span class="c1"># depends on the ABSTRACTION</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db</span> <span class="o">=</span> <span class="n">db</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">place_order</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">order</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">db</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">order</span><span class="p">)</span>
+
+<span class="n">order_service</span> <span class="o">=</span> <span class="n">OrderService</span><span class="p">(</span><span class="n">PostgresDatabase</span><span class="p">())</span>    <span class="c1"># swap without touching OrderService</span>
+</code></pre></div>
+
+<hr />
+<h2>Watch / Read / Do / Checkpoint</h2>
+<p><strong>Watch:</strong> <a href="https://www.youtube.com/watch?v=pTB30aXS77U">Uncle Bob's SOLID Principles Made Easy - In Python!</a> and <a href="https://www.youtube.com/watch?v=SbhTxv6Xhfc">SOLID Principles Explained | Python Example</a><br />
+<strong>Read:</strong> <a href="https://github.com/ashishps1/awesome-low-level-design">awesome-low-level-design (ashishps1)</a></p>
+<p><strong>Do:</strong></p>
+<ul>
+<li><span class="chk"></span> Find at least 3 real SOLID violations in your own code (or the Phase 2 API), refactor each one principle at a time, committing separately so the before/after is visible.</li>
+</ul>
+<p><strong>Checkpoint:</strong></p>
+<ul>
+<li><span class="chk"></span> Closed-book - given an unseen 30-line class that violates 2–3 SOLID principles, identify every violation and explain the concrete failure mode each one causes.</li>
+</ul>
+<p><em>(Deferred - tracked in <a href="../../deferred-exercises.md">../../deferred-exercises.md</a>.)</em></p>
+<div class="nav"><a href="../../index.html">&larr; Back to index</a></div>
+</div>
+</body>
+</html>

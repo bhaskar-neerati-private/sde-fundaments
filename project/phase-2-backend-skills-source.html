@@ -1,0 +1,288 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Phase 2 source</title>
+<style>
+:root {
+  --bg: #fdfdfb; --fg: #24292f; --muted: #5b6470; --border: #e1e4e8;
+  --code-bg: #f3f4f6; --link: #0b5fff; --accent: #6a3fd1; --chip: #f0edfb;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg:#1a1d23; --fg:#dadee3; --muted:#98a0ab; --border:#2f343c; --code-bg:#20242b; --link:#7aa2ff; --accent:#b79cff; --chip:#242233; }
+}
+:root[data-theme="dark"] { --bg:#1a1d23; --fg:#dadee3; --muted:#98a0ab; --border:#2f343c; --code-bg:#20242b; --link:#7aa2ff; --accent:#b79cff; --chip:#242233; }
+.theme-toggle { margin-left: .5rem; background: none; border: 1px solid var(--border); border-radius: 999px; width: 1.9rem; height: 1.9rem; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; font-size: .95rem; color: var(--fg); line-height: 1; padding: 0; }
+.theme-toggle:hover { border-color: var(--accent); }
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.65; margin: 0;
+}
+.page { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 6rem; }
+.topnav {
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; flex-wrap: wrap; gap: .9rem;
+  background: var(--bg); border-bottom: 1px solid var(--border);
+  padding: .7rem 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,.08);
+}
+.topnav a.back, .topnav .home { text-decoration: none; font-weight: 600; font-size: .92rem; white-space: nowrap; color: var(--fg); }
+.phase-pills { display: flex; gap: .35rem; flex-wrap: wrap; margin-left: auto; }
+.phase-pills a {
+  text-decoration: none; color: var(--muted); font-size: .8rem; font-weight: 600;
+  border: 1px solid var(--border); border-radius: 999px; padding: .2rem .6rem;
+}
+.phase-pills a:hover { border-color: var(--accent); color: var(--accent); }
+.phase-pills a.current { background: var(--accent); border-color: var(--accent); color: #fff; }
+h1, h2, h3, h4 { line-height: 1.3; }
+h1 { font-size: 1.9rem; border-bottom: 2px solid var(--accent); padding-bottom: .5rem; }
+h2 { font-size: 1.4rem; margin-top: 2.5rem; border-bottom: 1px solid var(--border); padding-bottom: .3rem; }
+h3 { font-size: 1.15rem; margin-top: 2rem; color: var(--accent); }
+a { color: var(--link); }
+p code, li code, td code { background: var(--code-bg); padding: .15em .4em; border-radius: 4px; font-size: .9em; word-break: break-word; }
+pre { background: var(--code-bg); padding: 1rem; border-radius: 8px; overflow-x: auto; border: 1px solid var(--border); }
+pre code { background: none; padding: 0; }
+table { border-collapse: collapse; width: 100%; margin: 1rem 0; display: block; overflow-x: auto; }
+th, td { border: 1px solid var(--border); padding: .5rem .75rem; text-align: left; }
+th { background: var(--code-bg); }
+blockquote { border-left: 3px solid var(--accent); margin: 1rem 0; padding: .2rem 1rem; color: var(--muted); }
+hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+.nav { margin-bottom: 1.5rem; font-size: .9rem; }
+.nav a { text-decoration: none; }
+ul, ol { padding-left: 1.4rem; }
+li { margin: .3rem 0; }
+img { max-width: 100%; }
+.chk { display: inline-block; width: .9em; height: .9em; border: 1.5px solid var(--muted); border-radius: 3px; margin-right: .4em; vertical-align: middle; }
+.chk.done { background: var(--accent); border-color: var(--accent); color: #fff; text-align: center; line-height: .85em; font-size: .75em; }
+.codehilite { background: var(--code-bg) !important; border-radius: 8px; }
+pre { line-height: 125%; }
+td.linenos .normal { color: #666666; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: #666666; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+.codehilite .hll { background-color: #ffffcc }
+.codehilite { background: #f0f0f0; }
+.codehilite .c { color: #60A0B0; font-style: italic } /* Comment */
+.codehilite .err { border: 1px solid #F00 } /* Error */
+.codehilite .k { color: #007020; font-weight: bold } /* Keyword */
+.codehilite .o { color: #666 } /* Operator */
+.codehilite .ch { color: #60A0B0; font-style: italic } /* Comment.Hashbang */
+.codehilite .cm { color: #60A0B0; font-style: italic } /* Comment.Multiline */
+.codehilite .cp { color: #007020 } /* Comment.Preproc */
+.codehilite .cpf { color: #60A0B0; font-style: italic } /* Comment.PreprocFile */
+.codehilite .c1 { color: #60A0B0; font-style: italic } /* Comment.Single */
+.codehilite .cs { color: #60A0B0; background-color: #FFF0F0 } /* Comment.Special */
+.codehilite .gd { color: #A00000 } /* Generic.Deleted */
+.codehilite .ge { font-style: italic } /* Generic.Emph */
+.codehilite .ges { font-weight: bold; font-style: italic } /* Generic.EmphStrong */
+.codehilite .gr { color: #F00 } /* Generic.Error */
+.codehilite .gh { color: #000080; font-weight: bold } /* Generic.Heading */
+.codehilite .gi { color: #00A000 } /* Generic.Inserted */
+.codehilite .go { color: #888 } /* Generic.Output */
+.codehilite .gp { color: #C65D09; font-weight: bold } /* Generic.Prompt */
+.codehilite .gs { font-weight: bold } /* Generic.Strong */
+.codehilite .gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+.codehilite .gt { color: #04D } /* Generic.Traceback */
+.codehilite .kc { color: #007020; font-weight: bold } /* Keyword.Constant */
+.codehilite .kd { color: #007020; font-weight: bold } /* Keyword.Declaration */
+.codehilite .kn { color: #007020; font-weight: bold } /* Keyword.Namespace */
+.codehilite .kp { color: #007020 } /* Keyword.Pseudo */
+.codehilite .kr { color: #007020; font-weight: bold } /* Keyword.Reserved */
+.codehilite .kt { color: #902000 } /* Keyword.Type */
+.codehilite .m { color: #40A070 } /* Literal.Number */
+.codehilite .s { color: #4070A0 } /* Literal.String */
+.codehilite .na { color: #4070A0 } /* Name.Attribute */
+.codehilite .nb { color: #007020 } /* Name.Builtin */
+.codehilite .nc { color: #0E84B5; font-weight: bold } /* Name.Class */
+.codehilite .no { color: #60ADD5 } /* Name.Constant */
+.codehilite .nd { color: #555; font-weight: bold } /* Name.Decorator */
+.codehilite .ni { color: #D55537; font-weight: bold } /* Name.Entity */
+.codehilite .ne { color: #007020 } /* Name.Exception */
+.codehilite .nf { color: #06287E } /* Name.Function */
+.codehilite .nl { color: #002070; font-weight: bold } /* Name.Label */
+.codehilite .nn { color: #0E84B5; font-weight: bold } /* Name.Namespace */
+.codehilite .nt { color: #062873; font-weight: bold } /* Name.Tag */
+.codehilite .nv { color: #BB60D5 } /* Name.Variable */
+.codehilite .ow { color: #007020; font-weight: bold } /* Operator.Word */
+.codehilite .w { color: #BBB } /* Text.Whitespace */
+.codehilite .mb { color: #40A070 } /* Literal.Number.Bin */
+.codehilite .mf { color: #40A070 } /* Literal.Number.Float */
+.codehilite .mh { color: #40A070 } /* Literal.Number.Hex */
+.codehilite .mi { color: #40A070 } /* Literal.Number.Integer */
+.codehilite .mo { color: #40A070 } /* Literal.Number.Oct */
+.codehilite .sa { color: #4070A0 } /* Literal.String.Affix */
+.codehilite .sb { color: #4070A0 } /* Literal.String.Backtick */
+.codehilite .sc { color: #4070A0 } /* Literal.String.Char */
+.codehilite .dl { color: #4070A0 } /* Literal.String.Delimiter */
+.codehilite .sd { color: #4070A0; font-style: italic } /* Literal.String.Doc */
+.codehilite .s2 { color: #4070A0 } /* Literal.String.Double */
+.codehilite .se { color: #4070A0; font-weight: bold } /* Literal.String.Escape */
+.codehilite .sh { color: #4070A0 } /* Literal.String.Heredoc */
+.codehilite .si { color: #70A0D0; font-style: italic } /* Literal.String.Interpol */
+.codehilite .sx { color: #C65D09 } /* Literal.String.Other */
+.codehilite .sr { color: #235388 } /* Literal.String.Regex */
+.codehilite .s1 { color: #4070A0 } /* Literal.String.Single */
+.codehilite .ss { color: #517918 } /* Literal.String.Symbol */
+.codehilite .bp { color: #007020 } /* Name.Builtin.Pseudo */
+.codehilite .fm { color: #06287E } /* Name.Function.Magic */
+.codehilite .vc { color: #BB60D5 } /* Name.Variable.Class */
+.codehilite .vg { color: #BB60D5 } /* Name.Variable.Global */
+.codehilite .vi { color: #BB60D5 } /* Name.Variable.Instance */
+.codehilite .vm { color: #BB60D5 } /* Name.Variable.Magic */
+.codehilite .il { color: #40A070 } /* Literal.Number.Integer.Long */</style>
+<script>
+(function(){
+  try {
+    var t = localStorage.getItem('theme');
+    if (t) document.documentElement.setAttribute('data-theme', t);
+  } catch (e) {}
+})();
+function getEffectiveTheme(){
+  var attr = document.documentElement.getAttribute('data-theme');
+  if (attr) return attr;
+  return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+}
+function toggleTheme(){
+  var next = getEffectiveTheme() === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  try { localStorage.setItem('theme', next); } catch (e) {}
+  updateThemeToggleIcon();
+}
+function updateThemeToggleIcon(){
+  var btn = document.querySelector('.theme-toggle');
+  if (btn) btn.textContent = getEffectiveTheme() === 'dark' ? '☀️' : '🌙';
+}
+document.addEventListener('DOMContentLoaded', updateThemeToggleIcon);
+</script>
+</head>
+<body>
+<nav class="topnav">
+<a class="back" href="../index.html">&larr; Back to index</a>
+<div class="phase-pills"><a href="../index.html#phase-1" title="Phase 1">Phase1</a><a class="current" href="../index.html#phase-2" title="Phase 2">Phase2</a><a href="../index.html#phase-3" title="Phase 3">Phase3</a><a href="../index.html#phase-4" title="Phase 4">Phase4</a><a href="../index.html#phase-5" title="Phase 5">Phase5</a><a href="../index.html#phase-6" title="Phase 6">Phase6</a></div>
+<button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle color theme" title="Toggle color theme">🌙</button>
+</nav>
+<div class="page">
+<h1>Phase 2: Core Backend Skills</h1>
+<ul>
+<li><strong>Duration:</strong> 2–3 weeks at 15–20 hrs/week (~30–50 hrs total)</li>
+<li><strong>Builds on:</strong> nothing from Phase 1 directly, but the discipline of "build it from scratch, then verify" carries over.</li>
+<li><strong>Unlocks:</strong> Phase 4's HLD lessons assume you already know what an API and a database actually do under load; Phase 5's caching/messaging lessons assume you can build a working backend service.</li>
+</ul>
+<p><strong>How to read this file:</strong> each numbered lesson has its own Watch/Read/Do/Checkpoint - that's the gate. <strong>"Teaching sessions"</strong> underneath breaks it into the ~40-minute chunks taught live in chat, one sitting at a time.</p>
+<h2>Lessons</h2>
+<ul>
+<li><span class="chk"></span> 2.1 Relational DB Design &amp; Normalization</li>
+<li><span class="chk"></span> 2.1a Why Normalize? 1NF &amp; 2NF</li>
+<li><span class="chk"></span> 2.1b 3NF &amp; Designing a Real Schema</li>
+<li><span class="chk"></span> 2.2 SQL Querying</li>
+<li><span class="chk"></span> 2.2a Joins &amp; Aggregations</li>
+<li><span class="chk"></span> 2.2b Subqueries &amp; Window Functions</li>
+<li><span class="chk"></span> 2.3 Indexing &amp; Query Performance</li>
+<li><span class="chk"></span> 2.4 REST API Design Principles</li>
+<li><span class="chk"></span> 2.5 Building APIs with FastAPI</li>
+<li><span class="chk"></span> 2.5a FastAPI Basics &amp; Request Validation</li>
+<li><span class="chk"></span> 2.5b Database Integration &amp; Error Handling</li>
+<li><span class="chk"></span> 2.6 Debugging Techniques &amp; Tools</li>
+<li><span class="chk"></span> 2.7 Testing Fundamentals &amp; TDD</li>
+<li><span class="chk"></span> 2.7a pytest Fundamentals</li>
+<li><span class="chk"></span> 2.7b The TDD Workflow</li>
+<li><span class="chk"></span> 2.8 Phase Capstone</li>
+</ul>
+<hr />
+<h3>2.1 Relational DB Design &amp; Normalization</h3>
+<p><strong>Objective:</strong> Design a normalized relational schema from a set of requirements, and explain why each normal form matters (not just recite 1NF/2NF/3NF definitions).</p>
+<p><strong>Teaching sessions (~40 min each):</strong></p>
+<ul>
+<li><strong>2.1a Why Normalize? 1NF &amp; 2NF</strong> - what goes wrong when data is duplicated across rows, and the first two fixes.</li>
+<li>
+<p><strong>2.1b 3NF &amp; Designing a Real Schema</strong> - removing indirect dependencies, then applying all three forms to an actual e-commerce schema.</p>
+</li>
+<li>
+<p><strong>Watch:</strong> the schema-design portion of <a href="https://www.youtube.com/watch?v=HXV3zeQKqGY">SQL Tutorial – Full Database Course for Beginners (freeCodeCamp)</a></p>
+</li>
+<li><strong>Read:</strong> <a href="https://www.postgresql.org/docs/current/tutorial.html">PostgreSQL Tutorial - official docs</a> (sections on tables/relations) and <a href="https://www.freecodecamp.org/news/a-beginners-guide-to-sql/">freeCodeCamp's SQL handbook</a></li>
+<li><strong>Do:</strong> Design a normalized schema (to 3NF) for a small e-commerce system (users, orders, products, inventory) from scratch on paper/diagram, then implement it as <code>CREATE TABLE</code> statements.</li>
+</ul>
+<p><strong>Checkpoint:</strong> Closed-book - given an unseen denormalized table, identify the normal-form violations and redesign it to 3NF, explaining the <em>anomaly</em> (update/insert/delete) each fix prevents.</p>
+<h3>2.2 SQL Querying</h3>
+<p><strong>Objective:</strong> Write joins, aggregations, subqueries, and window functions fluently without looking up syntax.</p>
+<p><strong>Teaching sessions (~40 min each):</strong></p>
+<ul>
+<li><strong>2.2a Joins &amp; Aggregations</strong> - inner/left/right joins, <code>GROUP BY</code>, <code>HAVING</code>.</li>
+<li>
+<p><strong>2.2b Subqueries &amp; Window Functions</strong> - nesting queries, correlated subqueries, and <code>RANK()</code>/<code>ROW_NUMBER()</code>-style running calculations.</p>
+</li>
+<li>
+<p><strong>Watch:</strong> <a href="https://www.youtube.com/watch?v=HXV3zeQKqGY">SQL Tutorial – Full Database Course for Beginners (freeCodeCamp)</a> (~4.5 hrs) - the querying sections</p>
+</li>
+<li><strong>Read:</strong> <a href="https://www.postgresql.org/docs/current/tutorial.html">PostgreSQL Tutorial - official docs, Queries chapter</a></li>
+<li><strong>Do:</strong> Using the schema from 2.1, write: an inner join across 3 tables, a <code>GROUP BY</code> with <code>HAVING</code>, a correlated subquery, and a window function (<code>RANK()</code> or <code>ROW_NUMBER()</code>) solving a real question (e.g. "top 3 orders per customer by value").</li>
+</ul>
+<p><strong>Checkpoint:</strong> Timed, closed-book - given 5 unseen query requirements against a schema you haven't seen before, write correct SQL for at least 4/5 in 45 minutes.</p>
+<h3>2.3 Indexing &amp; Query Performance</h3>
+<p><strong>Objective:</strong> Explain how a B-tree index speeds up lookups, when an index helps vs. hurts, and read a query plan (<code>EXPLAIN</code>) to diagnose a slow query.</p>
+<p><strong>Teaching sessions (~40 min):</strong> one sitting - the index/B-tree/EXPLAIN story is one coherent narrative; no split needed.</p>
+<ul>
+<li><strong>Read:</strong> <a href="https://www.postgresql.org/docs/current/tutorial.html">PostgreSQL Tutorial - official docs</a> plus the <code>EXPLAIN</code> documentation (search "Using EXPLAIN" in the same docs)</li>
+<li><strong>Do:</strong> Load a table with 100k+ synthetic rows, run a query without an index, note the plan and timing, add an index on the filtered column, rerun, and compare. Do this for at least 2 different query patterns (equality filter, range filter).</li>
+</ul>
+<p><strong>Checkpoint:</strong> Closed-book explanation - walk through what happens internally when you add an index (B-tree structure, why lookups go from O(n) to O(log n)), and explain a scenario where adding an index would make writes worse without helping reads.</p>
+<h3>2.4 REST API Design Principles</h3>
+<p><strong>Objective:</strong> Design a REST API's resources, HTTP methods, status codes, and versioning strategy correctly - before writing a line of implementation code.</p>
+<p><strong>Teaching sessions (~40 min):</strong> one sitting - this is a design/vocabulary lesson (resources, verbs, status codes), not implementation; fits in one sitting.</p>
+<ul>
+<li><strong>Watch:</strong> <a href="https://www.youtube.com/watch?v=k5abZLzsQc0">FastAPI Intro – Full CRUD REST API Tutorial</a> (~1 hr, watch for the design/conventions parts, you'll build in 2.5)</li>
+<li><strong>Read:</strong> <a href="https://restfulapi.net/">restfulapi.net - REST API design guide</a></li>
+<li><strong>Do:</strong> On paper, design the resource model, endpoints, and status codes for a "task management" API (users, projects, tasks) before writing code - get the nouns/verbs/status-codes right first.</li>
+</ul>
+<p><strong>Checkpoint:</strong> Closed-book - given an unseen set of requirements, design correct REST endpoints (resource naming, HTTP verbs, status codes for success/error cases, pagination approach) in 20 minutes.</p>
+<h3>2.5 Building APIs with FastAPI</h3>
+<p><strong>Objective:</strong> Implement a working REST API with request validation, error handling, and database integration.</p>
+<p><strong>Teaching sessions (~40 min each):</strong></p>
+<ul>
+<li><strong>2.5a FastAPI Basics &amp; Request Validation</strong> - routing, path/query params, and Pydantic models for validating input.</li>
+<li>
+<p><strong>2.5b Database Integration &amp; Error Handling</strong> - wiring up the DB from 2.1, and returning the right status codes for the right failures.</p>
+</li>
+<li>
+<p><strong>Watch:</strong> <a href="https://www.youtube.com/watch?v=k5abZLzsQc0">FastAPI Intro – Full CRUD REST API Tutorial</a> and <a href="https://www.youtube.com/watch?v=7AMjmCTumuo">Python FastAPI Tutorial (Part 1): Getting Started</a></p>
+</li>
+<li><strong>Read:</strong> <a href="https://realpython.com/fastapi-python-web-apis/">A Close Look at a FastAPI Example Application - Real Python</a></li>
+<li><strong>Do:</strong> Implement the task-management API you designed in 2.4 with FastAPI, backed by the SQL schema from 2.1 (SQLite or Postgres), including request validation (Pydantic models) and correct error responses (404, 422, etc.).</li>
+</ul>
+<p><strong>Checkpoint:</strong> Practical review - the API must handle at least: create/read/update/delete for one resource, a validation error case, and a not-found case, all returning correct status codes. Walk through your error-handling logic and justify each status code choice.</p>
+<h3>2.6 Debugging Techniques &amp; Tools</h3>
+<p><strong>Objective:</strong> Debug systematically (reproduce → isolate → hypothesize → verify) using a real debugger instead of scattering <code>print()</code> statements.</p>
+<p><strong>Teaching sessions (~40 min):</strong> one sitting - the debugging method plus <code>pdb</code> basics is one focused skill; no split needed.</p>
+<ul>
+<li><strong>Watch:</strong> <a href="https://www.youtube.com/watch?v=6KQ_h0XBmxk">How to Debug Your Python Code with the Python Debugger (pdb) - ProgrammingKnowledge</a></li>
+<li><strong>Read:</strong> <a href="https://realpython.com/python-debugging-pdb/">Python Debugging With Pdb - Real Python</a></li>
+<li><strong>Do:</strong> Take a deliberately buggy version of your FastAPI app (introduce 3 subtle bugs: an off-by-one, a mutable-default-argument bug, and a logic error in a query) and find all 3 using <code>pdb</code>/breakpoints only - no adding print statements.</li>
+</ul>
+<p><strong>Checkpoint:</strong> Practical, observed - narrate your debugging process out loud while fixing an unseen bug I (or a peer) inject into your code. You must use breakpoints/step-through, not print-and-guess, and articulate your hypothesis before each step.</p>
+<h3>2.7 Testing Fundamentals &amp; TDD</h3>
+<p><strong>Objective:</strong> Write unit and integration tests with <code>pytest</code>, and practice red-green-refactor TDD for at least one feature.</p>
+<p><strong>Teaching sessions (~40 min each):</strong></p>
+<ul>
+<li><strong>2.7a pytest Fundamentals</strong> - writing test functions, fixtures, and assertions.</li>
+<li>
+<p><strong>2.7b The TDD Workflow</strong> - red (failing test) → green (minimum code to pass) → refactor, and why the order matters.</p>
+</li>
+<li>
+<p><strong>Watch:</strong> <a href="https://www.youtube.com/watch?v=KZstMSOHIvQ">Pytest Tutorial: Complete Pytest Crash Course in Under 6 Hours</a> and <a href="https://www.youtube.com/watch?v=eAPmXQ0dC7Q">TDD Full Course (Learn Test-Driven Development with Python)</a></p>
+</li>
+<li><strong>Read:</strong> <a href="https://realpython.com/pytest-python-testing/">pytest Tutorial: Effective Python Testing - Real Python</a></li>
+<li><strong>Do:</strong> Write a full pytest suite for the task-management API (fixtures for test DB/client, unit tests for business logic, integration tests for endpoints). Then add ONE new feature (e.g. "mark task complete") strictly test-first: write the failing test, watch it fail, write minimum code to pass, refactor.</li>
+</ul>
+<p><strong>Checkpoint:</strong> Your test suite must cover at least one success case and one failure case per endpoint, and you must be able to show the red→green→refactor commits/diffs for the TDD feature, not just the final code.</p>
+<h3>2.8 Phase Capstone</h3>
+<p><strong>Objective:</strong> Prove the backend skills work together as a coherent, defensible service - not just as isolated exercises.</p>
+<p><strong>Teaching sessions:</strong> none - this is an assessment, not a taught lesson.</p>
+<p><strong>Do:</strong> Take the task-management API from 2.4–2.7 and harden it: add indexes where they matter (justify each one from <code>EXPLAIN</code> output), ensure every endpoint has tests, and write a short README documenting the schema, endpoints, and known trade-offs.</p>
+<p><strong>Checkpoint:</strong> Design review - walk through the schema, the endpoint design, and one query's execution plan, defending every decision under questioning ("why this normal form," "why this status code," "why this index"). Any answer that's "it just seemed right" fails the checkpoint - go back and actually justify it, or fix it. Log any gaps in <a href="mistakes-log.md">mistakes-log.md</a> before moving to Phase 3.</p>
+<div class="nav"><a href="../index.html">&larr; Back to index</a></div>
+</div>
+</body>
+</html>

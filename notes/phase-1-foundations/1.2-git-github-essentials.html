@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>1.2 Git & GitHub Essentials</title>
+<style>
+:root {
+  --bg: #fdfdfb; --fg: #24292f; --muted: #5b6470; --border: #e1e4e8;
+  --code-bg: #f3f4f6; --link: #0b5fff; --accent: #6a3fd1; --chip: #f0edfb;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg:#1a1d23; --fg:#dadee3; --muted:#98a0ab; --border:#2f343c; --code-bg:#20242b; --link:#7aa2ff; --accent:#b79cff; --chip:#242233; }
+}
+:root[data-theme="dark"] { --bg:#1a1d23; --fg:#dadee3; --muted:#98a0ab; --border:#2f343c; --code-bg:#20242b; --link:#7aa2ff; --accent:#b79cff; --chip:#242233; }
+.theme-toggle { margin-left: .5rem; background: none; border: 1px solid var(--border); border-radius: 999px; width: 1.9rem; height: 1.9rem; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; font-size: .95rem; color: var(--fg); line-height: 1; padding: 0; }
+.theme-toggle:hover { border-color: var(--accent); }
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.65; margin: 0;
+}
+.page { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 6rem; }
+.topnav {
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; flex-wrap: wrap; gap: .9rem;
+  background: var(--bg); border-bottom: 1px solid var(--border);
+  padding: .7rem 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,.08);
+}
+.topnav a.back, .topnav .home { text-decoration: none; font-weight: 600; font-size: .92rem; white-space: nowrap; color: var(--fg); }
+.phase-pills { display: flex; gap: .35rem; flex-wrap: wrap; margin-left: auto; }
+.phase-pills a {
+  text-decoration: none; color: var(--muted); font-size: .8rem; font-weight: 600;
+  border: 1px solid var(--border); border-radius: 999px; padding: .2rem .6rem;
+}
+.phase-pills a:hover { border-color: var(--accent); color: var(--accent); }
+.phase-pills a.current { background: var(--accent); border-color: var(--accent); color: #fff; }
+h1, h2, h3, h4 { line-height: 1.3; }
+h1 { font-size: 1.9rem; border-bottom: 2px solid var(--accent); padding-bottom: .5rem; }
+h2 { font-size: 1.4rem; margin-top: 2.5rem; border-bottom: 1px solid var(--border); padding-bottom: .3rem; }
+h3 { font-size: 1.15rem; margin-top: 2rem; color: var(--accent); }
+a { color: var(--link); }
+p code, li code, td code { background: var(--code-bg); padding: .15em .4em; border-radius: 4px; font-size: .9em; word-break: break-word; }
+pre { background: var(--code-bg); padding: 1rem; border-radius: 8px; overflow-x: auto; border: 1px solid var(--border); }
+pre code { background: none; padding: 0; }
+table { border-collapse: collapse; width: 100%; margin: 1rem 0; display: block; overflow-x: auto; }
+th, td { border: 1px solid var(--border); padding: .5rem .75rem; text-align: left; }
+th { background: var(--code-bg); }
+blockquote { border-left: 3px solid var(--accent); margin: 1rem 0; padding: .2rem 1rem; color: var(--muted); }
+hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+.nav { margin-bottom: 1.5rem; font-size: .9rem; }
+.nav a { text-decoration: none; }
+ul, ol { padding-left: 1.4rem; }
+li { margin: .3rem 0; }
+img { max-width: 100%; }
+.chk { display: inline-block; width: .9em; height: .9em; border: 1.5px solid var(--muted); border-radius: 3px; margin-right: .4em; vertical-align: middle; }
+.chk.done { background: var(--accent); border-color: var(--accent); color: #fff; text-align: center; line-height: .85em; font-size: .75em; }
+.codehilite { background: var(--code-bg) !important; border-radius: 8px; }
+pre { line-height: 125%; }
+td.linenos .normal { color: #666666; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: #666666; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+.codehilite .hll { background-color: #ffffcc }
+.codehilite { background: #f0f0f0; }
+.codehilite .c { color: #60A0B0; font-style: italic } /* Comment */
+.codehilite .err { border: 1px solid #F00 } /* Error */
+.codehilite .k { color: #007020; font-weight: bold } /* Keyword */
+.codehilite .o { color: #666 } /* Operator */
+.codehilite .ch { color: #60A0B0; font-style: italic } /* Comment.Hashbang */
+.codehilite .cm { color: #60A0B0; font-style: italic } /* Comment.Multiline */
+.codehilite .cp { color: #007020 } /* Comment.Preproc */
+.codehilite .cpf { color: #60A0B0; font-style: italic } /* Comment.PreprocFile */
+.codehilite .c1 { color: #60A0B0; font-style: italic } /* Comment.Single */
+.codehilite .cs { color: #60A0B0; background-color: #FFF0F0 } /* Comment.Special */
+.codehilite .gd { color: #A00000 } /* Generic.Deleted */
+.codehilite .ge { font-style: italic } /* Generic.Emph */
+.codehilite .ges { font-weight: bold; font-style: italic } /* Generic.EmphStrong */
+.codehilite .gr { color: #F00 } /* Generic.Error */
+.codehilite .gh { color: #000080; font-weight: bold } /* Generic.Heading */
+.codehilite .gi { color: #00A000 } /* Generic.Inserted */
+.codehilite .go { color: #888 } /* Generic.Output */
+.codehilite .gp { color: #C65D09; font-weight: bold } /* Generic.Prompt */
+.codehilite .gs { font-weight: bold } /* Generic.Strong */
+.codehilite .gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+.codehilite .gt { color: #04D } /* Generic.Traceback */
+.codehilite .kc { color: #007020; font-weight: bold } /* Keyword.Constant */
+.codehilite .kd { color: #007020; font-weight: bold } /* Keyword.Declaration */
+.codehilite .kn { color: #007020; font-weight: bold } /* Keyword.Namespace */
+.codehilite .kp { color: #007020 } /* Keyword.Pseudo */
+.codehilite .kr { color: #007020; font-weight: bold } /* Keyword.Reserved */
+.codehilite .kt { color: #902000 } /* Keyword.Type */
+.codehilite .m { color: #40A070 } /* Literal.Number */
+.codehilite .s { color: #4070A0 } /* Literal.String */
+.codehilite .na { color: #4070A0 } /* Name.Attribute */
+.codehilite .nb { color: #007020 } /* Name.Builtin */
+.codehilite .nc { color: #0E84B5; font-weight: bold } /* Name.Class */
+.codehilite .no { color: #60ADD5 } /* Name.Constant */
+.codehilite .nd { color: #555; font-weight: bold } /* Name.Decorator */
+.codehilite .ni { color: #D55537; font-weight: bold } /* Name.Entity */
+.codehilite .ne { color: #007020 } /* Name.Exception */
+.codehilite .nf { color: #06287E } /* Name.Function */
+.codehilite .nl { color: #002070; font-weight: bold } /* Name.Label */
+.codehilite .nn { color: #0E84B5; font-weight: bold } /* Name.Namespace */
+.codehilite .nt { color: #062873; font-weight: bold } /* Name.Tag */
+.codehilite .nv { color: #BB60D5 } /* Name.Variable */
+.codehilite .ow { color: #007020; font-weight: bold } /* Operator.Word */
+.codehilite .w { color: #BBB } /* Text.Whitespace */
+.codehilite .mb { color: #40A070 } /* Literal.Number.Bin */
+.codehilite .mf { color: #40A070 } /* Literal.Number.Float */
+.codehilite .mh { color: #40A070 } /* Literal.Number.Hex */
+.codehilite .mi { color: #40A070 } /* Literal.Number.Integer */
+.codehilite .mo { color: #40A070 } /* Literal.Number.Oct */
+.codehilite .sa { color: #4070A0 } /* Literal.String.Affix */
+.codehilite .sb { color: #4070A0 } /* Literal.String.Backtick */
+.codehilite .sc { color: #4070A0 } /* Literal.String.Char */
+.codehilite .dl { color: #4070A0 } /* Literal.String.Delimiter */
+.codehilite .sd { color: #4070A0; font-style: italic } /* Literal.String.Doc */
+.codehilite .s2 { color: #4070A0 } /* Literal.String.Double */
+.codehilite .se { color: #4070A0; font-weight: bold } /* Literal.String.Escape */
+.codehilite .sh { color: #4070A0 } /* Literal.String.Heredoc */
+.codehilite .si { color: #70A0D0; font-style: italic } /* Literal.String.Interpol */
+.codehilite .sx { color: #C65D09 } /* Literal.String.Other */
+.codehilite .sr { color: #235388 } /* Literal.String.Regex */
+.codehilite .s1 { color: #4070A0 } /* Literal.String.Single */
+.codehilite .ss { color: #517918 } /* Literal.String.Symbol */
+.codehilite .bp { color: #007020 } /* Name.Builtin.Pseudo */
+.codehilite .fm { color: #06287E } /* Name.Function.Magic */
+.codehilite .vc { color: #BB60D5 } /* Name.Variable.Class */
+.codehilite .vg { color: #BB60D5 } /* Name.Variable.Global */
+.codehilite .vi { color: #BB60D5 } /* Name.Variable.Instance */
+.codehilite .vm { color: #BB60D5 } /* Name.Variable.Magic */
+.codehilite .il { color: #40A070 } /* Literal.Number.Integer.Long */</style>
+<script>
+(function(){
+  try {
+    var t = localStorage.getItem('theme');
+    if (t) document.documentElement.setAttribute('data-theme', t);
+  } catch (e) {}
+})();
+function getEffectiveTheme(){
+  var attr = document.documentElement.getAttribute('data-theme');
+  if (attr) return attr;
+  return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+}
+function toggleTheme(){
+  var next = getEffectiveTheme() === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  try { localStorage.setItem('theme', next); } catch (e) {}
+  updateThemeToggleIcon();
+}
+function updateThemeToggleIcon(){
+  var btn = document.querySelector('.theme-toggle');
+  if (btn) btn.textContent = getEffectiveTheme() === 'dark' ? '☀️' : '🌙';
+}
+document.addEventListener('DOMContentLoaded', updateThemeToggleIcon);
+</script>
+</head>
+<body>
+<nav class="topnav">
+<a class="back" href="../../index.html">&larr; Back to index</a>
+<div class="phase-pills"><a class="current" href="../../index.html#phase-1" title="Phase 1">Phase1</a><a href="../../index.html#phase-2" title="Phase 2">Phase2</a><a href="../../index.html#phase-3" title="Phase 3">Phase3</a><a href="../../index.html#phase-4" title="Phase 4">Phase4</a><a href="../../index.html#phase-5" title="Phase 5">Phase5</a><a href="../../index.html#phase-6" title="Phase 6">Phase6</a></div>
+<button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle color theme" title="Toggle color theme">🌙</button>
+</nav>
+<div class="page">
+<h1>1.2 Git &amp; GitHub Essentials</h1>
+<p>Objective: use Git confidently for branching, merging, rebasing, and resolving conflicts - not just <code>add</code>/<code>commit</code>/<code>push</code>.</p>
+<hr />
+<h2>1.2a Commits, Branches &amp; Merging</h2>
+<p><strong>Commit:</strong> an immutable, content-addressed snapshot of your entire project's tracked files, identified by a SHA-1 hash computed from its contents (file tree, message, author/timestamp, and a pointer to its parent commit). Not a diff - Git stores a full snapshot per commit (deduplicated internally for unchanged files); <code>git diff</code>/<code>git log -p</code> compute the visible diff on the fly by comparing two snapshots.</p>
+<p><em>Plain English:</em> because a commit's hash is derived from its own content <em>and</em> its parent's hash, changing anything - even in a commit from months ago - changes that commit's hash, cascading forward through every commit after it. That's why history is tamper-evident.</p>
+<p><em>Analogy:</em> a video game checkpoint, not word-processor undo history. Undo records <em>edits</em> (deltas) you step backward through. A checkpoint records the <em>entire</em> game state - loading checkpoint 5 doesn't replay checkpoints 1–4, it just drops you into that saved state directly. Checking out a commit works the same way.</p>
+<div class="codehilite"><pre><span></span><code>git<span class="w"> </span>init<span class="w"> </span>demo<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span><span class="nb">cd</span><span class="w"> </span>demo
+<span class="nb">echo</span><span class="w"> </span><span class="s2">&quot;line 1&quot;</span><span class="w"> </span>&gt;<span class="w"> </span>file.txt
+git<span class="w"> </span>add<span class="w"> </span>file.txt
+git<span class="w"> </span>commit<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;first commit&quot;</span>
+git<span class="w"> </span>log<span class="w"> </span>--oneline
+</code></pre></div>
+
+<p><strong>Branch:</strong> a movable, named pointer to a single commit. <strong><code>HEAD</code></strong> is a special pointer tracking which branch (or, in "detached HEAD," which specific commit) is currently checked out. Creating a branch doesn't copy files - it's one new pointer, instant regardless of repo size.</p>
+<p><em>Analogy:</em> a bookmark in a book where every page is glued to the previous one in fixed order - the bookmark holds no content, just marks which page you're on. Moving it repositions you instantly.</p>
+<div class="codehilite"><pre><span></span><code>git<span class="w"> </span>branch<span class="w"> </span>feature-x<span class="w">        </span><span class="c1"># create pointer, doesn&#39;t switch to it</span>
+git<span class="w"> </span>switch<span class="w"> </span>feature-x<span class="w">        </span><span class="c1"># HEAD now points at feature-x</span>
+</code></pre></div>
+
+<p><strong>Merge:</strong> integrates one branch's changes into another by creating a new commit with <strong>two parents</strong> (three-way merge). If the target hasn't moved since the source diverged, Git instead <strong>fast-forwards</strong>: slides the pointer forward, no merge commit at all, since there's nothing to reconcile. Git finds the <strong>common ancestor</strong>, compares what changed on each side since then, and combines automatically if the changes touch different lines - a <strong>merge conflict</strong> occurs only when both sides changed the <em>same</em> lines differently.</p>
+<p><em>Analogy:</em> two people editing separate photocopies of the same document. Different pages changed → staple both sets together, no trouble. Same sentence on the same page changed differently → someone has to manually decide the final wording.</p>
+<div class="codehilite"><pre><span></span><code>git<span class="w"> </span>switch<span class="w"> </span>main
+git<span class="w"> </span>merge<span class="w"> </span>feature-x<span class="w">               </span><span class="c1"># fast-forward if main hasn&#39;t moved</span>
+git<span class="w"> </span>merge<span class="w"> </span>--no-ff<span class="w"> </span>feature-x<span class="w"> </span>-m<span class="w"> </span><span class="s2">&quot;merge msg&quot;</span><span class="w">   </span><span class="c1"># force a real merge commit</span>
+</code></pre></div>
+
+<hr />
+<h2>1.2b Rebasing &amp; Conflict Resolution</h2>
+<p><strong>Rebase:</strong> takes the commits unique to your branch and <strong>replays them one at a time on top of the target's current tip</strong>, creating brand-new commits (new hashes - a commit's hash includes its parent's hash, and rebase changes the parent) with the same content changes. Produces a straight-line history instead of a merge-commit bump.</p>
+<p><em>Analogy:</em> a stack of tracing-paper overlays (commits), each traced from the same base drawing. Rebasing slides a new base drawing underneath and re-traces every overlay on top of it - same content, but each is physically a new sheet.</p>
+<div class="codehilite"><pre><span></span><code>git<span class="w"> </span>switch<span class="w"> </span>feature-x
+git<span class="w"> </span>rebase<span class="w"> </span>main
+<span class="c1">#   ... conflict? fix files ...</span>
+git<span class="w"> </span>add<span class="w"> </span>&lt;file&gt;
+git<span class="w"> </span>rebase<span class="w"> </span>--continue
+<span class="c1"># or bail out entirely:</span>
+git<span class="w"> </span>rebase<span class="w"> </span>--abort
+</code></pre></div>
+
+<p><strong>Resolving a conflict by hand:</strong> Git writes conflict markers directly into the file at the conflicting hunk and pauses until you edit it to the correct final content and <code>git add</code> it.</p>
+<div class="codehilite"><pre><span></span><code>&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD
+def greet():
+    return &quot;Hello, world&quot;
+=======
+def greet():
+    return &quot;Hey there!&quot;
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; feature-x
+</code></pre></div>
+
+<p><code>HEAD</code> is "your side," the other label is the incoming side. Edit down to the correct final version, delete the markers, then <code>git add &lt;file&gt;</code> + <code>git commit</code> (merge) or <code>git rebase --continue</code> (rebase). <code>git status</code> at any point shows exactly which files are still unmerged.</p>
+<p><strong>Interactive rebase &amp; squashing:</strong> <code>git rebase -i &lt;base&gt;</code> opens an editable todo list of commits between <code>&lt;base&gt;</code> and <code>HEAD</code>, each prefixed <code>pick</code>/<code>squash</code>/<code>fixup</code>/<code>reword</code>/<code>drop</code>/<code>edit</code>. Changing a commit to <code>squash</code> merges it into the commit directly above it in the list, prompting for a combined message.</p>
+<div class="codehilite"><pre><span></span><code>git<span class="w"> </span>log<span class="w"> </span>--oneline
+git<span class="w"> </span>rebase<span class="w"> </span>-i<span class="w"> </span>HEAD~3
+<span class="c1"># editor: change &quot;pick&quot; to &quot;squash&quot; for the 2nd and 3rd commits, save</span>
+<span class="c1"># second editor opens to combine messages, save</span>
+git<span class="w"> </span>log<span class="w"> </span>--oneline<span class="w">    </span><span class="c1"># 3 commits collapsed into 1</span>
+</code></pre></div>
+
+<p><strong>Merge vs. rebase - the actual rule:</strong></p>
+<ul>
+<li><strong>Merge</strong> preserves true history at the cost of merge-commit bumps. Use on <strong>shared/public</strong> branches - never rewrites commits others may already have.</li>
+<li><strong>Rebase</strong> produces clean linear history by rewriting commits. Use on <strong>your own local, not-yet-pushed</strong> work before sharing it.</li>
+<li>Golden rule: <strong>never rebase commits other people might already have.</strong></li>
+</ul>
+<hr />
+<h2>Watch / Read / Do / Checkpoint</h2>
+<p><strong>Watch:</strong> <a href="https://www.youtube.com/watch?v=mAFoROnOfHs">Git &amp; GitHub Crash Course for Beginners (freeCodeCamp)</a> (~81 min)<br />
+<strong>Read:</strong> <a href="https://docs.github.com/en/get-started/start-your-journey/git-and-github-learning-resources">Git and GitHub learning resources - GitHub Docs</a></p>
+<p><strong>Do:</strong></p>
+<ul>
+<li><span class="chk"></span> Create a throwaway repo, make 3 branches.</li>
+<li><span class="chk"></span> Deliberately create a merge conflict between two of them, resolve it by hand.</li>
+<li><span class="chk"></span> Interactive rebase to squash 3 commits into 1.</li>
+</ul>
+<p><strong>Checkpoint:</strong></p>
+<ul>
+<li><span class="chk"></span> Closed-book - explain the difference between <code>merge</code> and <code>rebase</code>, and when you'd use each.</li>
+<li><span class="chk"></span> Practical - show the resolved conflict and the squashed history.</li>
+</ul>
+<p><em>(Already completed and passed live, 2026-07-31.)</em></p>
+<div class="nav"><a href="../../index.html">&larr; Back to index</a></div>
+</div>
+</body>
+</html>
