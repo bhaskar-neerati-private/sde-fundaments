@@ -15,6 +15,7 @@
 :root[data-theme="dark"] { --bg:#1a1d23; --fg:#dadee3; --muted:#98a0ab; --border:#2f343c; --code-bg:#20242b; --link:#7aa2ff; --accent:#b79cff; --chip:#242233; }
 .theme-toggle { margin-left: .5rem; background: none; border: 1px solid var(--border); border-radius: 999px; width: 1.9rem; height: 1.9rem; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; font-size: .95rem; color: var(--fg); line-height: 1; padding: 0; }
 .theme-toggle:hover { border-color: var(--accent); }
+.phase-pills .sep { color: var(--muted); font-size: .8rem; }
 * { box-sizing: border-box; }
 body {
   background: var(--bg); color: var(--fg);
@@ -160,7 +161,7 @@ document.addEventListener('DOMContentLoaded', updateThemeToggleIcon);
 <body>
 <nav class="topnav">
 <a class="back" href="../index.html">&larr; Back to index</a>
-<div class="phase-pills"><a href="../index.html#phase-1" title="Phase 1">Phase1</a><a href="../index.html#phase-2" title="Phase 2">Phase2</a><a href="../index.html#phase-3" title="Phase 3">Phase3</a><a href="../index.html#phase-4" title="Phase 4">Phase4</a><a href="../index.html#phase-5" title="Phase 5">Phase5</a><a class="current" href="../index.html#phase-6" title="Phase 6">Phase6</a></div>
+<div class="phase-pills"><a href="leetcode-prep.html" title="LeetCode Prep">LeetCode Prep</a><span class="sep">|</span><a href="../index.html#phase-1" title="Phase 1">Phase1</a><a href="../index.html#phase-2" title="Phase 2">Phase2</a><a href="../index.html#phase-3" title="Phase 3">Phase3</a><a href="../index.html#phase-4" title="Phase 4">Phase4</a><a href="../index.html#phase-5" title="Phase 5">Phase5</a><a class="current" href="../index.html#phase-6" title="Phase 6">Phase6</a></div>
 <button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle color theme" title="Toggle color theme">🌙</button>
 </nav>
 <div class="page">
