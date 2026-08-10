@@ -220,7 +220,7 @@ document.addEventListener('DOMContentLoaded', updateThemeToggleIcon);
 </ul>
 <p><em>(Deferred - tracked in <a href="../../deferred-exercises.md">../../deferred-exercises.md</a>.)</em></p>
 <p><strong>Why naive TTL-only isn't always enough:</strong> any write path that forgets to also invalidate (or races with a concurrent read repopulating stale data right after a delete) can leave genuinely wrong data visible for the full TTL duration. For data where staleness has real consequences (payment status, near-zero inventory counts), explicit invalidation as the primary mechanism - with TTL as a safety-net backstop in case an invalidation is ever missed - is the safer default.</p>
-<div class="nav"><a href="../../index.html">&larr; Back to index</a></div>
+<div class="nav"><a href="../../index.html">&larr; Back to index</a> &middot; <a href="../phase-5-scaling-distributed-systems/5.2-distributed-systems-fundamentals.html">Next: 5.2 Distributed Systems Fundamentals &rarr;</a></div>
 </div>
 </body>
 </html>

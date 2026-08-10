@@ -169,7 +169,7 @@ document.addEventListener('DOMContentLoaded', updateThemeToggleIcon);
 <p>No new teaching content - pure assessment, combining caching, async messaging, idempotency, and security into one coherent, defensible service.</p>
 <p><strong>Do:</strong> extend the Phase 2 API into a small production-shaped service: Redis cache-aside on the hot read path, an idempotent write endpoint, an async worker via a message queue for at least one operation, HTTPS locally, JWT auth on protected routes.</p>
 <p><strong>Checkpoint:</strong> design review - walk through the full request path for one write operation end-to-end (auth check → idempotency check → DB write → cache invalidation → async event published) and defend every component under questioning, including "what happens if the message queue is down right now" and "what happens if two identical requests arrive within 1ms of each other." Logged in <code>deferred-exercises.md</code> for the batch practice pass.</p>
-<div class="nav"><a href="../../index.html">&larr; Back to index</a></div>
+<div class="nav"><a href="../../index.html">&larr; Back to index</a> &middot; <a href="../phase-6-production-ops/6.1-docker-fundamentals.html">Next: 6.1 Docker Fundamentals &rarr;</a></div>
 </div>
 </body>
 </html>
