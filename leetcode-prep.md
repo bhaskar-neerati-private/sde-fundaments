@@ -79,94 +79,94 @@ Reviewed 2026-08-01 against NeetCode's own Blind 75 tracker (the standard refere
 14. ~~Longest Repeating Character Replacement (#424) ✅~~
     - 🎥 [Longest Repeating Character Replacement - Leetcode 424 - Python](https://www.youtube.com/watch?v=gqXU1UyA8pk) (NeetCode)
     - 📖 [NeetCode: brute-force O(n²) → beginner sliding window → optimal single-pass sliding window O(n)](https://neetcode.io/solutions/longest-repeating-character-replacement)
-15. Minimum Window Substring (#76)
+15. ~~Minimum Window Substring (#76) ✅~~
     - 🎥 [Minimum Window Substring - Airbnb Interview Question - Leetcode 76](https://www.youtube.com/watch?v=jSto0O4AJbM) (NeetCode)
     - 📖 [NeetCode: brute-force O(n²) substring check vs. optimized sliding window O(n+m) with frequency maps](https://neetcode.io/solutions/minimum-window-substring)
 ### Stack (1)
 
 
-16. Valid Parentheses (#20)
+16. ~~Valid Parentheses (#20) ✅~~
     - 🎥 [Valid Parentheses - Stack - Leetcode 20 - Python](https://www.youtube.com/watch?v=WTzjTskDFMg) (NeetCode)
     - 📖 [NeetCode: brute-force repeated pair-removal vs. optimized stack-based O(n)](https://neetcode.io/solutions/valid-parentheses)
 ### Binary Search (2)
 
 
-17. Find Minimum in Rotated Sorted Array (#153)
+17. ~~Find Minimum in Rotated Sorted Array (#153) ✅~~
     - 🎥 [Find Minimum in Rotated Sorted Array - Binary Search - Leetcode 153 - Python](https://www.youtube.com/watch?v=nIVW4P8b1VA) (NeetCode)
     - 📖 [NeetCode: brute-force O(n) linear scan vs. binary search O(log n)](https://neetcode.io/solutions/find-minimum-in-rotated-sorted-array)
-18. Search in Rotated Sorted Array (#33)
+18. ~~Search in Rotated Sorted Array (#33) ✅~~
     - 🎥 [Search in rotated sorted array - Leetcode 33 - Python](https://www.youtube.com/watch?v=U8XENwh8Oy8) (NeetCode)
     - 📖 [NeetCode: brute-force O(n) linear search vs. binary search O(log n) pivot-based elimination](https://neetcode.io/solutions/search-in-rotated-sorted-array)
 ### Linked List (6)
 
 
-19. Reverse Linked List (#206)
+19. ~~Reverse Linked List (#206) ✅~~
     - 🎥 [Reverse Linked List - Iterative AND Recursive - Leetcode 206 - Python](https://www.youtube.com/watch?v=G0_I-ZF0S38) (NeetCode)
     - 📖 [NeetCode: brute-force array reversal vs. optimized iterative/recursive approaches](https://neetcode.io/solutions/reverse-linked-list)
-20. Merge Two Sorted Lists (#21)
+20. ~~Merge Two Sorted Lists (#21) ✅~~
     - 🎥 [Merge Two Sorted Lists - Leetcode 21 - Python](https://www.youtube.com/watch?v=XIdigk956u0) (NeetCode)
     - 📖 [NeetCode: brute-force merge-into-array-and-sort vs. recursive/iterative dummy-node approaches](https://neetcode.io/solutions/merge-two-sorted-lists)
-21. Linked List Cycle (#141)
+21. ~~Linked List Cycle (#141) ✅~~
     - 🎥 [Linked List Cycle - Floyd's Tortoise and Hare - Leetcode 141 - Python](https://www.youtube.com/watch?v=gBTe7lFR3vc) (NeetCode)
     - 📖 [NeetCode: brute-force hash-set vs. optimized fast/slow pointer (Floyd's) approach](https://neetcode.io/solutions/linked-list-cycle)
-22. Reorder List (#143)
+22. ~~Reorder List (#143) ✅~~
     - 🎥 [Linkedin Interview Question - Reorder List - Leetcode 143 - Python](https://www.youtube.com/watch?v=S5bfdUTrKLM) (NeetCode)
     - 📖 [NeetCode: brute-force array + two pointers vs. optimized find-middle/reverse/merge approach](https://neetcode.io/solutions/reorder-list)
-23. Remove Nth Node From End of List (#19)
+23. ~~Remove Nth Node From End of List (#19) ✅~~
     - 🎥 [Remove Nth Node from End of List - Oracle Interview Question - Leetcode 19](https://www.youtube.com/watch?v=XVuQxVej6y8) (NeetCode)
     - 📖 [NeetCode: brute-force array-store vs. two-pass and optimized one-pass two-pointer approaches](https://neetcode.io/solutions/remove-nth-node-from-end-of-list)
-24. Merge K Sorted Lists (#23)
+24. ~~Merge K Sorted Lists (#23) ✅~~
     - 🎥 [Merge K Sorted Lists - Leetcode 23 - Python](https://www.youtube.com/watch?v=q5a5OiGbT6Q) (NeetCode)
     - 📖 [NeetCode: brute-force sort, sequential pairwise merge, heap-based, and divide-and-conquer approaches](https://neetcode.io/solutions/merge-k-sorted-lists)
 ### Trees (11)
 
 
-25. Invert Binary Tree (#226)
+25. ~~Invert Binary Tree (#226) ✅~~
     - 🎥 [Invert Binary Tree - Depth First Search - Leetcode 226](https://www.youtube.com/watch?v=OnSn2XEQ4MY) (NeetCode)
     - 📖 [NeetCode: BFS, recursive DFS, and iterative DFS approaches](https://neetcode.io/solutions/invert-binary-tree)
-26. Maximum Depth of Binary Tree (#104)
+26. ~~Maximum Depth of Binary Tree (#104) ✅~~
     - 🎥 [Maximum Depth of Binary Tree - 3 Solutions - Leetcode 104 - Python](https://www.youtube.com/watch?v=hTM3phVI6YQ) (NeetCode)
     - 📖 [NeetCode: recursive DFS, iterative DFS (stack), and BFS approaches](https://neetcode.io/solutions/maximum-depth-of-binary-tree)
-27. Same Tree (#100)
+27. ~~Same Tree (#100) ✅~~
     - 🎥 [Same Tree - Leetcode 100 - Python](https://www.youtube.com/watch?v=vRbbcKXCxOw) (NeetCode)
     - 📖 [NeetCode: recursive DFS, iterative DFS, and BFS level-order comparison](https://neetcode.io/solutions/same-tree)
-28. Subtree of Another Tree (#572)
+28. ~~Subtree of Another Tree (#572) ✅~~
     - 🎥 [Subtree of Another Tree - Leetcode 572 - Python](https://www.youtube.com/watch?v=E36O5SWp-LE) (NeetCode)
     - 📖 [NeetCode: brute-force DFS vs. optimized serialization + string-match approach](https://neetcode.io/solutions/subtree-of-another-tree)
-29. Binary Tree Level Order Traversal (#102)
+29. ~~Binary Tree Level Order Traversal (#102) ✅~~
     - 🎥 [Binary Tree Level Order Traversal - BFS - Leetcode 102](https://www.youtube.com/watch?v=6ZnyEApgFYg) (NeetCode)
     - 📖 [NeetCode: DFS-with-depth approach and the standard BFS/queue approach](https://neetcode.io/solutions/binary-tree-level-order-traversal)
-30. Construct Binary Tree from Preorder and Inorder Traversal (#105)
+30. ~~Construct Binary Tree from Preorder and Inorder Traversal (#105) ✅~~
     - 🎥 [Construct Binary Tree from Inorder and Preorder Traversal - Leetcode 105 - Python](https://www.youtube.com/watch?v=ihj4IQGZ2zc) (NeetCode)
     - 📖 [NeetCode: basic O(n²) DFS through hash-map-optimized and limit-based optimal DFS](https://neetcode.io/solutions/construct-binary-tree-from-preorder-and-inorder-traversal)
-31. Binary Tree Maximum Path Sum (#124)
+31. ~~Binary Tree Maximum Path Sum (#124) ✅~~
     - 🎥 [Binary Tree Maximum Path Sum - DFS - Leetcode 124 - Python](https://www.youtube.com/watch?v=Hr5cWUld4vU) (NeetCode)
     - 📖 [NeetCode: brute-force DFS vs. single-pass optimal DFS](https://neetcode.io/solutions/binary-tree-maximum-path-sum)
-32. Serialize and Deserialize Binary Tree (#297)
+32. ~~Serialize and Deserialize Binary Tree (#297) ✅~~
     - 🎥 [Serialize and Deserialize Binary Tree - Preorder Traversal - Leetcode 297 - Python](https://www.youtube.com/watch?v=u4JAi2JJhI8) (NeetCode)
     - 📖 [NeetCode: DFS/preorder serialization and BFS/level-order serialization approaches](https://neetcode.io/solutions/serialize-and-deserialize-binary-tree)
-33. Lowest Common Ancestor of a BST (#235)
+33. ~~Lowest Common Ancestor of a BST (#235) ✅~~
     - 🎥 [Lowest Common Ancestor of a Binary Search Tree - Leetcode 235 - Python](https://www.youtube.com/watch?v=gs2LMfuOR9k) (NeetCode)
     - 📖 [NeetCode: recursive and iterative BST-property-based approaches](https://neetcode.io/solutions/lowest-common-ancestor-of-a-binary-search-tree)
-34. Validate Binary Search Tree (#98)
+34. ~~Validate Binary Search Tree (#98) ✅~~
     - 🎥 [Validate Binary Search Tree - Depth First Search - Leetcode 98](https://www.youtube.com/watch?v=s6ATEkipzow) (NeetCode)
     - 📖 [NeetCode: brute-force O(n²) subtree checks vs. optimal O(n) DFS with value-range bounds](https://neetcode.io/solutions/validate-binary-search-tree)
-35. Kth Smallest Element in a BST (#230)
+35. ~~Kth Smallest Element in a BST (#230) ✅~~
     - 🎥 [Kth Smallest Element in a BST - Leetcode 230 - Python](https://www.youtube.com/watch?v=5LUXSvjmGCw) (NeetCode)
     - 📖 [NeetCode: brute-force sort, inorder traversal, optimal DFS with early stop, and Morris traversal](https://neetcode.io/solutions/kth-smallest-element-in-a-bst)
 ### Heap / Priority Queue (1)
 
 
-36. Find Median from Data Stream (#295)
+36. ~~Find Median from Data Stream (#295) ✅~~
     - 🎥 [Find Median from Data Stream - Heap & Priority Queue - Leetcode 295](https://www.youtube.com/watch?v=itmhHWaHupI) (NeetCode)
     - 📖 [NeetCode: brute-force sorting vs. optimized two-heap (max-heap/min-heap) approach](https://neetcode.io/solutions/find-median-from-data-stream)
 ### Backtracking (2)
 
 
-37. Combination Sum (#39)
+37. ~~Combination Sum (#39) ✅~~
     - 🎥 [Combination Sum - Backtracking - Leetcode 39 - Python](https://www.youtube.com/watch?v=GBKI9VSKdGg) (NeetCode)
     - 📖 [NeetCode: basic include/skip recursion vs. optimized sorted-array backtracking with pruning](https://neetcode.io/solutions/combination-sum)
-38. Word Search (#79)
+38. ~~Word Search (#79) ✅~~
     - 🎥 [Word Search - Backtracking - Leetcode 79 - Python](https://www.youtube.com/watch?v=pfiQ_PS1g8E) (NeetCode)
     - 📖 [NeetCode: hash-set vs. visited-array vs. optimal in-place cell-marking approaches](https://neetcode.io/solutions/word-search)
 ### Tries (3)
@@ -320,4 +320,4 @@ Once all 75 above are solved, extend to the remaining ~75 problems that take thi
 
 ## Status
 
-As of 2026-08-05: Blind 75 order confirmed and locked in as Phase 1. **13/75 done** - Arrays & Hashing (8/8) and Two Pointers (3/3) categories complete, plus Best Time to Buy and Sell Stock (#121) and Longest Substring Without Repeating Characters (#3) in Sliding Window. Next up: Longest Repeating Character Replacement (Sliding Window, #3 in that category). Track progress here (mark categories/problems done) as sessions happen - don't let this drift out of sync within a single conversation.
+As of 2026-08-11: **38/75 done** - Arrays & Hashing (8/8), Two Pointers (3/3), Sliding Window (4/4), Stack (1/1), Binary Search (2/2), Linked List (6/6), Trees (11/11), Heap / Priority Queue (1/1), and Backtracking (2/2) categories complete. Next up: Implement Trie (Prefix Tree) (#208), the first problem in Tries. Track progress here (mark categories/problems done) as sessions happen - don't let this drift out of sync within a single conversation.
