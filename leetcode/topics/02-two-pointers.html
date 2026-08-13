@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Topic 2: Two Pointers</title>
+<style>
+:root {
+  --bg: #fdfdfb; --fg: #24292f; --muted: #5b6470; --border: #e1e4e8;
+  --code-bg: #f3f4f6; --link: #0b5fff; --accent: #6a3fd1; --chip: #f0edfb;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg:#1a1d23; --fg:#dadee3; --muted:#98a0ab; --border:#2f343c; --code-bg:#20242b; --link:#7aa2ff; --accent:#b79cff; --chip:#242233; }
+}
+:root[data-theme="dark"] { --bg:#1a1d23; --fg:#dadee3; --muted:#98a0ab; --border:#2f343c; --code-bg:#20242b; --link:#7aa2ff; --accent:#b79cff; --chip:#242233; }
+.theme-toggle { margin-left: .5rem; background: none; border: 1px solid var(--border); border-radius: 999px; width: 1.9rem; height: 1.9rem; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; font-size: .95rem; color: var(--fg); line-height: 1; padding: 0; }
+.theme-toggle:hover { border-color: var(--accent); }
+.phase-pills .sep { color: var(--muted); font-size: .8rem; }
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.65; margin: 0;
+}
+.page { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 6rem; }
+.topnav {
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; flex-wrap: wrap; gap: .9rem;
+  background: var(--bg); border-bottom: 1px solid var(--border);
+  padding: .7rem 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,.08);
+}
+.topnav a.back, .topnav .home { text-decoration: none; font-weight: 600; font-size: .92rem; white-space: nowrap; color: var(--fg); }
+.phase-pills { display: flex; gap: .35rem; flex-wrap: wrap; margin-left: auto; }
+.phase-pills .pill {
+  text-decoration: none; color: var(--muted); font-size: .8rem; font-weight: 600;
+  border: 1px solid var(--border); border-radius: 999px; padding: .2rem .6rem;
+}
+.phase-pills .pill:hover { border-color: var(--accent); color: var(--accent); }
+.phase-pills .pill.current { background: var(--accent); border-color: var(--accent); color: #fff; }
+.phase-pill-wrap { position: relative; display: inline-block; padding-bottom: .6rem; margin-bottom: -.6rem; }
+.phase-dropdown {
+  display: none; position: absolute; top: 100%; right: 0;
+  background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+  padding: .35rem; min-width: 240px; max-height: 70vh; overflow-y: auto;
+  box-shadow: 0 6px 20px rgba(0,0,0,.15); z-index: 200;
+}
+.phase-pill-wrap:hover .phase-dropdown, .phase-pill-wrap:focus-within .phase-dropdown { display: block; }
+.phase-dropdown a {
+  display: block; text-decoration: none; color: var(--fg); font-size: .82rem; font-weight: 500;
+  padding: .35rem .55rem; border-radius: 6px; white-space: nowrap;
+}
+.phase-dropdown a:hover { background: var(--chip); color: var(--accent); }
+.phase-dropdown a.current { color: var(--accent); font-weight: 700; }
+[id] { scroll-margin-top: 4.5rem; }
+h1, h2, h3, h4 { line-height: 1.3; }
+h1 { font-size: 1.9rem; border-bottom: 2px solid var(--accent); padding-bottom: .5rem; }
+h2 { font-size: 1.4rem; margin-top: 2.5rem; border-bottom: 1px solid var(--border); padding-bottom: .3rem; }
+h3 { font-size: 1.15rem; margin-top: 2rem; color: var(--accent); }
+a { color: var(--link); }
+p code, li code, td code { background: var(--code-bg); padding: .15em .4em; border-radius: 4px; font-size: .9em; word-break: break-word; }
+pre { background: var(--code-bg); padding: 1rem; border-radius: 8px; overflow-x: auto; border: 1px solid var(--border); }
+pre code { background: none; padding: 0; }
+table { border-collapse: collapse; width: 100%; margin: 1rem 0; display: block; overflow-x: auto; }
+th, td { border: 1px solid var(--border); padding: .5rem .75rem; text-align: left; }
+th { background: var(--code-bg); }
+blockquote { border-left: 3px solid var(--accent); margin: 1rem 0; padding: .2rem 1rem; color: var(--muted); }
+hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+.nav { margin-bottom: 1.5rem; font-size: .9rem; }
+.nav a { text-decoration: none; }
+ul, ol { padding-left: 1.4rem; }
+li { margin: .3rem 0; }
+img { max-width: 100%; }
+.chk { display: inline-block; width: .9em; height: .9em; border: 1.5px solid var(--muted); border-radius: 3px; margin-right: .4em; vertical-align: middle; }
+.chk.done { background: var(--accent); border-color: var(--accent); color: #fff; text-align: center; line-height: .85em; font-size: .75em; }
+.codehilite { background: var(--code-bg) !important; border-radius: 8px; }
+pre { line-height: 125%; }
+td.linenos .normal { color: #666666; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: #666666; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+.codehilite .hll { background-color: #ffffcc }
+.codehilite { background: #f0f0f0; }
+.codehilite .c { color: #60A0B0; font-style: italic } /* Comment */
+.codehilite .err { border: 1px solid #F00 } /* Error */
+.codehilite .k { color: #007020; font-weight: bold } /* Keyword */
+.codehilite .o { color: #666 } /* Operator */
+.codehilite .ch { color: #60A0B0; font-style: italic } /* Comment.Hashbang */
+.codehilite .cm { color: #60A0B0; font-style: italic } /* Comment.Multiline */
+.codehilite .cp { color: #007020 } /* Comment.Preproc */
+.codehilite .cpf { color: #60A0B0; font-style: italic } /* Comment.PreprocFile */
+.codehilite .c1 { color: #60A0B0; font-style: italic } /* Comment.Single */
+.codehilite .cs { color: #60A0B0; background-color: #FFF0F0 } /* Comment.Special */
+.codehilite .gd { color: #A00000 } /* Generic.Deleted */
+.codehilite .ge { font-style: italic } /* Generic.Emph */
+.codehilite .ges { font-weight: bold; font-style: italic } /* Generic.EmphStrong */
+.codehilite .gr { color: #F00 } /* Generic.Error */
+.codehilite .gh { color: #000080; font-weight: bold } /* Generic.Heading */
+.codehilite .gi { color: #00A000 } /* Generic.Inserted */
+.codehilite .go { color: #888 } /* Generic.Output */
+.codehilite .gp { color: #C65D09; font-weight: bold } /* Generic.Prompt */
+.codehilite .gs { font-weight: bold } /* Generic.Strong */
+.codehilite .gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+.codehilite .gt { color: #04D } /* Generic.Traceback */
+.codehilite .kc { color: #007020; font-weight: bold } /* Keyword.Constant */
+.codehilite .kd { color: #007020; font-weight: bold } /* Keyword.Declaration */
+.codehilite .kn { color: #007020; font-weight: bold } /* Keyword.Namespace */
+.codehilite .kp { color: #007020 } /* Keyword.Pseudo */
+.codehilite .kr { color: #007020; font-weight: bold } /* Keyword.Reserved */
+.codehilite .kt { color: #902000 } /* Keyword.Type */
+.codehilite .m { color: #40A070 } /* Literal.Number */
+.codehilite .s { color: #4070A0 } /* Literal.String */
+.codehilite .na { color: #4070A0 } /* Name.Attribute */
+.codehilite .nb { color: #007020 } /* Name.Builtin */
+.codehilite .nc { color: #0E84B5; font-weight: bold } /* Name.Class */
+.codehilite .no { color: #60ADD5 } /* Name.Constant */
+.codehilite .nd { color: #555; font-weight: bold } /* Name.Decorator */
+.codehilite .ni { color: #D55537; font-weight: bold } /* Name.Entity */
+.codehilite .ne { color: #007020 } /* Name.Exception */
+.codehilite .nf { color: #06287E } /* Name.Function */
+.codehilite .nl { color: #002070; font-weight: bold } /* Name.Label */
+.codehilite .nn { color: #0E84B5; font-weight: bold } /* Name.Namespace */
+.codehilite .nt { color: #062873; font-weight: bold } /* Name.Tag */
+.codehilite .nv { color: #BB60D5 } /* Name.Variable */
+.codehilite .ow { color: #007020; font-weight: bold } /* Operator.Word */
+.codehilite .w { color: #BBB } /* Text.Whitespace */
+.codehilite .mb { color: #40A070 } /* Literal.Number.Bin */
+.codehilite .mf { color: #40A070 } /* Literal.Number.Float */
+.codehilite .mh { color: #40A070 } /* Literal.Number.Hex */
+.codehilite .mi { color: #40A070 } /* Literal.Number.Integer */
+.codehilite .mo { color: #40A070 } /* Literal.Number.Oct */
+.codehilite .sa { color: #4070A0 } /* Literal.String.Affix */
+.codehilite .sb { color: #4070A0 } /* Literal.String.Backtick */
+.codehilite .sc { color: #4070A0 } /* Literal.String.Char */
+.codehilite .dl { color: #4070A0 } /* Literal.String.Delimiter */
+.codehilite .sd { color: #4070A0; font-style: italic } /* Literal.String.Doc */
+.codehilite .s2 { color: #4070A0 } /* Literal.String.Double */
+.codehilite .se { color: #4070A0; font-weight: bold } /* Literal.String.Escape */
+.codehilite .sh { color: #4070A0 } /* Literal.String.Heredoc */
+.codehilite .si { color: #70A0D0; font-style: italic } /* Literal.String.Interpol */
+.codehilite .sx { color: #C65D09 } /* Literal.String.Other */
+.codehilite .sr { color: #235388 } /* Literal.String.Regex */
+.codehilite .s1 { color: #4070A0 } /* Literal.String.Single */
+.codehilite .ss { color: #517918 } /* Literal.String.Symbol */
+.codehilite .bp { color: #007020 } /* Name.Builtin.Pseudo */
+.codehilite .fm { color: #06287E } /* Name.Function.Magic */
+.codehilite .vc { color: #BB60D5 } /* Name.Variable.Class */
+.codehilite .vg { color: #BB60D5 } /* Name.Variable.Global */
+.codehilite .vi { color: #BB60D5 } /* Name.Variable.Instance */
+.codehilite .vm { color: #BB60D5 } /* Name.Variable.Magic */
+.codehilite .il { color: #40A070 } /* Literal.Number.Integer.Long */</style>
+<script>
+(function(){
+  try {
+    var t = localStorage.getItem('theme');
+    if (t) document.documentElement.setAttribute('data-theme', t);
+  } catch (e) {}
+})();
+function getEffectiveTheme(){
+  var attr = document.documentElement.getAttribute('data-theme');
+  if (attr) return attr;
+  return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+}
+function toggleTheme(){
+  var next = getEffectiveTheme() === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  try { localStorage.setItem('theme', next); } catch (e) {}
+  updateThemeToggleIcon();
+}
+function updateThemeToggleIcon(){
+  var btn = document.querySelector('.theme-toggle');
+  if (btn) btn.textContent = getEffectiveTheme() === 'dark' ? '☀️' : '🌙';
+}
+document.addEventListener('DOMContentLoaded', updateThemeToggleIcon);
+</script>
+</head><body>
+<nav class="topnav">
+<a class="back" href="../../project/leetcode-prep.html">&larr; Back to LeetCode Prep</a>
+<div class="phase-pills"><div class="phase-pill-wrap"><a class="pill current" href="../../project/leetcode-prep.html" title="LeetCode Prep">LeetCode Prep</a><div class="phase-dropdown"><a href="../../project/leetcode-prep.html#arrays-hashing">Arrays &amp; Hashing</a><a href="../../project/leetcode-prep.html#two-pointers">Two Pointers</a><a href="../../project/leetcode-prep.html#sliding-window">Sliding Window</a><a href="../../project/leetcode-prep.html#stack">Stack</a><a href="../../project/leetcode-prep.html#binary-search">Binary Search</a><a href="../../project/leetcode-prep.html#linked-list">Linked List</a><a href="../../project/leetcode-prep.html#trees">Trees</a><a href="../../project/leetcode-prep.html#heap-priority-queue">Heap / Priority Queue</a><a href="../../project/leetcode-prep.html#backtracking">Backtracking</a><a href="../../project/leetcode-prep.html#tries">Tries</a><a href="../../project/leetcode-prep.html#graphs">Graphs</a><a href="../../project/leetcode-prep.html#advanced-graphs">Advanced Graphs</a><a href="../../project/leetcode-prep.html#1d-dp">1-D Dynamic Programming</a><a href="../../project/leetcode-prep.html#2d-dp">2-D Dynamic Programming</a><a href="../../project/leetcode-prep.html#greedy">Greedy</a><a href="../../project/leetcode-prep.html#intervals">Intervals</a><a href="../../project/leetcode-prep.html#math-geometry">Math &amp; Geometry</a><a href="../../project/leetcode-prep.html#bit-manipulation">Bit Manipulation</a></div></div><span class="sep">|</span><div class="phase-pill-wrap"><a class="pill" href="../../index.html#phase-1" title="Phase 1">Phase1</a><div class="phase-dropdown"><a href="../../notes/phase-1-foundations/1.1-programming-fundamentals.html">1.1 Programming Fundamentals</a><a href="../../notes/phase-1-foundations/1.2-git-github-essentials.html">1.2 Git &amp; GitHub Essentials</a><a href="../../notes/phase-1-foundations/1.3-big-o-algorithmic-thinking.html">1.3 Big-O and Algorithmic Thinking</a><a href="../../notes/phase-1-foundations/1.4-arrays-strings.html">1.4 Arrays &amp; Strings</a><a href="../../notes/phase-1-foundations/1.5-linked-lists.html">1.5 Linked Lists</a><a href="../../notes/phase-1-foundations/1.6-stacks-queues.html">1.6 Stacks &amp; Queues</a><a href="../../notes/phase-1-foundations/1.7-hash-tables.html">1.7 Hash Tables</a><a href="../../notes/phase-1-foundations/1.8-recursion-backtracking.html">1.8 Recursion &amp; Backtracking</a><a href="../../notes/phase-1-foundations/1.9-sorting-searching.html">1.9 Sorting &amp; Searching</a><a href="../../notes/phase-1-foundations/1.10-trees-bst.html">1.10 Trees &amp; Binary Search Trees</a><a href="../../notes/phase-1-foundations/1.11-heaps-priority-queues.html">1.11 Heaps &amp; Priority Queues</a><a href="../../notes/phase-1-foundations/1.12-graphs.html">1.12 Graphs</a><a href="../../notes/phase-1-foundations/1.13-dp-greedy.html">1.13 Dynamic Programming &amp; Greedy</a><a href="../../notes/phase-1-foundations/1.14-phase-capstone.html">1.14 Phase Capstone</a></div></div><div class="phase-pill-wrap"><a class="pill" href="../../index.html#phase-2" title="Phase 2">Phase2</a><div class="phase-dropdown"><a href="../../notes/phase-2-backend-skills/2.1-relational-db-design-normalization.html">2.1 Relational DB Design &amp; Normalization</a><a href="../../notes/phase-2-backend-skills/2.2-sql-querying.html">2.2 SQL Querying</a><a href="../../notes/phase-2-backend-skills/2.3-indexing-query-performance.html">2.3 Indexing &amp; Query Performance</a><a href="../../notes/phase-2-backend-skills/2.4-rest-api-design-principles.html">2.4 REST API Design Principles</a><a href="../../notes/phase-2-backend-skills/2.5-building-apis-with-fastapi.html">2.5 Building APIs with FastAPI</a><a href="../../notes/phase-2-backend-skills/2.6-debugging-techniques-tools.html">2.6 Debugging Techniques &amp; Tools</a><a href="../../notes/phase-2-backend-skills/2.7-testing-fundamentals-tdd.html">2.7 Testing Fundamentals &amp; TDD</a><a href="../../notes/phase-2-backend-skills/2.8-phase-capstone.html">2.8 Phase Capstone</a></div></div><div class="phase-pill-wrap"><a class="pill" href="../../index.html#phase-3" title="Phase 3">Phase3</a><div class="phase-dropdown"><a href="../../notes/phase-3-language-internals/3.1-python-object-model-memory.html">3.1 Python Object Model &amp; Memory</a><a href="../../notes/phase-3-language-internals/3.2-collections-internals.html">3.2 Collections Internals</a><a href="../../notes/phase-3-language-internals/3.3-gil-multithreading.html">3.3 The GIL &amp; Multithreading</a><a href="../../notes/phase-3-language-internals/3.4-multiprocessing-asyncio.html">3.4 Multiprocessing &amp; Asyncio</a><a href="../../notes/phase-3-language-internals/3.5-phase-capstone.html">3.5 Phase Capstone</a></div></div><div class="phase-pill-wrap"><a class="pill" href="../../index.html#phase-4" title="Phase 4">Phase4</a><div class="phase-dropdown"><a href="../../notes/phase-4-design-thinking/4.1-oop-foundations-refresher.html">4.1 OOP Foundations Refresher</a><a href="../../notes/phase-4-design-thinking/4.2-solid-principles.html">4.2 SOLID Principles</a><a href="../../notes/phase-4-design-thinking/4.3-creational-design-patterns.html">4.3 Creational Design Patterns</a><a href="../../notes/phase-4-design-thinking/4.4-structural-design-patterns.html">4.4 Structural Design Patterns</a><a href="../../notes/phase-4-design-thinking/4.5-behavioral-design-patterns.html">4.5 Behavioral Design Patterns</a><a href="../../notes/phase-4-design-thinking/4.6-uml-lld-process.html">4.6 UML &amp; the LLD Process</a><a href="../../notes/phase-4-design-thinking/4.7-lld-practice-problems.html">4.7 LLD Practice Problems</a><a href="../../notes/phase-4-design-thinking/4.8-system-design-hld-fundamentals.html">4.8 System Design / HLD Fundamentals</a><a href="../../notes/phase-4-design-thinking/4.9-hld-case-studies.html">4.9 HLD Case Studies</a><a href="../../notes/phase-4-design-thinking/4.10-phase-capstone.html">4.10 Phase Capstone</a></div></div><div class="phase-pill-wrap"><a class="pill" href="../../index.html#phase-5" title="Phase 5">Phase5</a><div class="phase-dropdown"><a href="../../notes/phase-5-scaling-distributed-systems/5.1-caching-strategies-redis.html">5.1 Caching Strategies &amp; Redis</a><a href="../../notes/phase-5-scaling-distributed-systems/5.2-distributed-systems-fundamentals.html">5.2 Distributed Systems Fundamentals</a><a href="../../notes/phase-5-scaling-distributed-systems/5.3-idempotency-reliable-apis.html">5.3 Idempotency &amp; Reliable APIs</a><a href="../../notes/phase-5-scaling-distributed-systems/5.4-message-queues-streaming.html">5.4 Message Queues &amp; Streaming</a><a href="../../notes/phase-5-scaling-distributed-systems/5.5-security-ssl-tls.html">5.5 Security: SSL/TLS</a><a href="../../notes/phase-5-scaling-distributed-systems/5.6-security-jwt-oauth.html">5.6 Security: JWT &amp; OAuth</a><a href="../../notes/phase-5-scaling-distributed-systems/5.7-phase-capstone.html">5.7 Phase Capstone</a></div></div><div class="phase-pill-wrap"><a class="pill" href="../../index.html#phase-6" title="Phase 6">Phase6</a><div class="phase-dropdown"><a href="../../notes/phase-6-production-ops/6.1-docker-fundamentals.html">6.1 Docker Fundamentals</a><a href="../../notes/phase-6-production-ops/6.2-kubernetes-fundamentals.html">6.2 Kubernetes Fundamentals</a><a href="../../notes/phase-6-production-ops/6.3-cicd-github-actions.html">6.3 CI/CD with GitHub Actions</a><a href="../../notes/phase-6-production-ops/6.4-monitoring-logging.html">6.4 Monitoring &amp; Logging</a><a href="../../notes/phase-6-production-ops/6.5-phase-capstone.html">6.5 Phase Capstone</a></div></div></div>
+<button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle color theme" title="Toggle color theme">🌙</button>
+</nav>
+<div class="page">
+<h1>Topic 2: Two Pointers</h1>
+<h2>Core concepts / data structures</h2>
+<h3>The Two Pointers technique</h3>
+<p><strong>What it is:</strong> instead of using one index to walk through an array/string, you use <strong>two</strong> index variables ("pointers") that move through the data — usually toward each other (from both ends inward) or in the same direction at different speeds — to solve a problem in a single pass, instead of checking every possible pair with nested loops.</p>
+<p><strong>The conceptual shift, not just the mechanics:</strong> the reason Two Pointers works isn't "using two variables instead of one" — plenty of O(n²) algorithms use two variables (nested loops) and are still O(n²). The real idea is that <strong>each pointer only ever moves in one direction, and every single-step move is justified by a proof that it can't skip the answer.</strong> That's what turns "checking pairs" from O(n²) (every pair, because you don't know which ones are safe to skip) into O(n) (each pointer crosses the array once, because you've <em>proven</em> which pairs are safe to never check at all). If you can't articulate why moving a specific pointer is always safe, you don't actually have a Two Pointers algorithm — you have two loop variables that happen to be at risk of missing the correct answer.</p>
+<p><strong>Simple analogy:</strong> imagine two people searching a single-file line of lockers for a matching pair of items — one starting from the left end, one from the right end, walking toward each other. As long as the lockers are sorted by some useful property, each person can make a provably correct decision about which direction to move based on what they currently see — they never have to backtrack, because moving forward is only ever safe when the option they're leaving behind is safe to abandon forever.</p>
+<p><strong>Why it only works efficiently on structured data:</strong> the whole approach depends on being able to <em>predict</em> the effect of moving a pointer. That prediction is only reliable when there's structure to exploit — almost always, <strong>the array is sorted</strong> (or can be treated as sorted), so moving a pointer left or right has a known, monotonic effect (e.g. moving the left pointer right always increases the value at that position, in a sorted ascending array). Without that structure, you can't reason about which pointer move is safe, and the technique doesn't apply.</p>
+<h3>The two common shapes</h3>
+<p><strong>1. Opposite-direction pointers</strong> (start at both ends, move inward)</p>
+<div class="codehilite"><pre><span></span><code><span class="n">left</span><span class="p">,</span> <span class="n">right</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">arr</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+<span class="k">while</span> <span class="n">left</span> <span class="o">&lt;</span> <span class="n">right</span><span class="p">:</span>
+    <span class="c1"># look at arr[left] and arr[right], decide which to move (or both)</span>
+    <span class="k">if</span> <span class="n">some_condition</span><span class="p">:</span>
+        <span class="n">left</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">right</span> <span class="o">-=</span> <span class="mi">1</span>
+</code></pre></div>
+
+<p>Used for: checking pairs/triplets that sum to a target in a <em>sorted</em> array, palindrome checks, "container with most water"-style area maximization.</p>
+<p><strong>2. Same-direction pointers (slow/fast, or read/write)</strong> (both start near the beginning, move forward at different rates)</p>
+<div class="codehilite"><pre><span></span><code><span class="n">slow</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="k">for</span> <span class="n">fast</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">arr</span><span class="p">)):</span>
+    <span class="c1"># decide whether to advance slow based on arr[fast]</span>
+    <span class="k">if</span> <span class="n">some_condition</span><span class="p">:</span>
+        <span class="n">arr</span><span class="p">[</span><span class="n">slow</span><span class="p">]</span> <span class="o">=</span> <span class="n">arr</span><span class="p">[</span><span class="n">fast</span><span class="p">]</span>
+        <span class="n">slow</span> <span class="o">+=</span> <span class="mi">1</span>
+</code></pre></div>
+
+<p>Used for: removing duplicates in-place, partitioning arrays, and (in linked lists) cycle detection or finding the middle node.</p>
+<h2>Common patterns / techniques in this topic</h2>
+<table>
+<thead>
+<tr>
+<th>Pattern</th>
+<th>When it applies</th>
+<th>Why the pointer move is safe</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Opposite-end pointers on a sorted array</strong></td>
+<td>Find a pair (or triplet, via one pointer fixed + two moving) that sums to a target.</td>
+<td>If the current sum is too small, the <em>only</em> way to increase it is to move <code>left</code> right (since the array is sorted ascending, that's the only direction that increases a value); moving <code>right</code> left could only make the sum smaller, which can't fix "too small." So <code>right</code> staying put while <code>left</code> moves is provably the only useful move.</td>
+</tr>
+<tr>
+<td><strong>Palindrome check</strong></td>
+<td>Compare characters from both ends moving inward.</td>
+<td>A palindrome must match at every mirrored position; if the two ends don't match, no amount of adjusting the <em>other</em> end can fix that specific mismatch — it's an immediate, final answer.</td>
+</tr>
+<tr>
+<td><strong>Area/container maximization</strong></td>
+<td>Two pointers at the ends of a range; the side with the smaller "height" is always the one limiting the result.</td>
+<td>Keeping the shorter wall's position and moving on can never improve the answer for <em>that</em> wall (moving the taller wall inward can only shrink width without ever increasing the limiting height) — see the Container With Most Water write-up for the full proof.</td>
+</tr>
+<tr>
+<td><strong>Fast/slow pointers</strong></td>
+<td>Cycle detection (Floyd's algorithm), finding the middle of a sequence, removing duplicates in-place.</td>
+<td>These use the pointers' <em>relative speed</em>, not sortedness, to guarantee a property (e.g. two pointers moving at different speeds around a cycle must eventually coincide).</td>
+</tr>
+</tbody>
+</table>
+<h2>Key terminology</h2>
+<ul>
+<li><strong>In-place</strong> — modifying the array directly using O(1) extra space, rather than building a new array/list.</li>
+<li><strong>Monotonic movement</strong> — each pointer only ever moves in one direction (never backtracks), which is what keeps two-pointer algorithms O(n) instead of O(n²) — each pointer takes at most n steps total across the whole algorithm, so the total work across both pointers combined is O(n), not O(n) per starting position.</li>
+<li><strong>Two Sum II-style problems</strong> — the family of problems (this exact pattern, not literally the LeetCode problem of that name) where a sorted array + target sum calls for opposite-direction pointers instead of a hash map.</li>
+</ul>
+<h2>Common beginner mistakes (and <em>why</em> each one is wrong)</h2>
+<ol>
+<li><strong>Trying to use Two Pointers on an unsorted array without sorting first.</strong> The technique relies on being able to <em>predict</em> what happens when you move a pointer — that prediction is only valid if the data has exploitable order. If the problem needs indices from the <em>original</em> unsorted array, sorting the raw values destroys that information; sort <code>(value, original_index)</code> pairs instead, so the original position travels alongside the value.</li>
+<li><strong>Moving both pointers when only one should move.</strong> E.g. in the "pair sums to target" pattern, if the current sum is too small, only <code>left</code> should move — moving <code>right</code> too can jump <em>past</em> the correct pairing entirely, because you've made two changes when you'd only proven one of them safe.</li>
+<li><strong>Off-by-one in the loop condition.</strong> <code>while left &lt; right</code> vs <code>while left &lt;= right</code> matters a lot: using <code>&lt;=</code> when the two pointers should never be allowed to reference the same element (or cross) is a classic source of bugs, especially in problems where a self-pairing (an element paired with itself) is invalid.</li>
+<li><strong>Forgetting to skip duplicate values</strong> in problems like 3Sum, which causes duplicate <em>answers</em> in the output (not incorrect individual answers, but a correctness bug against the "no duplicate triplets" requirement).</li>
+<li><strong>Confusing fast/slow pointers with opposite-end pointers.</strong> They solve different kinds of problems (cycle/middle-finding vs. pair-sum/palindrome-style problems), rely on different underlying guarantees (relative speed vs. sortedness), and move in different directions — picking the wrong shape for a problem produces an algorithm that doesn't terminate correctly or doesn't converge on the right answer.</li>
+</ol>
+<h2>How this compares to Arrays &amp; Hashing</h2>
+<p>Both topics often solve "does a pair exist that sums to X?"-style problems, but they use <strong>opposite strategies for the same underlying question</strong>: hashing works on <strong>unsorted</strong> data by trading space for speed — remember what you've seen, in O(n) extra space, to answer each query in O(1). Two Pointers works on <strong>sorted</strong> data by trading a sort (or given order) for space efficiency — O(1) extra space instead of O(n) for a hash map, because sortedness lets you <em>prove</em> which pointer move is safe instead of needing to remember everything you've seen. If a problem's array is already sorted (or you're free to sort it and don't need to preserve original indices), consider Two Pointers before reaching for a hash map — it often gets you the same O(n) time complexity with meaningfully less memory.</p>
+<h2>Starter problems (easy, to warm up)</h2>
+<ol>
+<li><strong>Valid Palindrome</strong> (LeetCode #125) — classic opposite-end pointer comparison. (Also in your Blind 75 list.)</li>
+<li><strong>Two Sum II - Input Array Is Sorted</strong> (LeetCode #167) — not in Blind 75, but the purest example of the opposite-pointer sum pattern, worth doing to build intuition before 3Sum.</li>
+<li><strong>Merge Sorted Array</strong> (LeetCode #88) — not in Blind 75, but a great same-direction / write-pointer warm-up.</li>
+<li><strong>Remove Duplicates from Sorted Array</strong> (LeetCode #26) — not in Blind 75, but the standard slow/fast in-place pattern.</li>
+</ol>
+<h2>What carries over from here</h2>
+<p>The fast/slow pointer idea reappears directly in <strong>Linked List</strong> problems (cycle detection, finding the middle node) and the "shrinking window based on a condition" idea is the direct ancestor of the next topic, <strong>Sliding Window</strong> — which is essentially Two Pointers where the region <em>between</em> the pointers (the "window") is the thing being tracked and grown/shrunk, rather than just the two endpoint values.</p>
+<div class="nav"><a href="../../project/leetcode-prep.html">&larr; Back to LeetCode Prep</a></div>
+</div>
+</body>
+</html>

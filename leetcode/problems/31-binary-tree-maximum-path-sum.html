@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>31. Binary Tree Maximum Path Sum</title>
+<style>
+:root {
+  --bg: #fdfdfb; --fg: #24292f; --muted: #5b6470; --border: #e1e4e8;
+  --code-bg: #f3f4f6; --link: #0b5fff; --accent: #6a3fd1; --chip: #f0edfb;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg:#1a1d23; --fg:#dadee3; --muted:#98a0ab; --border:#2f343c; --code-bg:#20242b; --link:#7aa2ff; --accent:#b79cff; --chip:#242233; }
+}
+:root[data-theme="dark"] { --bg:#1a1d23; --fg:#dadee3; --muted:#98a0ab; --border:#2f343c; --code-bg:#20242b; --link:#7aa2ff; --accent:#b79cff; --chip:#242233; }
+.theme-toggle { margin-left: .5rem; background: none; border: 1px solid var(--border); border-radius: 999px; width: 1.9rem; height: 1.9rem; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; font-size: .95rem; color: var(--fg); line-height: 1; padding: 0; }
+.theme-toggle:hover { border-color: var(--accent); }
+.phase-pills .sep { color: var(--muted); font-size: .8rem; }
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.65; margin: 0;
+}
+.page { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 6rem; }
+.topnav {
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; flex-wrap: wrap; gap: .9rem;
+  background: var(--bg); border-bottom: 1px solid var(--border);
+  padding: .7rem 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,.08);
+}
+.topnav a.back, .topnav .home { text-decoration: none; font-weight: 600; font-size: .92rem; white-space: nowrap; color: var(--fg); }
+.phase-pills { display: flex; gap: .35rem; flex-wrap: wrap; margin-left: auto; }
+.phase-pills .pill {
+  text-decoration: none; color: var(--muted); font-size: .8rem; font-weight: 600;
+  border: 1px solid var(--border); border-radius: 999px; padding: .2rem .6rem;
+}
+.phase-pills .pill:hover { border-color: var(--accent); color: var(--accent); }
+.phase-pills .pill.current { background: var(--accent); border-color: var(--accent); color: #fff; }
+.phase-pill-wrap { position: relative; display: inline-block; padding-bottom: .6rem; margin-bottom: -.6rem; }
+.phase-dropdown {
+  display: none; position: absolute; top: 100%; right: 0;
+  background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+  padding: .35rem; min-width: 240px; max-height: 70vh; overflow-y: auto;
+  box-shadow: 0 6px 20px rgba(0,0,0,.15); z-index: 200;
+}
+.phase-pill-wrap:hover .phase-dropdown, .phase-pill-wrap:focus-within .phase-dropdown { display: block; }
+.phase-dropdown a {
+  display: block; text-decoration: none; color: var(--fg); font-size: .82rem; font-weight: 500;
+  padding: .35rem .55rem; border-radius: 6px; white-space: nowrap;
+}
+.phase-dropdown a:hover { background: var(--chip); color: var(--accent); }
+.phase-dropdown a.current { color: var(--accent); font-weight: 700; }
+[id] { scroll-margin-top: 4.5rem; }
+h1, h2, h3, h4 { line-height: 1.3; }
+h1 { font-size: 1.9rem; border-bottom: 2px solid var(--accent); padding-bottom: .5rem; }
+h2 { font-size: 1.4rem; margin-top: 2.5rem; border-bottom: 1px solid var(--border); padding-bottom: .3rem; }
+h3 { font-size: 1.15rem; margin-top: 2rem; color: var(--accent); }
+a { color: var(--link); }
+p code, li code, td code { background: var(--code-bg); padding: .15em .4em; border-radius: 4px; font-size: .9em; word-break: break-word; }
+pre { background: var(--code-bg); padding: 1rem; border-radius: 8px; overflow-x: auto; border: 1px solid var(--border); }
+pre code { background: none; padding: 0; }
+table { border-collapse: collapse; width: 100%; margin: 1rem 0; display: block; overflow-x: auto; }
+th, td { border: 1px solid var(--border); padding: .5rem .75rem; text-align: left; }
+th { background: var(--code-bg); }
+blockquote { border-left: 3px solid var(--accent); margin: 1rem 0; padding: .2rem 1rem; color: var(--muted); }
+hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+.nav { margin-bottom: 1.5rem; font-size: .9rem; }
+.nav a { text-decoration: none; }
+ul, ol { padding-left: 1.4rem; }
+li { margin: .3rem 0; }
+img { max-width: 100%; }
+.chk { display: inline-block; width: .9em; height: .9em; border: 1.5px solid var(--muted); border-radius: 3px; margin-right: .4em; vertical-align: middle; }
+.chk.done { background: var(--accent); border-color: var(--accent); color: #fff; text-align: center; line-height: .85em; font-size: .75em; }
+.codehilite { background: var(--code-bg) !important; border-radius: 8px; }
+pre { line-height: 125%; }
+td.linenos .normal { color: #666666; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: #666666; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+.codehilite .hll { background-color: #ffffcc }
+.codehilite { background: #f0f0f0; }
+.codehilite .c { color: #60A0B0; font-style: italic } /* Comment */
+.codehilite .err { border: 1px solid #F00 } /* Error */
+.codehilite .k { color: #007020; font-weight: bold } /* Keyword */
+.codehilite .o { color: #666 } /* Operator */
+.codehilite .ch { color: #60A0B0; font-style: italic } /* Comment.Hashbang */
+.codehilite .cm { color: #60A0B0; font-style: italic } /* Comment.Multiline */
+.codehilite .cp { color: #007020 } /* Comment.Preproc */
+.codehilite .cpf { color: #60A0B0; font-style: italic } /* Comment.PreprocFile */
+.codehilite .c1 { color: #60A0B0; font-style: italic } /* Comment.Single */
+.codehilite .cs { color: #60A0B0; background-color: #FFF0F0 } /* Comment.Special */
+.codehilite .gd { color: #A00000 } /* Generic.Deleted */
+.codehilite .ge { font-style: italic } /* Generic.Emph */
+.codehilite .ges { font-weight: bold; font-style: italic } /* Generic.EmphStrong */
+.codehilite .gr { color: #F00 } /* Generic.Error */
+.codehilite .gh { color: #000080; font-weight: bold } /* Generic.Heading */
+.codehilite .gi { color: #00A000 } /* Generic.Inserted */
+.codehilite .go { color: #888 } /* Generic.Output */
+.codehilite .gp { color: #C65D09; font-weight: bold } /* Generic.Prompt */
+.codehilite .gs { font-weight: bold } /* Generic.Strong */
+.codehilite .gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+.codehilite .gt { color: #04D } /* Generic.Traceback */
+.codehilite .kc { color: #007020; font-weight: bold } /* Keyword.Constant */
+.codehilite .kd { color: #007020; font-weight: bold } /* Keyword.Declaration */
+.codehilite .kn { color: #007020; font-weight: bold } /* Keyword.Namespace */
+.codehilite .kp { color: #007020 } /* Keyword.Pseudo */
+.codehilite .kr { color: #007020; font-weight: bold } /* Keyword.Reserved */
+.codehilite .kt { color: #902000 } /* Keyword.Type */
+.codehilite .m { color: #40A070 } /* Literal.Number */
+.codehilite .s { color: #4070A0 } /* Literal.String */
+.codehilite .na { color: #4070A0 } /* Name.Attribute */
+.codehilite .nb { color: #007020 } /* Name.Builtin */
+.codehilite .nc { color: #0E84B5; font-weight: bold } /* Name.Class */
+.codehilite .no { color: #60ADD5 } /* Name.Constant */
+.codehilite .nd { color: #555; font-weight: bold } /* Name.Decorator */
+.codehilite .ni { color: #D55537; font-weight: bold } /* Name.Entity */
+.codehilite .ne { color: #007020 } /* Name.Exception */
+.codehilite .nf { color: #06287E } /* Name.Function */
+.codehilite .nl { color: #002070; font-weight: bold } /* Name.Label */
+.codehilite .nn { color: #0E84B5; font-weight: bold } /* Name.Namespace */
+.codehilite .nt { color: #062873; font-weight: bold } /* Name.Tag */
+.codehilite .nv { color: #BB60D5 } /* Name.Variable */
+.codehilite .ow { color: #007020; font-weight: bold } /* Operator.Word */
+.codehilite .w { color: #BBB } /* Text.Whitespace */
+.codehilite .mb { color: #40A070 } /* Literal.Number.Bin */
+.codehilite .mf { color: #40A070 } /* Literal.Number.Float */
+.codehilite .mh { color: #40A070 } /* Literal.Number.Hex */
+.codehilite .mi { color: #40A070 } /* Literal.Number.Integer */
+.codehilite .mo { color: #40A070 } /* Literal.Number.Oct */
+.codehilite .sa { color: #4070A0 } /* Literal.String.Affix */
+.codehilite .sb { color: #4070A0 } /* Literal.String.Backtick */
+.codehilite .sc { color: #4070A0 } /* Literal.String.Char */
+.codehilite .dl { color: #4070A0 } /* Literal.String.Delimiter */
+.codehilite .sd { color: #4070A0; font-style: italic } /* Literal.String.Doc */
+.codehilite .s2 { color: #4070A0 } /* Literal.String.Double */
+.codehilite .se { color: #4070A0; font-weight: bold } /* Literal.String.Escape */
+.codehilite .sh { color: #4070A0 } /* Literal.String.Heredoc */
+.codehilite .si { color: #70A0D0; font-style: italic } /* Literal.String.Interpol */
+.codehilite .sx { color: #C65D09 } /* Literal.String.Other */
+.codehilite .sr { color: #235388 } /* Literal.String.Regex */
+.codehilite .s1 { color: #4070A0 } /* Literal.String.Single */
+.codehilite .ss { color: #517918 } /* Literal.String.Symbol */
+.codehilite .bp { color: #007020 } /* Name.Builtin.Pseudo */
+.codehilite .fm { color: #06287E } /* Name.Function.Magic */
+.codehilite .vc { color: #BB60D5 } /* Name.Variable.Class */
+.codehilite .vg { color: #BB60D5 } /* Name.Variable.Global */
+.codehilite .vi { color: #BB60D5 } /* Name.Variable.Instance */
+.codehilite .vm { color: #BB60D5 } /* Name.Variable.Magic */
+.codehilite .il { color: #40A070 } /* Literal.Number.Integer.Long */</style>
+<script>
+(function(){
+  try {
+    var t = localStorage.getItem('theme');
+    if (t) document.documentElement.setAttribute('data-theme', t);
+  } catch (e) {}
+})();
+function getEffectiveTheme(){
+  var attr = document.documentElement.getAttribute('data-theme');
+  if (attr) return attr;
+  return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+}
+function toggleTheme(){
+  var next = getEffectiveTheme() === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  try { localStorage.setItem('theme', next); } catch (e) {}
+  updateThemeToggleIcon();
+}
+function updateThemeToggleIcon(){
+  var btn = document.querySelector('.theme-toggle');
+  if (btn) btn.textContent = getEffectiveTheme() === 'dark' ? '☀️' : '🌙';
+}
+document.addEventListener('DOMContentLoaded', updateThemeToggleIcon);
+</script>
+</head><body>
+<nav class="topnav">
+<a class="back" href="../../project/leetcode-prep.html">&larr; Back to LeetCode Prep</a>
+<div class="phase-pills"><div class="phase-pill-wrap"><a class="pill current" href="../../project/leetcode-prep.html" title="LeetCode Prep">LeetCode Prep</a><div class="phase-dropdown"><a href="../../project/leetcode-prep.html#arrays-hashing">Arrays &amp; Hashing</a><a href="../../project/leetcode-prep.html#two-pointers">Two Pointers</a><a href="../../project/leetcode-prep.html#sliding-window">Sliding Window</a><a href="../../project/leetcode-prep.html#stack">Stack</a><a href="../../project/leetcode-prep.html#binary-search">Binary Search</a><a href="../../project/leetcode-prep.html#linked-list">Linked List</a><a href="../../project/leetcode-prep.html#trees">Trees</a><a href="../../project/leetcode-prep.html#heap-priority-queue">Heap / Priority Queue</a><a href="../../project/leetcode-prep.html#backtracking">Backtracking</a><a href="../../project/leetcode-prep.html#tries">Tries</a><a href="../../project/leetcode-prep.html#graphs">Graphs</a><a href="../../project/leetcode-prep.html#advanced-graphs">Advanced Graphs</a><a href="../../project/leetcode-prep.html#1d-dp">1-D Dynamic Programming</a><a href="../../project/leetcode-prep.html#2d-dp">2-D Dynamic Programming</a><a href="../../project/leetcode-prep.html#greedy">Greedy</a><a href="../../project/leetcode-prep.html#intervals">Intervals</a><a href="../../project/leetcode-prep.html#math-geometry">Math &amp; Geometry</a><a href="../../project/leetcode-prep.html#bit-manipulation">Bit Manipulation</a></div></div><span class="sep">|</span><div class="phase-pill-wrap"><a class="pill" href="../../index.html#phase-1" title="Phase 1">Phase1</a><div class="phase-dropdown"><a href="../../notes/phase-1-foundations/1.1-programming-fundamentals.html">1.1 Programming Fundamentals</a><a href="../../notes/phase-1-foundations/1.2-git-github-essentials.html">1.2 Git &amp; GitHub Essentials</a><a href="../../notes/phase-1-foundations/1.3-big-o-algorithmic-thinking.html">1.3 Big-O and Algorithmic Thinking</a><a href="../../notes/phase-1-foundations/1.4-arrays-strings.html">1.4 Arrays &amp; Strings</a><a href="../../notes/phase-1-foundations/1.5-linked-lists.html">1.5 Linked Lists</a><a href="../../notes/phase-1-foundations/1.6-stacks-queues.html">1.6 Stacks &amp; Queues</a><a href="../../notes/phase-1-foundations/1.7-hash-tables.html">1.7 Hash Tables</a><a href="../../notes/phase-1-foundations/1.8-recursion-backtracking.html">1.8 Recursion &amp; Backtracking</a><a href="../../notes/phase-1-foundations/1.9-sorting-searching.html">1.9 Sorting &amp; Searching</a><a href="../../notes/phase-1-foundations/1.10-trees-bst.html">1.10 Trees &amp; Binary Search Trees</a><a href="../../notes/phase-1-foundations/1.11-heaps-priority-queues.html">1.11 Heaps &amp; Priority Queues</a><a href="../../notes/phase-1-foundations/1.12-graphs.html">1.12 Graphs</a><a href="../../notes/phase-1-foundations/1.13-dp-greedy.html">1.13 Dynamic Programming &amp; Greedy</a><a href="../../notes/phase-1-foundations/1.14-phase-capstone.html">1.14 Phase Capstone</a></div></div><div class="phase-pill-wrap"><a class="pill" href="../../index.html#phase-2" title="Phase 2">Phase2</a><div class="phase-dropdown"><a href="../../notes/phase-2-backend-skills/2.1-relational-db-design-normalization.html">2.1 Relational DB Design &amp; Normalization</a><a href="../../notes/phase-2-backend-skills/2.2-sql-querying.html">2.2 SQL Querying</a><a href="../../notes/phase-2-backend-skills/2.3-indexing-query-performance.html">2.3 Indexing &amp; Query Performance</a><a href="../../notes/phase-2-backend-skills/2.4-rest-api-design-principles.html">2.4 REST API Design Principles</a><a href="../../notes/phase-2-backend-skills/2.5-building-apis-with-fastapi.html">2.5 Building APIs with FastAPI</a><a href="../../notes/phase-2-backend-skills/2.6-debugging-techniques-tools.html">2.6 Debugging Techniques &amp; Tools</a><a href="../../notes/phase-2-backend-skills/2.7-testing-fundamentals-tdd.html">2.7 Testing Fundamentals &amp; TDD</a><a href="../../notes/phase-2-backend-skills/2.8-phase-capstone.html">2.8 Phase Capstone</a></div></div><div class="phase-pill-wrap"><a class="pill" href="../../index.html#phase-3" title="Phase 3">Phase3</a><div class="phase-dropdown"><a href="../../notes/phase-3-language-internals/3.1-python-object-model-memory.html">3.1 Python Object Model &amp; Memory</a><a href="../../notes/phase-3-language-internals/3.2-collections-internals.html">3.2 Collections Internals</a><a href="../../notes/phase-3-language-internals/3.3-gil-multithreading.html">3.3 The GIL &amp; Multithreading</a><a href="../../notes/phase-3-language-internals/3.4-multiprocessing-asyncio.html">3.4 Multiprocessing &amp; Asyncio</a><a href="../../notes/phase-3-language-internals/3.5-phase-capstone.html">3.5 Phase Capstone</a></div></div><div class="phase-pill-wrap"><a class="pill" href="../../index.html#phase-4" title="Phase 4">Phase4</a><div class="phase-dropdown"><a href="../../notes/phase-4-design-thinking/4.1-oop-foundations-refresher.html">4.1 OOP Foundations Refresher</a><a href="../../notes/phase-4-design-thinking/4.2-solid-principles.html">4.2 SOLID Principles</a><a href="../../notes/phase-4-design-thinking/4.3-creational-design-patterns.html">4.3 Creational Design Patterns</a><a href="../../notes/phase-4-design-thinking/4.4-structural-design-patterns.html">4.4 Structural Design Patterns</a><a href="../../notes/phase-4-design-thinking/4.5-behavioral-design-patterns.html">4.5 Behavioral Design Patterns</a><a href="../../notes/phase-4-design-thinking/4.6-uml-lld-process.html">4.6 UML &amp; the LLD Process</a><a href="../../notes/phase-4-design-thinking/4.7-lld-practice-problems.html">4.7 LLD Practice Problems</a><a href="../../notes/phase-4-design-thinking/4.8-system-design-hld-fundamentals.html">4.8 System Design / HLD Fundamentals</a><a href="../../notes/phase-4-design-thinking/4.9-hld-case-studies.html">4.9 HLD Case Studies</a><a href="../../notes/phase-4-design-thinking/4.10-phase-capstone.html">4.10 Phase Capstone</a></div></div><div class="phase-pill-wrap"><a class="pill" href="../../index.html#phase-5" title="Phase 5">Phase5</a><div class="phase-dropdown"><a href="../../notes/phase-5-scaling-distributed-systems/5.1-caching-strategies-redis.html">5.1 Caching Strategies &amp; Redis</a><a href="../../notes/phase-5-scaling-distributed-systems/5.2-distributed-systems-fundamentals.html">5.2 Distributed Systems Fundamentals</a><a href="../../notes/phase-5-scaling-distributed-systems/5.3-idempotency-reliable-apis.html">5.3 Idempotency &amp; Reliable APIs</a><a href="../../notes/phase-5-scaling-distributed-systems/5.4-message-queues-streaming.html">5.4 Message Queues &amp; Streaming</a><a href="../../notes/phase-5-scaling-distributed-systems/5.5-security-ssl-tls.html">5.5 Security: SSL/TLS</a><a href="../../notes/phase-5-scaling-distributed-systems/5.6-security-jwt-oauth.html">5.6 Security: JWT &amp; OAuth</a><a href="../../notes/phase-5-scaling-distributed-systems/5.7-phase-capstone.html">5.7 Phase Capstone</a></div></div><div class="phase-pill-wrap"><a class="pill" href="../../index.html#phase-6" title="Phase 6">Phase6</a><div class="phase-dropdown"><a href="../../notes/phase-6-production-ops/6.1-docker-fundamentals.html">6.1 Docker Fundamentals</a><a href="../../notes/phase-6-production-ops/6.2-kubernetes-fundamentals.html">6.2 Kubernetes Fundamentals</a><a href="../../notes/phase-6-production-ops/6.3-cicd-github-actions.html">6.3 CI/CD with GitHub Actions</a><a href="../../notes/phase-6-production-ops/6.4-monitoring-logging.html">6.4 Monitoring &amp; Logging</a><a href="../../notes/phase-6-production-ops/6.5-phase-capstone.html">6.5 Phase Capstone</a></div></div></div>
+<button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle color theme" title="Toggle color theme">🌙</button>
+</nav>
+<div class="page">
+<h1>31. Binary Tree Maximum Path Sum</h1>
+<p><strong>LeetCode:</strong> <a href="https://leetcode.com/problems/binary-tree-maximum-path-sum/">#124 - Binary Tree Maximum Path Sum</a> · <strong>Topic:</strong> <a href="../topics/07-trees.html">Trees</a> · <strong>Difficulty:</strong> Hard</p>
+<h2>Problem statement</h2>
+<p>A <strong>path</strong> in a binary tree is any sequence of nodes connected by edges, where each node appears at most once, and the path does <strong>not</strong> need to pass through the root. Given the root of a binary tree, return the maximum possible <strong>sum</strong> of values along any path.</p>
+<p><strong>Example:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="n">Input</span><span class="o">:</span><span class="w">    </span><span class="o">-</span><span class="mi">10</span>
+<span class="w">         </span><span class="o">/</span><span class="w">    </span><span class="err">\</span>
+<span class="w">        </span><span class="mi">9</span><span class="w">      </span><span class="mi">20</span>
+<span class="w">              </span><span class="o">/</span><span class="w">   </span><span class="err">\</span>
+<span class="w">             </span><span class="mi">15</span><span class="w">    </span><span class="mi">7</span>
+<span class="kr">Output</span><span class="o">:</span><span class="w"> </span><span class="mi">42</span><span class="w">   </span><span class="p">(</span><span class="n">path</span><span class="o">:</span><span class="w"> </span><span class="mi">15</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="mi">20</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="mi">7</span><span class="p">)</span>
+</code></pre></div>
+
+<h2>Applicable approaches</h2>
+<ul>
+<li><strong>Brute Force — For every node, try every path through it.</strong> Inefficient, shown for intuition.</li>
+<li><strong>Optimal — Recursive DFS returning "best downward path from this node," with a separate global-best tracked across all nodes.</strong></li>
+</ul>
+<h2>Approach 1 (Conceptual): Brute Force</h2>
+<h3>Intuition</h3>
+<p>For every node as a potential "peak" of a path (the highest point where the path might bend from going up one side to going down the other), you could compute the best path sum achievable using that node as the peak by separately finding the best downward path into its left subtree and the best downward path into its right subtree, adding them together with the node's own value. Doing this <strong>naively</strong> — recomputing "best downward path" from scratch for every single node as a starting point, without reusing work between overlapping subtree computations — leads to significant redundant computation, since a node deep in the tree gets its "best downward path" recomputed once for every one of its ancestors that also needs that information, rather than computed once and reused. This redundancy is exactly what the optimal solution below eliminates by computing each subtree's contribution exactly once, in a single bottom-up pass.</p>
+<hr />
+<h2>Approach 2: Optimal — DFS Returning Best Downward Path, Tracking a Global Best</h2>
+<h3>Intuition</h3>
+<p>This is one of the trickier tree recursion patterns because the function needs to do <strong>two different things at once</strong>, and clearly separating them is the entire key to understanding the solution:</p>
+<ol>
+<li><strong>Return</strong>, to its caller (the parent's recursive call), the best sum achievable by a path that starts at <em>this</em> node and goes <strong>straight down</strong> into at most one child direction — because if the parent wants to extend a path upward through this node, that path can only continue through <em>one</em> of this node's two children (a path can't branch and still be a valid path, by the problem's own definition of "sequence of nodes connected by edges").</li>
+<li><strong>Track</strong>, as a side effect, the best possible path sum found <em>anywhere so far</em> — which, unlike what's returned, <strong>is allowed to bend</strong> at a node (using both its left and right downward paths simultaneously), because a "bending" path can't be extended any further upward by any ancestor (it already uses both of this node's children), so it only matters as a <em>final</em>, complete candidate answer — never as something a parent could build on top of.</li>
+</ol>
+<p>We use a variable outside the recursive function (captured via closure with <code>nonlocal</code>) to track this second, "can bend" global best, separately from the function's actual return value.</p>
+<p><strong>One more detail, worth deriving rather than memorizing:</strong> if a subtree's best downward path sum is negative, including it in a path can only ever <em>hurt</em> the total — a path is always allowed to simply not extend into a low-value subtree and start fresh at the current node instead. So we clamp negative contributions to 0 before using them, which correctly models "choosing not to extend the path in that direction."</p>
+<h3>Algorithm</h3>
+<ol>
+<li>Maintain <code>best = -infinity</code> (the global best path sum found anywhere, allowed to bend at a node).</li>
+<li>Define a recursive helper <code>dfs(node)</code> that returns "the best sum of a straight downward path starting at <code>node</code>":
+   - Base case: <code>None</code> contributes <code>0</code> (an empty path adds nothing).
+   - Recursively get <code>left_gain = max(dfs(node.left), 0)</code> and <code>right_gain = max(dfs(node.right), 0)</code> — clamped to 0, since a negative contribution should just be excluded rather than dragging the sum down.
+   - Update the global best: <code>best = max(best, node.val + left_gain + right_gain)</code> — this considers the path that <strong>bends</strong> at <code>node</code>, using both children's best downward paths simultaneously (this candidate can never be returned upward, since a path can't branch, but it's a valid <em>complete</em> path in its own right).
+   - Return <code>node.val + max(left_gain, right_gain)</code> — what this node can offer <em>upward</em> to its own parent: itself, plus the better of its two single-direction downward extensions (not both, since a path continuing upward can only extend in one direction from this node).</li>
+<li>Run <code>dfs(root)</code>, then return <code>best</code>.</li>
+</ol>
+<h3>Python code</h3>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">maxPathSum</span><span class="p">(</span><span class="n">root</span><span class="p">):</span>
+    <span class="n">best</span> <span class="o">=</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;-inf&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">dfs</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
+        <span class="k">nonlocal</span> <span class="n">best</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">node</span><span class="p">:</span>
+            <span class="k">return</span> <span class="mi">0</span>
+
+        <span class="n">left_gain</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">dfs</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">left</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
+        <span class="n">right_gain</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">dfs</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">right</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
+
+        <span class="n">best</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">best</span><span class="p">,</span> <span class="n">node</span><span class="o">.</span><span class="n">val</span> <span class="o">+</span> <span class="n">left_gain</span> <span class="o">+</span> <span class="n">right_gain</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">node</span><span class="o">.</span><span class="n">val</span> <span class="o">+</span> <span class="nb">max</span><span class="p">(</span><span class="n">left_gain</span><span class="p">,</span> <span class="n">right_gain</span><span class="p">)</span>
+
+    <span class="n">dfs</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">best</span>
+</code></pre></div>
+
+<h3>Line-by-line explanation</h3>
+<ul>
+<li><code>best = float("-inf")</code> — starts as negative infinity so that even an all-negative tree (where the "best" path is a single negative node — no positive path exists anywhere) still correctly updates <code>best</code> on the first comparison, rather than incorrectly defaulting to 0 (which would be wrong if every possible path sum is actually negative).</li>
+<li><code>nonlocal best</code> — lets the inner <code>dfs</code> function modify the outer <code>best</code> variable; without this, Python would treat any assignment to <code>best</code> inside <code>dfs</code> as creating a <em>new</em> local variable, shadowing the outer one, and the outer <code>best</code> would never actually update.</li>
+<li><code>if not node: return 0</code> — an empty subtree contributes nothing to any path sum, the correct base case for a "sum" computation (contrast with a "count" computation, which might use a different base case).</li>
+<li><code>left_gain = max(dfs(node.left), 0)</code> — recursively get the best downward path from the left child, but never let it be negative — if it would drag the total down, it's better to simply not extend the path into that side at all (equivalent to contributing 0, i.e., "the path just doesn't go there").</li>
+<li><code>right_gain = max(dfs(node.right), 0)</code> — same idea for the right side.</li>
+<li><code>best = max(best, node.val + left_gain + right_gain)</code> — <strong>this is the "bending path" candidate</strong>: a path that comes up from the left subtree, through this node, and back down into the right subtree — a complete, valid path in isolation, but not one that could be extended further by a parent (since it already uses both directions from this node, and a parent could only attach to <em>one</em> end of it, which isn't how "extend upward through this node" works once both children are already used).</li>
+<li><code>return node.val + max(left_gain, right_gain)</code> — <strong>this is what gets passed up to the parent</strong>: this node's value plus whichever single side offers more — because if the parent wants to extend a path through this node upward, the path can only continue through <em>one</em> of this node's children, not both, since a tree node only connects "up" through a single edge to its own parent, and using both children here would make this node a branch point, not a pass-through point.</li>
+</ul>
+<h3>Dry run</h3>
+<div class="codehilite"><pre><span></span><code>    -10
+   /    \
+  9      20
+        /  \
+       15   7
+</code></pre></div>
+
+<ul>
+<li><code>dfs(9)</code>: leaf. <code>left_gain=max(dfs(None),0)=0</code>, <code>right_gain=0</code>. <code>best = max(-inf, 9+0+0) = 9</code>. Return <code>9 + max(0,0) = 9</code>.</li>
+<li><code>dfs(15)</code>: leaf. Similarly, <code>best = max(9, 15) = 15</code>. Return <code>15</code>.</li>
+<li><code>dfs(7)</code>: leaf. <code>best = max(15, 7) = 15</code> (7 &lt; 15, no change). Return <code>7</code>.</li>
+<li><code>dfs(20)</code>: <code>left_gain = max(dfs(15), 0) = max(15,0)=15</code>. <code>right_gain = max(dfs(7),0)=max(7,0)=7</code>. <code>best = max(15, 20+15+7) = max(15, 42) = 42</code>. Return <code>20 + max(15,7) = 20+15 = 35</code>.</li>
+<li><code>dfs(-10)</code>: <code>left_gain = max(dfs(9),0) = max(9,0)=9</code>. <code>right_gain = max(dfs(20),0) = max(35,0)=35</code>. <code>best = max(42, -10+9+35) = max(42, 34) = 42</code> (unchanged — the "bending at root" candidate of 34 isn't better than the already-found 42). Return <code>-10 + max(9,35) = -10+35 = 25</code> (this return value is never used by anything, since root has no parent — it's computed but irrelevant to the final answer).</li>
+</ul>
+<p>Final answer: <code>best = 42</code> ✅ (the path <code>15 -&gt; 20 -&gt; 7</code>, discovered as the "bending" candidate at node <code>20</code>, correctly excluding the very negative root <code>-10</code> entirely — the clamping of negative contributions to 0, combined with tracking <code>best</code> separately from the return value, is exactly what allows the true best path to be found even though it doesn't include the root at all).</p>
+<h3>Time &amp; space complexity</h3>
+<ul>
+<li><strong>Time: O(n)</strong> — each node visited exactly once, O(1) work per node (a couple of comparisons and additions).</li>
+<li><strong>Space: O(h)</strong> for the recursion call stack, where h is the tree's height.</li>
+</ul>
+<hr />
+<h2>Common mistakes &amp; misconceptions</h2>
+<ol>
+<li><strong>Returning the "bending" value (<code>node.val + left_gain + right_gain</code>) instead of the "straight-down" value.</strong> This is the single most common bug: if the function returns the bent-path sum up to its parent, the parent would then (incorrectly) treat that value as if it were a valid single-direction extension, potentially double-counting a branch or constructing an invalid "path" that isn't actually a connected sequence without repeats.</li>
+<li><strong>Forgetting to clamp <code>left_gain</code>/<code>right_gain</code> to 0.</strong> Without <code>max(dfs(...), 0)</code>, a negative subtree contribution would be allowed to <em>decrease</em> the current node's path sum, when the correct behavior is to simply not extend the path into a negative-sum subtree at all — the fix isn't "compare and pick," it's "clamp before using."</li>
+<li><strong>Initializing <code>best</code> to 0 instead of negative infinity.</strong> This silently produces a wrong answer specifically on all-negative trees (where every possible path sum is negative) — with <code>best</code> starting at 0, an all-negative tree would incorrectly report 0 as the answer, even though 0 was never an achievable path sum (every real path includes at least one node, and every node is negative).</li>
+<li><strong>Believing the maximum path must pass through the root</strong>, and only checking <code>dfs(root)</code>'s <em>return value</em> instead of tracking a separate global best. As the dry run above shows, the true maximum path (through node 20, not through the root at all) is captured only because <code>best</code> is checked at <em>every</em> node during the traversal, not just derived from the root's own final return value.</li>
+</ol>
+<h2>Summary</h2>
+<table>
+<thead>
+<tr>
+<th>Approach</th>
+<th>Time</th>
+<th>Space</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Naive brute force (recompute per node)</td>
+<td>O(n²) worst case</td>
+<td>O(h) to O(n)</td>
+<td>Redundant recomputation across overlapping subtrees.</td>
+</tr>
+<tr>
+<td>DFS with dual return/global-best</td>
+<td>O(n)</td>
+<td>O(h)</td>
+<td>The standard, expected optimal solution.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Key takeaway:</strong> this problem is the classic example of a recursive tree function needing to <strong>return one thing (for the parent to use) while tracking a different thing (the actual final answer) as a side effect</strong>, because "the best answer overall" and "the best thing I can offer my parent" are genuinely different questions once branching/bending is allowed. Recognizing when a recursion needs this "return vs. track separately" split is a skill that reappears in several harder tree and graph problems.</p>
+<div class="nav"><a href="../../project/leetcode-prep.html">&larr; Back to LeetCode Prep</a></div>
+</div>
+</body>
+</html>

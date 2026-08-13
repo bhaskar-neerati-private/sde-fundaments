@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>34. Validate Binary Search Tree</title>
+<style>
+:root {
+  --bg: #fdfdfb; --fg: #24292f; --muted: #5b6470; --border: #e1e4e8;
+  --code-bg: #f3f4f6; --link: #0b5fff; --accent: #6a3fd1; --chip: #f0edfb;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg:#1a1d23; --fg:#dadee3; --muted:#98a0ab; --border:#2f343c; --code-bg:#20242b; --link:#7aa2ff; --accent:#b79cff; --chip:#242233; }
+}
+:root[data-theme="dark"] { --bg:#1a1d23; --fg:#dadee3; --muted:#98a0ab; --border:#2f343c; --code-bg:#20242b; --link:#7aa2ff; --accent:#b79cff; --chip:#242233; }
+.theme-toggle { margin-left: .5rem; background: none; border: 1px solid var(--border); border-radius: 999px; width: 1.9rem; height: 1.9rem; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; font-size: .95rem; color: var(--fg); line-height: 1; padding: 0; }
+.theme-toggle:hover { border-color: var(--accent); }
+.phase-pills .sep { color: var(--muted); font-size: .8rem; }
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.65; margin: 0;
+}
+.page { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 6rem; }
+.topnav {
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; flex-wrap: wrap; gap: .9rem;
+  background: var(--bg); border-bottom: 1px solid var(--border);
+  padding: .7rem 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,.08);
+}
+.topnav a.back, .topnav .home { text-decoration: none; font-weight: 600; font-size: .92rem; white-space: nowrap; color: var(--fg); }
+.phase-pills { display: flex; gap: .35rem; flex-wrap: wrap; margin-left: auto; }
+.phase-pills .pill {
+  text-decoration: none; color: var(--muted); font-size: .8rem; font-weight: 600;
+  border: 1px solid var(--border); border-radius: 999px; padding: .2rem .6rem;
+}
+.phase-pills .pill:hover { border-color: var(--accent); color: var(--accent); }
+.phase-pills .pill.current { background: var(--accent); border-color: var(--accent); color: #fff; }
+.phase-pill-wrap { position: relative; display: inline-block; padding-bottom: .6rem; margin-bottom: -.6rem; }
+.phase-dropdown {
+  display: none; position: absolute; top: 100%; right: 0;
+  background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+  padding: .35rem; min-width: 240px; max-height: 70vh; overflow-y: auto;
+  box-shadow: 0 6px 20px rgba(0,0,0,.15); z-index: 200;
+}
+.phase-pill-wrap:hover .phase-dropdown, .phase-pill-wrap:focus-within .phase-dropdown { display: block; }
+.phase-dropdown a {
+  display: block; text-decoration: none; color: var(--fg); font-size: .82rem; font-weight: 500;
+  padding: .35rem .55rem; border-radius: 6px; white-space: nowrap;
+}
+.phase-dropdown a:hover { background: var(--chip); color: var(--accent); }
+.phase-dropdown a.current { color: var(--accent); font-weight: 700; }
+[id] { scroll-margin-top: 4.5rem; }
+h1, h2, h3, h4 { line-height: 1.3; }
+h1 { font-size: 1.9rem; border-bottom: 2px solid var(--accent); padding-bottom: .5rem; }
+h2 { font-size: 1.4rem; margin-top: 2.5rem; border-bottom: 1px solid var(--border); padding-bottom: .3rem; }
+h3 { font-size: 1.15rem; margin-top: 2rem; color: var(--accent); }
+a { color: var(--link); }
+p code, li code, td code { background: var(--code-bg); padding: .15em .4em; border-radius: 4px; font-size: .9em; word-break: break-word; }
+pre { background: var(--code-bg); padding: 1rem; border-radius: 8px; overflow-x: auto; border: 1px solid var(--border); }
+pre code { background: none; padding: 0; }
+table { border-collapse: collapse; width: 100%; margin: 1rem 0; display: block; overflow-x: auto; }
+th, td { border: 1px solid var(--border); padding: .5rem .75rem; text-align: left; }
+th { background: var(--code-bg); }
+blockquote { border-left: 3px solid var(--accent); margin: 1rem 0; padding: .2rem 1rem; color: var(--muted); }
+hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+.nav { margin-bottom: 1.5rem; font-size: .9rem; }
+.nav a { text-decoration: none; }
+ul, ol { padding-left: 1.4rem; }
+li { margin: .3rem 0; }
+img { max-width: 100%; }
+.chk { display: inline-block; width: .9em; height: .9em; border: 1.5px solid var(--muted); border-radius: 3px; margin-right: .4em; vertical-align: middle; }
+.chk.done { background: var(--accent); border-color: var(--accent); color: #fff; text-align: center; line-height: .85em; font-size: .75em; }
+.codehilite { background: var(--code-bg) !important; border-radius: 8px; }
+pre { line-height: 125%; }
+td.linenos .normal { color: #666666; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: #666666; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+.codehilite .hll { background-color: #ffffcc }
+.codehilite { background: #f0f0f0; }
+.codehilite .c { color: #60A0B0; font-style: italic } /* Comment */
+.codehilite .err { border: 1px solid #F00 } /* Error */
+.codehilite .k { color: #007020; font-weight: bold } /* Keyword */
+.codehilite .o { color: #666 } /* Operator */
+.codehilite .ch { color: #60A0B0; font-style: italic } /* Comment.Hashbang */
+.codehilite .cm { color: #60A0B0; font-style: italic } /* Comment.Multiline */
+.codehilite .cp { color: #007020 } /* Comment.Preproc */
+.codehilite .cpf { color: #60A0B0; font-style: italic } /* Comment.PreprocFile */
+.codehilite .c1 { color: #60A0B0; font-style: italic } /* Comment.Single */
+.codehilite .cs { color: #60A0B0; background-color: #FFF0F0 } /* Comment.Special */
+.codehilite .gd { color: #A00000 } /* Generic.Deleted */
+.codehilite .ge { font-style: italic } /* Generic.Emph */
+.codehilite .ges { font-weight: bold; font-style: italic } /* Generic.EmphStrong */
+.codehilite .gr { color: #F00 } /* Generic.Error */
+.codehilite .gh { color: #000080; font-weight: bold } /* Generic.Heading */
+.codehilite .gi { color: #00A000 } /* Generic.Inserted */
+.codehilite .go { color: #888 } /* Generic.Output */
+.codehilite .gp { color: #C65D09; font-weight: bold } /* Generic.Prompt */
+.codehilite .gs { font-weight: bold } /* Generic.Strong */
+.codehilite .gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+.codehilite .gt { color: #04D } /* Generic.Traceback */
+.codehilite .kc { color: #007020; font-weight: bold } /* Keyword.Constant */
+.codehilite .kd { color: #007020; font-weight: bold } /* Keyword.Declaration */
+.codehilite .kn { color: #007020; font-weight: bold } /* Keyword.Namespace */
+.codehilite .kp { color: #007020 } /* Keyword.Pseudo */
+.codehilite .kr { color: #007020; font-weight: bold } /* Keyword.Reserved */
+.codehilite .kt { color: #902000 } /* Keyword.Type */
+.codehilite .m { color: #40A070 } /* Literal.Number */
+.codehilite .s { color: #4070A0 } /* Literal.String */
+.codehilite .na { color: #4070A0 } /* Name.Attribute */
+.codehilite .nb { color: #007020 } /* Name.Builtin */
+.codehilite .nc { color: #0E84B5; font-weight: bold } /* Name.Class */
+.codehilite .no { color: #60ADD5 } /* Name.Constant */
+.codehilite .nd { color: #555; font-weight: bold } /* Name.Decorator */
+.codehilite .ni { color: #D55537; font-weight: bold } /* Name.Entity */
+.codehilite .ne { color: #007020 } /* Name.Exception */
+.codehilite .nf { color: #06287E } /* Name.Function */
+.codehilite .nl { color: #002070; font-weight: bold } /* Name.Label */
+.codehilite .nn { color: #0E84B5; font-weight: bold } /* Name.Namespace */
+.codehilite .nt { color: #062873; font-weight: bold } /* Name.Tag */
+.codehilite .nv { color: #BB60D5 } /* Name.Variable */
+.codehilite .ow { color: #007020; font-weight: bold } /* Operator.Word */
+.codehilite .w { color: #BBB } /* Text.Whitespace */
+.codehilite .mb { color: #40A070 } /* Literal.Number.Bin */
+.codehilite .mf { color: #40A070 } /* Literal.Number.Float */
+.codehilite .mh { color: #40A070 } /* Literal.Number.Hex */
+.codehilite .mi { color: #40A070 } /* Literal.Number.Integer */
+.codehilite .mo { color: #40A070 } /* Literal.Number.Oct */
+.codehilite .sa { color: #4070A0 } /* Literal.String.Affix */
+.codehilite .sb { color: #4070A0 } /* Literal.String.Backtick */
+.codehilite .sc { color: #4070A0 } /* Literal.String.Char */
+.codehilite .dl { color: #4070A0 } /* Literal.String.Delimiter */
+.codehilite .sd { color: #4070A0; font-style: italic } /* Literal.String.Doc */
+.codehilite .s2 { color: #4070A0 } /* Literal.String.Double */
+.codehilite .se { color: #4070A0; font-weight: bold } /* Literal.String.Escape */
+.codehilite .sh { color: #4070A0 } /* Literal.String.Heredoc */
+.codehilite .si { color: #70A0D0; font-style: italic } /* Literal.String.Interpol */
+.codehilite .sx { color: #C65D09 } /* Literal.String.Other */
+.codehilite .sr { color: #235388 } /* Literal.String.Regex */
+.codehilite .s1 { color: #4070A0 } /* Literal.String.Single */
+.codehilite .ss { color: #517918 } /* Literal.String.Symbol */
+.codehilite .bp { color: #007020 } /* Name.Builtin.Pseudo */
+.codehilite .fm { color: #06287E } /* Name.Function.Magic */
+.codehilite .vc { color: #BB60D5 } /* Name.Variable.Class */
+.codehilite .vg { color: #BB60D5 } /* Name.Variable.Global */
+.codehilite .vi { color: #BB60D5 } /* Name.Variable.Instance */
+.codehilite .vm { color: #BB60D5 } /* Name.Variable.Magic */
+.codehilite .il { color: #40A070 } /* Literal.Number.Integer.Long */</style>
+<script>
+(function(){
+  try {
+    var t = localStorage.getItem('theme');
+    if (t) document.documentElement.setAttribute('data-theme', t);
+  } catch (e) {}
+})();
+function getEffectiveTheme(){
+  var attr = document.documentElement.getAttribute('data-theme');
+  if (attr) return attr;
+  return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+}
+function toggleTheme(){
+  var next = getEffectiveTheme() === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  try { localStorage.setItem('theme', next); } catch (e) {}
+  updateThemeToggleIcon();
+}
+function updateThemeToggleIcon(){
+  var btn = document.querySelector('.theme-toggle');
+  if (btn) btn.textContent = getEffectiveTheme() === 'dark' ? '☀️' : '🌙';
+}
+document.addEventListener('DOMContentLoaded', updateThemeToggleIcon);
+</script>
+</head><body>
+<nav class="topnav">
+<a class="back" href="../../project/leetcode-prep.html">&larr; Back to LeetCode Prep</a>
+<div class="phase-pills"><div class="phase-pill-wrap"><a class="pill current" href="../../project/leetcode-prep.html" title="LeetCode Prep">LeetCode Prep</a><div class="phase-dropdown"><a href="../../project/leetcode-prep.html#arrays-hashing">Arrays &amp; Hashing</a><a href="../../project/leetcode-prep.html#two-pointers">Two Pointers</a><a href="../../project/leetcode-prep.html#sliding-window">Sliding Window</a><a href="../../project/leetcode-prep.html#stack">Stack</a><a href="../../project/leetcode-prep.html#binary-search">Binary Search</a><a href="../../project/leetcode-prep.html#linked-list">Linked List</a><a href="../../project/leetcode-prep.html#trees">Trees</a><a href="../../project/leetcode-prep.html#heap-priority-queue">Heap / Priority Queue</a><a href="../../project/leetcode-prep.html#backtracking">Backtracking</a><a href="../../project/leetcode-prep.html#tries">Tries</a><a href="../../project/leetcode-prep.html#graphs">Graphs</a><a href="../../project/leetcode-prep.html#advanced-graphs">Advanced Graphs</a><a href="../../project/leetcode-prep.html#1d-dp">1-D Dynamic Programming</a><a href="../../project/leetcode-prep.html#2d-dp">2-D Dynamic Programming</a><a href="../../project/leetcode-prep.html#greedy">Greedy</a><a href="../../project/leetcode-prep.html#intervals">Intervals</a><a href="../../project/leetcode-prep.html#math-geometry">Math &amp; Geometry</a><a href="../../project/leetcode-prep.html#bit-manipulation">Bit Manipulation</a></div></div><span class="sep">|</span><div class="phase-pill-wrap"><a class="pill" href="../../index.html#phase-1" title="Phase 1">Phase1</a><div class="phase-dropdown"><a href="../../notes/phase-1-foundations/1.1-programming-fundamentals.html">1.1 Programming Fundamentals</a><a href="../../notes/phase-1-foundations/1.2-git-github-essentials.html">1.2 Git &amp; GitHub Essentials</a><a href="../../notes/phase-1-foundations/1.3-big-o-algorithmic-thinking.html">1.3 Big-O and Algorithmic Thinking</a><a href="../../notes/phase-1-foundations/1.4-arrays-strings.html">1.4 Arrays &amp; Strings</a><a href="../../notes/phase-1-foundations/1.5-linked-lists.html">1.5 Linked Lists</a><a href="../../notes/phase-1-foundations/1.6-stacks-queues.html">1.6 Stacks &amp; Queues</a><a href="../../notes/phase-1-foundations/1.7-hash-tables.html">1.7 Hash Tables</a><a href="../../notes/phase-1-foundations/1.8-recursion-backtracking.html">1.8 Recursion &amp; Backtracking</a><a href="../../notes/phase-1-foundations/1.9-sorting-searching.html">1.9 Sorting &amp; Searching</a><a href="../../notes/phase-1-foundations/1.10-trees-bst.html">1.10 Trees &amp; Binary Search Trees</a><a href="../../notes/phase-1-foundations/1.11-heaps-priority-queues.html">1.11 Heaps &amp; Priority Queues</a><a href="../../notes/phase-1-foundations/1.12-graphs.html">1.12 Graphs</a><a href="../../notes/phase-1-foundations/1.13-dp-greedy.html">1.13 Dynamic Programming &amp; Greedy</a><a href="../../notes/phase-1-foundations/1.14-phase-capstone.html">1.14 Phase Capstone</a></div></div><div class="phase-pill-wrap"><a class="pill" href="../../index.html#phase-2" title="Phase 2">Phase2</a><div class="phase-dropdown"><a href="../../notes/phase-2-backend-skills/2.1-relational-db-design-normalization.html">2.1 Relational DB Design &amp; Normalization</a><a href="../../notes/phase-2-backend-skills/2.2-sql-querying.html">2.2 SQL Querying</a><a href="../../notes/phase-2-backend-skills/2.3-indexing-query-performance.html">2.3 Indexing &amp; Query Performance</a><a href="../../notes/phase-2-backend-skills/2.4-rest-api-design-principles.html">2.4 REST API Design Principles</a><a href="../../notes/phase-2-backend-skills/2.5-building-apis-with-fastapi.html">2.5 Building APIs with FastAPI</a><a href="../../notes/phase-2-backend-skills/2.6-debugging-techniques-tools.html">2.6 Debugging Techniques &amp; Tools</a><a href="../../notes/phase-2-backend-skills/2.7-testing-fundamentals-tdd.html">2.7 Testing Fundamentals &amp; TDD</a><a href="../../notes/phase-2-backend-skills/2.8-phase-capstone.html">2.8 Phase Capstone</a></div></div><div class="phase-pill-wrap"><a class="pill" href="../../index.html#phase-3" title="Phase 3">Phase3</a><div class="phase-dropdown"><a href="../../notes/phase-3-language-internals/3.1-python-object-model-memory.html">3.1 Python Object Model &amp; Memory</a><a href="../../notes/phase-3-language-internals/3.2-collections-internals.html">3.2 Collections Internals</a><a href="../../notes/phase-3-language-internals/3.3-gil-multithreading.html">3.3 The GIL &amp; Multithreading</a><a href="../../notes/phase-3-language-internals/3.4-multiprocessing-asyncio.html">3.4 Multiprocessing &amp; Asyncio</a><a href="../../notes/phase-3-language-internals/3.5-phase-capstone.html">3.5 Phase Capstone</a></div></div><div class="phase-pill-wrap"><a class="pill" href="../../index.html#phase-4" title="Phase 4">Phase4</a><div class="phase-dropdown"><a href="../../notes/phase-4-design-thinking/4.1-oop-foundations-refresher.html">4.1 OOP Foundations Refresher</a><a href="../../notes/phase-4-design-thinking/4.2-solid-principles.html">4.2 SOLID Principles</a><a href="../../notes/phase-4-design-thinking/4.3-creational-design-patterns.html">4.3 Creational Design Patterns</a><a href="../../notes/phase-4-design-thinking/4.4-structural-design-patterns.html">4.4 Structural Design Patterns</a><a href="../../notes/phase-4-design-thinking/4.5-behavioral-design-patterns.html">4.5 Behavioral Design Patterns</a><a href="../../notes/phase-4-design-thinking/4.6-uml-lld-process.html">4.6 UML &amp; the LLD Process</a><a href="../../notes/phase-4-design-thinking/4.7-lld-practice-problems.html">4.7 LLD Practice Problems</a><a href="../../notes/phase-4-design-thinking/4.8-system-design-hld-fundamentals.html">4.8 System Design / HLD Fundamentals</a><a href="../../notes/phase-4-design-thinking/4.9-hld-case-studies.html">4.9 HLD Case Studies</a><a href="../../notes/phase-4-design-thinking/4.10-phase-capstone.html">4.10 Phase Capstone</a></div></div><div class="phase-pill-wrap"><a class="pill" href="../../index.html#phase-5" title="Phase 5">Phase5</a><div class="phase-dropdown"><a href="../../notes/phase-5-scaling-distributed-systems/5.1-caching-strategies-redis.html">5.1 Caching Strategies &amp; Redis</a><a href="../../notes/phase-5-scaling-distributed-systems/5.2-distributed-systems-fundamentals.html">5.2 Distributed Systems Fundamentals</a><a href="../../notes/phase-5-scaling-distributed-systems/5.3-idempotency-reliable-apis.html">5.3 Idempotency &amp; Reliable APIs</a><a href="../../notes/phase-5-scaling-distributed-systems/5.4-message-queues-streaming.html">5.4 Message Queues &amp; Streaming</a><a href="../../notes/phase-5-scaling-distributed-systems/5.5-security-ssl-tls.html">5.5 Security: SSL/TLS</a><a href="../../notes/phase-5-scaling-distributed-systems/5.6-security-jwt-oauth.html">5.6 Security: JWT &amp; OAuth</a><a href="../../notes/phase-5-scaling-distributed-systems/5.7-phase-capstone.html">5.7 Phase Capstone</a></div></div><div class="phase-pill-wrap"><a class="pill" href="../../index.html#phase-6" title="Phase 6">Phase6</a><div class="phase-dropdown"><a href="../../notes/phase-6-production-ops/6.1-docker-fundamentals.html">6.1 Docker Fundamentals</a><a href="../../notes/phase-6-production-ops/6.2-kubernetes-fundamentals.html">6.2 Kubernetes Fundamentals</a><a href="../../notes/phase-6-production-ops/6.3-cicd-github-actions.html">6.3 CI/CD with GitHub Actions</a><a href="../../notes/phase-6-production-ops/6.4-monitoring-logging.html">6.4 Monitoring &amp; Logging</a><a href="../../notes/phase-6-production-ops/6.5-phase-capstone.html">6.5 Phase Capstone</a></div></div></div>
+<button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle color theme" title="Toggle color theme">🌙</button>
+</nav>
+<div class="page">
+<h1>34. Validate Binary Search Tree</h1>
+<p><strong>LeetCode:</strong> <a href="https://leetcode.com/problems/validate-binary-search-tree/">#98 - Validate Binary Search Tree</a> · <strong>Topic:</strong> <a href="../topics/07-trees.html">Trees</a> · <strong>Difficulty:</strong> Medium</p>
+<h2>Problem statement</h2>
+<p>Given the root of a binary tree, determine if it is a valid <strong>binary search tree (BST)</strong>: for every node, <strong>all</strong> values in its left subtree must be strictly less than the node's value, and <strong>all</strong> values in its right subtree must be strictly greater — not just its immediate children.</p>
+<p><strong>Example (invalid, a common trap):</strong></p>
+<div class="codehilite"><pre><span></span><code>     5
+   /   \
+  1     4
+       / \
+      3   6
+Output: false
+</code></pre></div>
+
+<p>This is invalid even though <code>5 &gt; 1</code> and <code>4</code>'s immediate children (<code>3</code> and <code>6</code>) look locally fine relative to <code>4</code> — the problem is that <code>3</code> is in <code>5</code>'s right subtree, but <code>3 &lt; 5</code>, violating the <em>ancestor</em> constraint from node <code>5</code>, not just node <code>4</code>.</p>
+<h2>Applicable approaches</h2>
+<ul>
+<li><strong>Wrong (common bug) — Check only immediate parent/child relationship.</strong> Shown to explain why it fails.</li>
+<li><strong>Optimal — Recursive with a Valid Range (min/max bounds) passed down.</strong></li>
+<li><strong>Optimal (alternative) — In-order Traversal, check strictly increasing.</strong></li>
+</ul>
+<h2>Why the "just check immediate children" approach is wrong</h2>
+<p>A tempting-but-incorrect approach: recursively check <code>left.val &lt; node.val &lt; right.val</code> using only each node's <em>direct</em> children. This fails on exactly the example above — node <code>4</code> locally looks fine (<code>3 &lt; 4 &lt; 6</code>), but <code>3</code> is invalid because it violates the <em>root's</em> constraint (<code>3</code> must be <code>&lt; 5</code> since it's <code>5</code>'s node value... wait, more precisely: <code>3</code> is in <code>5</code>'s right subtree, so it must be <code>&gt; 5</code>, and it isn't). <strong>Every node's valid range is constrained by ALL of its ancestors, not just its immediate parent</strong> — this is the core insight the correct approaches below are built around, and it's worth being able to state exactly why the naive check misses it: a purely local check only ever compares a node to its <em>direct</em> parent/children, never to a <em>grandparent</em> or higher, so any violation that "skips a generation" (like this one) slips through undetected.</p>
+<h2>Approach 1: Optimal — Recursive with a Valid Range</h2>
+<h3>Intuition</h3>
+<p>As we recurse down the tree, we can track the <strong>valid range</strong> <code>(low, high)</code> that the current node's value must fall within, based on all the decisions made by its ancestors so far — this directly fixes the "only checks immediate neighbors" flaw by explicitly carrying ancestor information forward through the recursion, instead of discarding it after each level. Every time we go <strong>left</strong>, the upper bound tightens to the parent's value (everything in a left subtree must be less than its parent). Every time we go <strong>right</strong>, the lower bound tightens to the parent's value. This correctly accumulates constraints from <em>every</em> ancestor along the path, not just the immediate parent, because each recursive call inherits the range from its own caller, which in turn inherited it from <em>its</em> caller, and so on back to the root.</p>
+<h3>Algorithm</h3>
+<ol>
+<li>Define a helper <code>valid(node, low, high)</code> — <code>True</code> if the subtree rooted at <code>node</code> is a valid BST <strong>and</strong> every value in it falls strictly within <code>(low, high)</code>.</li>
+<li>Base case: <code>None</code> is trivially valid (empty subtree, no violation possible).</li>
+<li>If <code>node.val</code> isn't strictly between <code>low</code> and <code>high</code>, it violates some ancestor's constraint — return <code>False</code>.</li>
+<li>Otherwise, recursively validate: <code>valid(node.left, low, node.val)</code> (tightening the upper bound to this node's value) <strong>and</strong> <code>valid(node.right, node.val, high)</code> (tightening the lower bound).</li>
+</ol>
+<h3>Python code</h3>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">isValidBST</span><span class="p">(</span><span class="n">root</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">valid</span><span class="p">(</span><span class="n">node</span><span class="p">,</span> <span class="n">low</span><span class="p">,</span> <span class="n">high</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">node</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">(</span><span class="n">low</span> <span class="o">&lt;</span> <span class="n">node</span><span class="o">.</span><span class="n">val</span> <span class="o">&lt;</span> <span class="n">high</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">return</span> <span class="n">valid</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">left</span><span class="p">,</span> <span class="n">low</span><span class="p">,</span> <span class="n">node</span><span class="o">.</span><span class="n">val</span><span class="p">)</span> <span class="ow">and</span> <span class="n">valid</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">right</span><span class="p">,</span> <span class="n">node</span><span class="o">.</span><span class="n">val</span><span class="p">,</span> <span class="n">high</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">valid</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;-inf&quot;</span><span class="p">),</span> <span class="nb">float</span><span class="p">(</span><span class="s2">&quot;inf&quot;</span><span class="p">))</span>
+</code></pre></div>
+
+<h3>Line-by-line explanation</h3>
+<ul>
+<li><code>valid(node, low, high)</code> — <code>node</code>'s value (and everything in its subtree) must stay strictly within <code>(low, high)</code>, where <code>low</code>/<code>high</code> encode <em>every</em> ancestor's constraint accumulated so far, not just the direct parent's.</li>
+<li><code>if not node: return True</code> — an empty subtree can never violate anything.</li>
+<li><code>if not (low &lt; node.val &lt; high): return False</code> — Python allows this chained comparison syntax; checks that <code>node.val</code> is strictly greater than <code>low</code> <strong>and</strong> strictly less than <code>high</code> in one expression. If it fails, some ancestor's constraint has been violated — this is exactly the check the naive "only immediate children" approach was missing, because <code>low</code>/<code>high</code> here can come from <em>any</em> ancestor, arbitrarily far up the tree.</li>
+<li><code>valid(node.left, low, node.val)</code> — the left subtree keeps the same lower bound (<code>low</code>, inherited from ancestors), but its upper bound tightens to <code>node.val</code> (everything in the left subtree must be less than <code>node</code>).</li>
+<li><code>valid(node.right, node.val, high)</code> — mirror: the right subtree's lower bound tightens to <code>node.val</code>, upper bound stays inherited.</li>
+<li><code>return valid(root, float("-inf"), float("inf"))</code> — the root has no constraints from any ancestor, so it starts with an unbounded valid range.</li>
+</ul>
+<h3>Dry run</h3>
+<div class="codehilite"><pre><span></span><code>     5
+   /   \
+  1     4
+       / \
+      3   6
+</code></pre></div>
+
+<p><code>valid(5, -inf, inf)</code>: <code>-inf &lt; 5 &lt; inf</code> ✓. Recurse:
+- <code>valid(1, -inf, 5)</code>: <code>-inf &lt; 1 &lt; 5</code> ✓. <code>1</code> is a leaf → <code>valid(None,...) and valid(None,...)</code> → <code>True</code>.
+- <code>valid(4, 5, inf)</code>: <strong>check</strong> <code>5 &lt; 4 &lt; inf</code>? <code>5 &lt; 4</code> is <strong>False</strong> → return <code>False</code> immediately.</p>
+<p>Since the right-side call to <code>valid(4, 5, inf)</code> returns <code>False</code>, the <code>and</code> short-circuits and the whole thing returns <code>False</code> ✅ (correctly detects the violation — node <code>4</code> and everything under it must be <code>&gt; 5</code>, since it's in the root's right subtree, but <code>4</code> itself already fails that).</p>
+<p><em>(Notice how the bound <code>5</code> — the root's value — correctly propagated all the way down to constrain node <code>4</code>'s subtree, which is exactly what the "only check immediate children" broken approach fails to do; that broken version would have separately checked <code>3 &lt; 4 &lt; 6</code> locally and found nothing wrong, missing the violation entirely.)</em></p>
+<h3>Time &amp; space complexity</h3>
+<ul>
+<li><strong>Time: O(n)</strong> — every node visited once, O(1) work per node.</li>
+<li><strong>Space: O(h)</strong> for the recursion call stack.</li>
+</ul>
+<hr />
+<h2>Approach 2: Optimal (alternative) — In-order Traversal, Check Strictly Increasing</h2>
+<h3>Intuition</h3>
+<p>Recall from the Trees topic overview: an <strong>in-order traversal of a valid BST always produces values in strictly increasing sorted order</strong> — this is a direct consequence of the BST ordering rule, not a coincidence. So instead of tracking ranges explicitly, we can simply perform an in-order traversal and check that each value is strictly greater than the previous one visited — if we ever find a value that's <em>not</em> greater than the one before it, the tree isn't a valid BST. This approach sidesteps the "range" bookkeeping entirely by leaning on a single global fact about what correct in-order output must look like.</p>
+<h3>Python code</h3>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">isValidBST</span><span class="p">(</span><span class="n">root</span><span class="p">):</span>
+    <span class="n">prev</span> <span class="o">=</span> <span class="p">[</span><span class="nb">float</span><span class="p">(</span><span class="s2">&quot;-inf&quot;</span><span class="p">)]</span>  <span class="c1"># mutable &quot;pointer&quot; to track the previously visited value</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">inorder</span><span class="p">(</span><span class="n">node</span><span class="p">):</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">node</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">inorder</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">left</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="n">node</span><span class="o">.</span><span class="n">val</span> <span class="o">&lt;=</span> <span class="n">prev</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+        <span class="n">prev</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">val</span>
+        <span class="k">return</span> <span class="n">inorder</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">right</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">inorder</span><span class="p">(</span><span class="n">root</span><span class="p">)</span>
+</code></pre></div>
+
+<h3>Line-by-line explanation</h3>
+<ul>
+<li><code>prev = [float("-inf")]</code> — tracks the most recently visited value during the in-order walk (using a one-element list as a simple mutable container, similar to the shared-pointer trick from Construct Binary Tree from Preorder and Inorder Traversal — could also use <code>nonlocal</code> with a plain variable instead).</li>
+<li><code>inorder(node)</code>: <code>if not inorder(node.left): return False</code> — fully process the left subtree first (in-order: left, then self, then right); if it's already found to be invalid, propagate that failure immediately without bothering to check the current node or the right subtree.</li>
+<li><code>if node.val &lt;= prev[0]: return False</code> — the crucial check: the current node's value must be strictly greater than the last value we visited (which, since we're going in-order, was the largest value visited so far in a correctly-ordered scan) — if it isn't, the ordering property is broken somewhere.</li>
+<li><code>prev[0] = node.val</code> — update the "last visited" tracker.</li>
+<li><code>return inorder(node.right)</code> — continue the in-order walk into the right subtree.</li>
+</ul>
+<h3>Dry run</h3>
+<p>Same tree as before. In-order visits: <code>1, 5, 3, 4, 6</code> (left of 5 first: just <code>1</code>; then <code>5</code> itself; then right subtree of 5 in-order: left of 4 is <code>3</code>, then <code>4</code>, then right of 4 is <code>6</code>).</p>
+<ul>
+<li>Visit <code>1</code>: <code>1 &lt;= -inf</code>? No. <code>prev = 1</code>.</li>
+<li>Visit <code>5</code>: <code>5 &lt;= 1</code>? No. <code>prev = 5</code>.</li>
+<li>Visit <code>3</code>: <code>3 &lt;= 5</code>? <strong>Yes</strong> → return <code>False</code> immediately.</li>
+</ul>
+<p>Correctly detects the violation: <code>3</code> appearing after <code>5</code> in in-order sequence, without being greater than it, proves the BST ordering is broken. ✅</p>
+<h3>Time &amp; space complexity</h3>
+<ul>
+<li><strong>Time: O(n)</strong>, <strong>Space: O(h)</strong> for the recursion (plus O(1) extra for the <code>prev</code> tracker).</li>
+</ul>
+<hr />
+<h2>Common mistakes &amp; misconceptions</h2>
+<ol>
+<li><strong>Checking only immediate children (<code>node.left.val &lt; node.val &lt; node.right.val</code>).</strong> As demonstrated above, this doesn't account for ancestor constraints beyond the immediate parent — a genuinely incorrect approach that passes many simple test cases while failing on trees where a violation "skips a generation."</li>
+<li><strong>Using <code>&lt;=</code>/<code>&gt;=</code> instead of strict <code>&lt;</code>/<code>&gt;</code> in the range check.</strong> The problem requires <em>strictly</em> less/greater — a BST with duplicate values arranged ambiguously (e.g. <code>node.val == low</code> or <code>node.val == high</code>) should be invalid, and using non-strict comparisons would incorrectly accept such cases.</li>
+<li><strong>Forgetting to initialize <code>prev</code> to negative infinity in the in-order approach.</strong> Without a suitably small starting sentinel, the very first visited value could incorrectly fail the <code>&lt;= prev[0]</code> check (or, if initialized to something like <code>0</code>, incorrectly reject a valid tree containing negative values) — negative infinity guarantees the first comparison always passes, exactly mirroring the range approach's <code>float("-inf")</code> root bound.</li>
+<li><strong>Forgetting the left-subtree short-circuit in the in-order version.</strong> <code>if not inorder(node.left): return False</code> must run <em>before</em> checking the current node — if you check the current node first and only later look at <code>inorder(node.left)</code>'s result, you could report a value comparison as valid before knowing the left subtree was already broken, though in practice this specific ordering mistake is more about wasted work than incorrectness, since the final <code>return inorder(node.right)</code> would still eventually propagate a <code>False</code> — but structuring it correctly (left-check first) keeps the short-circuit behavior clean and avoids doing unnecessary further traversal after a failure is already known.</li>
+</ol>
+<h2>Summary</h2>
+<table>
+<thead>
+<tr>
+<th>Approach</th>
+<th>Time</th>
+<th>Space</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Check only immediate children</td>
+<td>-</td>
+<td>-</td>
+<td><strong>Incorrect</strong> — doesn't account for ancestor constraints.</td>
+</tr>
+<tr>
+<td>Recursive with valid range (min/max)</td>
+<td>O(n)</td>
+<td>O(h)</td>
+<td>The standard, most commonly taught correct solution.</td>
+</tr>
+<tr>
+<td>In-order traversal, check increasing</td>
+<td>O(n)</td>
+<td>O(h)</td>
+<td>Equally valid, leverages the BST↔sorted-inorder relationship directly.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Key takeaway:</strong> "is this a valid BST" is a classic trap for the "only check immediate parent/child" bug — always remember that BST validity is a property that must hold against <strong>every ancestor</strong>, not just the direct parent, which is why passing a shrinking valid range down the recursion (or equivalently, checking in-order output is strictly increasing) is necessary, not merely a stylistic choice.</p>
+<div class="nav"><a href="../../project/leetcode-prep.html">&larr; Back to LeetCode Prep</a></div>
+</div>
+</body>
+</html>

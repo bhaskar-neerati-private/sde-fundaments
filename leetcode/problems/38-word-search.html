@@ -1,0 +1,351 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>38. Word Search</title>
+<style>
+:root {
+  --bg: #fdfdfb; --fg: #24292f; --muted: #5b6470; --border: #e1e4e8;
+  --code-bg: #f3f4f6; --link: #0b5fff; --accent: #6a3fd1; --chip: #f0edfb;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg:#1a1d23; --fg:#dadee3; --muted:#98a0ab; --border:#2f343c; --code-bg:#20242b; --link:#7aa2ff; --accent:#b79cff; --chip:#242233; }
+}
+:root[data-theme="dark"] { --bg:#1a1d23; --fg:#dadee3; --muted:#98a0ab; --border:#2f343c; --code-bg:#20242b; --link:#7aa2ff; --accent:#b79cff; --chip:#242233; }
+.theme-toggle { margin-left: .5rem; background: none; border: 1px solid var(--border); border-radius: 999px; width: 1.9rem; height: 1.9rem; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; font-size: .95rem; color: var(--fg); line-height: 1; padding: 0; }
+.theme-toggle:hover { border-color: var(--accent); }
+.phase-pills .sep { color: var(--muted); font-size: .8rem; }
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.65; margin: 0;
+}
+.page { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 6rem; }
+.topnav {
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; flex-wrap: wrap; gap: .9rem;
+  background: var(--bg); border-bottom: 1px solid var(--border);
+  padding: .7rem 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,.08);
+}
+.topnav a.back, .topnav .home { text-decoration: none; font-weight: 600; font-size: .92rem; white-space: nowrap; color: var(--fg); }
+.phase-pills { display: flex; gap: .35rem; flex-wrap: wrap; margin-left: auto; }
+.phase-pills .pill {
+  text-decoration: none; color: var(--muted); font-size: .8rem; font-weight: 600;
+  border: 1px solid var(--border); border-radius: 999px; padding: .2rem .6rem;
+}
+.phase-pills .pill:hover { border-color: var(--accent); color: var(--accent); }
+.phase-pills .pill.current { background: var(--accent); border-color: var(--accent); color: #fff; }
+.phase-pill-wrap { position: relative; display: inline-block; padding-bottom: .6rem; margin-bottom: -.6rem; }
+.phase-dropdown {
+  display: none; position: absolute; top: 100%; right: 0;
+  background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+  padding: .35rem; min-width: 240px; max-height: 70vh; overflow-y: auto;
+  box-shadow: 0 6px 20px rgba(0,0,0,.15); z-index: 200;
+}
+.phase-pill-wrap:hover .phase-dropdown, .phase-pill-wrap:focus-within .phase-dropdown { display: block; }
+.phase-dropdown a {
+  display: block; text-decoration: none; color: var(--fg); font-size: .82rem; font-weight: 500;
+  padding: .35rem .55rem; border-radius: 6px; white-space: nowrap;
+}
+.phase-dropdown a:hover { background: var(--chip); color: var(--accent); }
+.phase-dropdown a.current { color: var(--accent); font-weight: 700; }
+[id] { scroll-margin-top: 4.5rem; }
+h1, h2, h3, h4 { line-height: 1.3; }
+h1 { font-size: 1.9rem; border-bottom: 2px solid var(--accent); padding-bottom: .5rem; }
+h2 { font-size: 1.4rem; margin-top: 2.5rem; border-bottom: 1px solid var(--border); padding-bottom: .3rem; }
+h3 { font-size: 1.15rem; margin-top: 2rem; color: var(--accent); }
+a { color: var(--link); }
+p code, li code, td code { background: var(--code-bg); padding: .15em .4em; border-radius: 4px; font-size: .9em; word-break: break-word; }
+pre { background: var(--code-bg); padding: 1rem; border-radius: 8px; overflow-x: auto; border: 1px solid var(--border); }
+pre code { background: none; padding: 0; }
+table { border-collapse: collapse; width: 100%; margin: 1rem 0; display: block; overflow-x: auto; }
+th, td { border: 1px solid var(--border); padding: .5rem .75rem; text-align: left; }
+th { background: var(--code-bg); }
+blockquote { border-left: 3px solid var(--accent); margin: 1rem 0; padding: .2rem 1rem; color: var(--muted); }
+hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+.nav { margin-bottom: 1.5rem; font-size: .9rem; }
+.nav a { text-decoration: none; }
+ul, ol { padding-left: 1.4rem; }
+li { margin: .3rem 0; }
+img { max-width: 100%; }
+.chk { display: inline-block; width: .9em; height: .9em; border: 1.5px solid var(--muted); border-radius: 3px; margin-right: .4em; vertical-align: middle; }
+.chk.done { background: var(--accent); border-color: var(--accent); color: #fff; text-align: center; line-height: .85em; font-size: .75em; }
+.codehilite { background: var(--code-bg) !important; border-radius: 8px; }
+pre { line-height: 125%; }
+td.linenos .normal { color: #666666; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: #666666; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+.codehilite .hll { background-color: #ffffcc }
+.codehilite { background: #f0f0f0; }
+.codehilite .c { color: #60A0B0; font-style: italic } /* Comment */
+.codehilite .err { border: 1px solid #F00 } /* Error */
+.codehilite .k { color: #007020; font-weight: bold } /* Keyword */
+.codehilite .o { color: #666 } /* Operator */
+.codehilite .ch { color: #60A0B0; font-style: italic } /* Comment.Hashbang */
+.codehilite .cm { color: #60A0B0; font-style: italic } /* Comment.Multiline */
+.codehilite .cp { color: #007020 } /* Comment.Preproc */
+.codehilite .cpf { color: #60A0B0; font-style: italic } /* Comment.PreprocFile */
+.codehilite .c1 { color: #60A0B0; font-style: italic } /* Comment.Single */
+.codehilite .cs { color: #60A0B0; background-color: #FFF0F0 } /* Comment.Special */
+.codehilite .gd { color: #A00000 } /* Generic.Deleted */
+.codehilite .ge { font-style: italic } /* Generic.Emph */
+.codehilite .ges { font-weight: bold; font-style: italic } /* Generic.EmphStrong */
+.codehilite .gr { color: #F00 } /* Generic.Error */
+.codehilite .gh { color: #000080; font-weight: bold } /* Generic.Heading */
+.codehilite .gi { color: #00A000 } /* Generic.Inserted */
+.codehilite .go { color: #888 } /* Generic.Output */
+.codehilite .gp { color: #C65D09; font-weight: bold } /* Generic.Prompt */
+.codehilite .gs { font-weight: bold } /* Generic.Strong */
+.codehilite .gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+.codehilite .gt { color: #04D } /* Generic.Traceback */
+.codehilite .kc { color: #007020; font-weight: bold } /* Keyword.Constant */
+.codehilite .kd { color: #007020; font-weight: bold } /* Keyword.Declaration */
+.codehilite .kn { color: #007020; font-weight: bold } /* Keyword.Namespace */
+.codehilite .kp { color: #007020 } /* Keyword.Pseudo */
+.codehilite .kr { color: #007020; font-weight: bold } /* Keyword.Reserved */
+.codehilite .kt { color: #902000 } /* Keyword.Type */
+.codehilite .m { color: #40A070 } /* Literal.Number */
+.codehilite .s { color: #4070A0 } /* Literal.String */
+.codehilite .na { color: #4070A0 } /* Name.Attribute */
+.codehilite .nb { color: #007020 } /* Name.Builtin */
+.codehilite .nc { color: #0E84B5; font-weight: bold } /* Name.Class */
+.codehilite .no { color: #60ADD5 } /* Name.Constant */
+.codehilite .nd { color: #555; font-weight: bold } /* Name.Decorator */
+.codehilite .ni { color: #D55537; font-weight: bold } /* Name.Entity */
+.codehilite .ne { color: #007020 } /* Name.Exception */
+.codehilite .nf { color: #06287E } /* Name.Function */
+.codehilite .nl { color: #002070; font-weight: bold } /* Name.Label */
+.codehilite .nn { color: #0E84B5; font-weight: bold } /* Name.Namespace */
+.codehilite .nt { color: #062873; font-weight: bold } /* Name.Tag */
+.codehilite .nv { color: #BB60D5 } /* Name.Variable */
+.codehilite .ow { color: #007020; font-weight: bold } /* Operator.Word */
+.codehilite .w { color: #BBB } /* Text.Whitespace */
+.codehilite .mb { color: #40A070 } /* Literal.Number.Bin */
+.codehilite .mf { color: #40A070 } /* Literal.Number.Float */
+.codehilite .mh { color: #40A070 } /* Literal.Number.Hex */
+.codehilite .mi { color: #40A070 } /* Literal.Number.Integer */
+.codehilite .mo { color: #40A070 } /* Literal.Number.Oct */
+.codehilite .sa { color: #4070A0 } /* Literal.String.Affix */
+.codehilite .sb { color: #4070A0 } /* Literal.String.Backtick */
+.codehilite .sc { color: #4070A0 } /* Literal.String.Char */
+.codehilite .dl { color: #4070A0 } /* Literal.String.Delimiter */
+.codehilite .sd { color: #4070A0; font-style: italic } /* Literal.String.Doc */
+.codehilite .s2 { color: #4070A0 } /* Literal.String.Double */
+.codehilite .se { color: #4070A0; font-weight: bold } /* Literal.String.Escape */
+.codehilite .sh { color: #4070A0 } /* Literal.String.Heredoc */
+.codehilite .si { color: #70A0D0; font-style: italic } /* Literal.String.Interpol */
+.codehilite .sx { color: #C65D09 } /* Literal.String.Other */
+.codehilite .sr { color: #235388 } /* Literal.String.Regex */
+.codehilite .s1 { color: #4070A0 } /* Literal.String.Single */
+.codehilite .ss { color: #517918 } /* Literal.String.Symbol */
+.codehilite .bp { color: #007020 } /* Name.Builtin.Pseudo */
+.codehilite .fm { color: #06287E } /* Name.Function.Magic */
+.codehilite .vc { color: #BB60D5 } /* Name.Variable.Class */
+.codehilite .vg { color: #BB60D5 } /* Name.Variable.Global */
+.codehilite .vi { color: #BB60D5 } /* Name.Variable.Instance */
+.codehilite .vm { color: #BB60D5 } /* Name.Variable.Magic */
+.codehilite .il { color: #40A070 } /* Literal.Number.Integer.Long */</style>
+<script>
+(function(){
+  try {
+    var t = localStorage.getItem('theme');
+    if (t) document.documentElement.setAttribute('data-theme', t);
+  } catch (e) {}
+})();
+function getEffectiveTheme(){
+  var attr = document.documentElement.getAttribute('data-theme');
+  if (attr) return attr;
+  return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+}
+function toggleTheme(){
+  var next = getEffectiveTheme() === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  try { localStorage.setItem('theme', next); } catch (e) {}
+  updateThemeToggleIcon();
+}
+function updateThemeToggleIcon(){
+  var btn = document.querySelector('.theme-toggle');
+  if (btn) btn.textContent = getEffectiveTheme() === 'dark' ? '☀️' : '🌙';
+}
+document.addEventListener('DOMContentLoaded', updateThemeToggleIcon);
+</script>
+</head><body>
+<nav class="topnav">
+<a class="back" href="../../project/leetcode-prep.html">&larr; Back to LeetCode Prep</a>
+<div class="phase-pills"><div class="phase-pill-wrap"><a class="pill current" href="../../project/leetcode-prep.html" title="LeetCode Prep">LeetCode Prep</a><div class="phase-dropdown"><a href="../../project/leetcode-prep.html#arrays-hashing">Arrays &amp; Hashing</a><a href="../../project/leetcode-prep.html#two-pointers">Two Pointers</a><a href="../../project/leetcode-prep.html#sliding-window">Sliding Window</a><a href="../../project/leetcode-prep.html#stack">Stack</a><a href="../../project/leetcode-prep.html#binary-search">Binary Search</a><a href="../../project/leetcode-prep.html#linked-list">Linked List</a><a href="../../project/leetcode-prep.html#trees">Trees</a><a href="../../project/leetcode-prep.html#heap-priority-queue">Heap / Priority Queue</a><a href="../../project/leetcode-prep.html#backtracking">Backtracking</a><a href="../../project/leetcode-prep.html#tries">Tries</a><a href="../../project/leetcode-prep.html#graphs">Graphs</a><a href="../../project/leetcode-prep.html#advanced-graphs">Advanced Graphs</a><a href="../../project/leetcode-prep.html#1d-dp">1-D Dynamic Programming</a><a href="../../project/leetcode-prep.html#2d-dp">2-D Dynamic Programming</a><a href="../../project/leetcode-prep.html#greedy">Greedy</a><a href="../../project/leetcode-prep.html#intervals">Intervals</a><a href="../../project/leetcode-prep.html#math-geometry">Math &amp; Geometry</a><a href="../../project/leetcode-prep.html#bit-manipulation">Bit Manipulation</a></div></div><span class="sep">|</span><div class="phase-pill-wrap"><a class="pill" href="../../index.html#phase-1" title="Phase 1">Phase1</a><div class="phase-dropdown"><a href="../../notes/phase-1-foundations/1.1-programming-fundamentals.html">1.1 Programming Fundamentals</a><a href="../../notes/phase-1-foundations/1.2-git-github-essentials.html">1.2 Git &amp; GitHub Essentials</a><a href="../../notes/phase-1-foundations/1.3-big-o-algorithmic-thinking.html">1.3 Big-O and Algorithmic Thinking</a><a href="../../notes/phase-1-foundations/1.4-arrays-strings.html">1.4 Arrays &amp; Strings</a><a href="../../notes/phase-1-foundations/1.5-linked-lists.html">1.5 Linked Lists</a><a href="../../notes/phase-1-foundations/1.6-stacks-queues.html">1.6 Stacks &amp; Queues</a><a href="../../notes/phase-1-foundations/1.7-hash-tables.html">1.7 Hash Tables</a><a href="../../notes/phase-1-foundations/1.8-recursion-backtracking.html">1.8 Recursion &amp; Backtracking</a><a href="../../notes/phase-1-foundations/1.9-sorting-searching.html">1.9 Sorting &amp; Searching</a><a href="../../notes/phase-1-foundations/1.10-trees-bst.html">1.10 Trees &amp; Binary Search Trees</a><a href="../../notes/phase-1-foundations/1.11-heaps-priority-queues.html">1.11 Heaps &amp; Priority Queues</a><a href="../../notes/phase-1-foundations/1.12-graphs.html">1.12 Graphs</a><a href="../../notes/phase-1-foundations/1.13-dp-greedy.html">1.13 Dynamic Programming &amp; Greedy</a><a href="../../notes/phase-1-foundations/1.14-phase-capstone.html">1.14 Phase Capstone</a></div></div><div class="phase-pill-wrap"><a class="pill" href="../../index.html#phase-2" title="Phase 2">Phase2</a><div class="phase-dropdown"><a href="../../notes/phase-2-backend-skills/2.1-relational-db-design-normalization.html">2.1 Relational DB Design &amp; Normalization</a><a href="../../notes/phase-2-backend-skills/2.2-sql-querying.html">2.2 SQL Querying</a><a href="../../notes/phase-2-backend-skills/2.3-indexing-query-performance.html">2.3 Indexing &amp; Query Performance</a><a href="../../notes/phase-2-backend-skills/2.4-rest-api-design-principles.html">2.4 REST API Design Principles</a><a href="../../notes/phase-2-backend-skills/2.5-building-apis-with-fastapi.html">2.5 Building APIs with FastAPI</a><a href="../../notes/phase-2-backend-skills/2.6-debugging-techniques-tools.html">2.6 Debugging Techniques &amp; Tools</a><a href="../../notes/phase-2-backend-skills/2.7-testing-fundamentals-tdd.html">2.7 Testing Fundamentals &amp; TDD</a><a href="../../notes/phase-2-backend-skills/2.8-phase-capstone.html">2.8 Phase Capstone</a></div></div><div class="phase-pill-wrap"><a class="pill" href="../../index.html#phase-3" title="Phase 3">Phase3</a><div class="phase-dropdown"><a href="../../notes/phase-3-language-internals/3.1-python-object-model-memory.html">3.1 Python Object Model &amp; Memory</a><a href="../../notes/phase-3-language-internals/3.2-collections-internals.html">3.2 Collections Internals</a><a href="../../notes/phase-3-language-internals/3.3-gil-multithreading.html">3.3 The GIL &amp; Multithreading</a><a href="../../notes/phase-3-language-internals/3.4-multiprocessing-asyncio.html">3.4 Multiprocessing &amp; Asyncio</a><a href="../../notes/phase-3-language-internals/3.5-phase-capstone.html">3.5 Phase Capstone</a></div></div><div class="phase-pill-wrap"><a class="pill" href="../../index.html#phase-4" title="Phase 4">Phase4</a><div class="phase-dropdown"><a href="../../notes/phase-4-design-thinking/4.1-oop-foundations-refresher.html">4.1 OOP Foundations Refresher</a><a href="../../notes/phase-4-design-thinking/4.2-solid-principles.html">4.2 SOLID Principles</a><a href="../../notes/phase-4-design-thinking/4.3-creational-design-patterns.html">4.3 Creational Design Patterns</a><a href="../../notes/phase-4-design-thinking/4.4-structural-design-patterns.html">4.4 Structural Design Patterns</a><a href="../../notes/phase-4-design-thinking/4.5-behavioral-design-patterns.html">4.5 Behavioral Design Patterns</a><a href="../../notes/phase-4-design-thinking/4.6-uml-lld-process.html">4.6 UML &amp; the LLD Process</a><a href="../../notes/phase-4-design-thinking/4.7-lld-practice-problems.html">4.7 LLD Practice Problems</a><a href="../../notes/phase-4-design-thinking/4.8-system-design-hld-fundamentals.html">4.8 System Design / HLD Fundamentals</a><a href="../../notes/phase-4-design-thinking/4.9-hld-case-studies.html">4.9 HLD Case Studies</a><a href="../../notes/phase-4-design-thinking/4.10-phase-capstone.html">4.10 Phase Capstone</a></div></div><div class="phase-pill-wrap"><a class="pill" href="../../index.html#phase-5" title="Phase 5">Phase5</a><div class="phase-dropdown"><a href="../../notes/phase-5-scaling-distributed-systems/5.1-caching-strategies-redis.html">5.1 Caching Strategies &amp; Redis</a><a href="../../notes/phase-5-scaling-distributed-systems/5.2-distributed-systems-fundamentals.html">5.2 Distributed Systems Fundamentals</a><a href="../../notes/phase-5-scaling-distributed-systems/5.3-idempotency-reliable-apis.html">5.3 Idempotency &amp; Reliable APIs</a><a href="../../notes/phase-5-scaling-distributed-systems/5.4-message-queues-streaming.html">5.4 Message Queues &amp; Streaming</a><a href="../../notes/phase-5-scaling-distributed-systems/5.5-security-ssl-tls.html">5.5 Security: SSL/TLS</a><a href="../../notes/phase-5-scaling-distributed-systems/5.6-security-jwt-oauth.html">5.6 Security: JWT &amp; OAuth</a><a href="../../notes/phase-5-scaling-distributed-systems/5.7-phase-capstone.html">5.7 Phase Capstone</a></div></div><div class="phase-pill-wrap"><a class="pill" href="../../index.html#phase-6" title="Phase 6">Phase6</a><div class="phase-dropdown"><a href="../../notes/phase-6-production-ops/6.1-docker-fundamentals.html">6.1 Docker Fundamentals</a><a href="../../notes/phase-6-production-ops/6.2-kubernetes-fundamentals.html">6.2 Kubernetes Fundamentals</a><a href="../../notes/phase-6-production-ops/6.3-cicd-github-actions.html">6.3 CI/CD with GitHub Actions</a><a href="../../notes/phase-6-production-ops/6.4-monitoring-logging.html">6.4 Monitoring &amp; Logging</a><a href="../../notes/phase-6-production-ops/6.5-phase-capstone.html">6.5 Phase Capstone</a></div></div></div>
+<button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle color theme" title="Toggle color theme">🌙</button>
+</nav>
+<div class="page">
+<h1>38. Word Search</h1>
+<p><strong>LeetCode:</strong> <a href="https://leetcode.com/problems/word-search/">#79 - Word Search</a> · <strong>Topic:</strong> <a href="../topics/09-backtracking.html">Backtracking</a> · <strong>Difficulty:</strong> Medium</p>
+<h2>Problem statement</h2>
+<p>Given an <code>m x n</code> grid of characters <code>board</code> and a string <code>word</code>, return <code>true</code> if <code>word</code> exists in the grid, formed by moving to <strong>adjacent</strong> cells (up/down/left/right, not diagonal), <strong>without reusing the same cell twice</strong> within one path.</p>
+<p><strong>Example:</strong></p>
+<div class="codehilite"><pre><span></span><code>board = [[&quot;A&quot;,&quot;B&quot;,&quot;C&quot;,&quot;E&quot;],
+         [&quot;S&quot;,&quot;F&quot;,&quot;C&quot;,&quot;S&quot;],
+         [&quot;A&quot;,&quot;D&quot;,&quot;E&quot;,&quot;E&quot;]]
+word = &quot;ABCCED&quot;
+Output: true
+</code></pre></div>
+
+<h2>Applicable approaches</h2>
+<ul>
+<li><strong>Backtracking with a separate <code>visited</code> set.</strong></li>
+<li><strong>Optimal — Backtracking with In-Place Cell Marking (no extra set needed).</strong></li>
+</ul>
+<h2>Approach 1: Backtracking with a Visited Set</h2>
+<h3>Intuition</h3>
+<p>Try starting the search from every cell in the grid. From each starting cell, recursively try to match the word character by character, moving to an adjacent, not-yet-visited cell for each next character — backtracking (undoing the visited mark, per the topic overview's core discipline) whenever a path doesn't work out, so other paths can still use that cell.</p>
+<h3>Algorithm</h3>
+<ol>
+<li>For each cell <code>(r, c)</code> in the grid, try starting the search there.</li>
+<li><code>dfs(r, c, index)</code>: if <code>index == len(word)</code>, we've matched every character — success.</li>
+<li>If <code>(r, c)</code> is out of bounds, or <code>board[r][c] != word[index]</code>, or <code>(r, c)</code> is already visited (as part of the <em>current</em> path), this path fails — return <code>False</code>.</li>
+<li>Otherwise, mark <code>(r, c)</code> as visited, and try extending the path into each of the 4 neighboring cells for <code>word[index + 1]</code>. If any neighbor succeeds, this whole path succeeds.</li>
+<li><strong>Unmark</strong> <code>(r, c)</code> as visited before returning (whether success or failure) — this is the backtracking step, letting <em>other</em> starting paths reuse this cell.</li>
+</ol>
+<h3>Python code</h3>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">exist</span><span class="p">(</span><span class="n">board</span><span class="p">,</span> <span class="n">word</span><span class="p">):</span>
+    <span class="n">rows</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">board</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">board</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">visited</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">dfs</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">index</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">word</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">r</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">r</span> <span class="o">&gt;=</span> <span class="n">rows</span> <span class="ow">or</span> <span class="n">c</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">c</span> <span class="o">&gt;=</span> <span class="n">cols</span>
+                <span class="ow">or</span> <span class="n">board</span><span class="p">[</span><span class="n">r</span><span class="p">][</span><span class="n">c</span><span class="p">]</span> <span class="o">!=</span> <span class="n">word</span><span class="p">[</span><span class="n">index</span><span class="p">]</span>
+                <span class="ow">or</span> <span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">c</span><span class="p">)</span> <span class="ow">in</span> <span class="n">visited</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="n">visited</span><span class="o">.</span><span class="n">add</span><span class="p">((</span><span class="n">r</span><span class="p">,</span> <span class="n">c</span><span class="p">))</span>
+
+        <span class="n">found</span> <span class="o">=</span> <span class="p">(</span><span class="n">dfs</span><span class="p">(</span><span class="n">r</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="ow">or</span>
+                 <span class="n">dfs</span><span class="p">(</span><span class="n">r</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="ow">or</span>
+                 <span class="n">dfs</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">c</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="ow">or</span>
+                 <span class="n">dfs</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">c</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+
+        <span class="n">visited</span><span class="o">.</span><span class="n">remove</span><span class="p">((</span><span class="n">r</span><span class="p">,</span> <span class="n">c</span><span class="p">))</span>  <span class="c1"># undo - backtrack</span>
+        <span class="k">return</span> <span class="n">found</span>
+
+    <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">rows</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">cols</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">dfs</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">return</span> <span class="kc">False</span>
+</code></pre></div>
+
+<h3>Line-by-line explanation</h3>
+<ul>
+<li><code>visited = set()</code> — tracks which cells are part of the <strong>current</strong> path being explored (not a global "ever visited" tracker — it gets cleared as we backtrack, so different starting points/paths can freely reuse the same cells, exactly matching the topic overview's "same cell might legitimately need to be revisited via a different path" point).</li>
+<li><code>dfs(r, c, index)</code> — are we able to match <code>word[index:]</code> starting from cell <code>(r, c)</code>?</li>
+<li><code>if index == len(word): return True</code> — matched every character of <code>word</code> — success (base case).</li>
+<li>The combined bounds/mismatch/visited check — three separate failure conditions checked together: out of the grid, wrong character at this cell, or this cell is already used earlier in the <em>current</em> path (can't revisit within one path, per the problem's rule).</li>
+<li><code>visited.add((r, c))</code> — mark this cell as "in use" for the current path, before exploring further.</li>
+<li><code>found = (dfs(r+1,c,...) or dfs(r-1,c,...) or dfs(r,c+1,...) or dfs(r,c-1,...))</code> — try all 4 directions; Python's <code>or</code> short-circuits, so the moment one direction succeeds, the others aren't even tried — a genuine efficiency detail, not just style.</li>
+<li><code>visited.remove((r, c))</code> — <strong>the backtracking step</strong>: whether this path succeeded or failed, un-mark this cell before returning, so it's available again for other paths — either different neighbors tried by the caller, or entirely different starting cells tried by the outer loop.</li>
+<li><code>return found</code> — propagate the result up.</li>
+<li>Outer double loop — try starting the search from every single cell, since the word could begin anywhere in the grid, and we have no way to know in advance which starting cell (if any) leads to success.</li>
+</ul>
+<h3>Dry run (abbreviated)</h3>
+<p><code>board</code> as given, <code>word = "ABCCED"</code></p>
+<p>Starting at <code>(0,0)</code> = <code>'A'</code> matches <code>word[0]='A'</code>. Mark visited. Try neighbors for <code>word[1]='B'</code>:
+- Right <code>(0,1)='B'</code> matches! Mark visited. Try neighbors for <code>word[2]='C'</code>:
+  - Right <code>(0,2)='C'</code> matches! Mark visited. Try neighbors for <code>word[3]='C'</code>:
+    - Down <code>(1,2)='C'</code> matches! Mark visited. Try neighbors for <code>word[4]='E'</code>:
+      - Down <code>(2,2)='E'</code> matches! Mark visited. Try neighbors for <code>word[5]='D'</code>:
+        - Left <code>(2,1)='D'</code> matches! Mark visited. <code>index</code> now <code>6 == len(word)</code> → return <code>True</code> all the way up.</p>
+<p>Path found: <code>A(0,0)-&gt;B(0,1)-&gt;C(0,2)-&gt;C(1,2)-&gt;E(2,2)-&gt;D(2,1)</code> ✅ (matches the known valid path for this classic example). Every cell along the successful path stays marked only <em>until the function returns</em> — if this particular path had failed partway, each cell would be unmarked as the recursion unwound, allowing alternate directions to be tried from earlier points in the path, exactly the "undo, then try the next alternative" backtracking rhythm.</p>
+<h3>Time &amp; space complexity</h3>
+<ul>
+<li><strong>Time: O(m · n · 4^L)</strong> where m,n = grid dimensions, L = word length — in the worst case, we try starting from every cell (m·n), and from each, explore up to 4 directions at each of the L steps (though in practice, the "already visited in this path" and "character mismatch" checks prune this significantly, since most cells won't match the required character at each step).</li>
+<li><strong>Space: O(L)</strong> for the recursion depth (bounded by the word's length) plus O(L) for the <code>visited</code> set (at most L cells are ever marked at once, since that's the maximum path length before either success or exhausting the word).</li>
+</ul>
+<hr />
+<h2>Approach 2: Optimal — In-Place Marking (No Extra Set)</h2>
+<h3>Intuition</h3>
+<p>Instead of maintaining a separate <code>visited</code> set, we can temporarily <strong>overwrite</strong> the board's own cell value with a sentinel character (something that can never match any letter in <code>word</code>, like <code>'#'</code>) while it's part of the current path, and restore its original value when backtracking. This avoids the overhead of set operations (hashing tuples) entirely, working directly on the existing grid structure — the same "reuse existing structure instead of allocating a separate tracker" idea seen in Set Matrix Zeroes (Math &amp; Geometry topic) and the running preorder pointer in Construct Binary Tree.</p>
+<h3>Python code</h3>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">exist</span><span class="p">(</span><span class="n">board</span><span class="p">,</span> <span class="n">word</span><span class="p">):</span>
+    <span class="n">rows</span><span class="p">,</span> <span class="n">cols</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">board</span><span class="p">),</span> <span class="nb">len</span><span class="p">(</span><span class="n">board</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">dfs</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">index</span> <span class="o">==</span> <span class="nb">len</span><span class="p">(</span><span class="n">word</span><span class="p">):</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">r</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">r</span> <span class="o">&gt;=</span> <span class="n">rows</span> <span class="ow">or</span> <span class="n">c</span> <span class="o">&lt;</span> <span class="mi">0</span> <span class="ow">or</span> <span class="n">c</span> <span class="o">&gt;=</span> <span class="n">cols</span>
+                <span class="ow">or</span> <span class="n">board</span><span class="p">[</span><span class="n">r</span><span class="p">][</span><span class="n">c</span><span class="p">]</span> <span class="o">!=</span> <span class="n">word</span><span class="p">[</span><span class="n">index</span><span class="p">]):</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="n">temp</span> <span class="o">=</span> <span class="n">board</span><span class="p">[</span><span class="n">r</span><span class="p">][</span><span class="n">c</span><span class="p">]</span>
+        <span class="n">board</span><span class="p">[</span><span class="n">r</span><span class="p">][</span><span class="n">c</span><span class="p">]</span> <span class="o">=</span> <span class="s2">&quot;#&quot;</span>  <span class="c1"># mark as &quot;in use&quot; directly on the board</span>
+
+        <span class="n">found</span> <span class="o">=</span> <span class="p">(</span><span class="n">dfs</span><span class="p">(</span><span class="n">r</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="ow">or</span>
+                 <span class="n">dfs</span><span class="p">(</span><span class="n">r</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="ow">or</span>
+                 <span class="n">dfs</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">c</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="ow">or</span>
+                 <span class="n">dfs</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">c</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="n">index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">))</span>
+
+        <span class="n">board</span><span class="p">[</span><span class="n">r</span><span class="p">][</span><span class="n">c</span><span class="p">]</span> <span class="o">=</span> <span class="n">temp</span>  <span class="c1"># undo - restore the original character</span>
+
+        <span class="k">return</span> <span class="n">found</span>
+
+    <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">rows</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">cols</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">dfs</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">c</span><span class="p">,</span> <span class="mi">0</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">return</span> <span class="kc">False</span>
+</code></pre></div>
+
+<h3>Line-by-line explanation</h3>
+<ul>
+<li>The bounds/mismatch check no longer needs an <code>or (r, c) in visited</code> clause — instead, once a cell is temporarily overwritten with <code>'#'</code>, the <em>mismatch</em> check (<code>board[r][c] != word[index]</code>) naturally fails for it too, since <code>'#'</code> will never equal any real letter in <code>word</code> (assuming the word itself never contains <code>'#'</code>, which is safe for this problem's typical constraints of lowercase/uppercase letters) — the visited-tracking and the mismatch-checking have been merged into a single mechanism.</li>
+<li><code>temp = board[r][c]; board[r][c] = "#"</code> — save the original character, then overwrite it as a "currently in use" marker.</li>
+<li>Same 4-direction exploration as before.</li>
+<li><code>board[r][c] = temp</code> — <strong>the backtracking/undo step</strong>: restore the cell's true value before returning, whether the path succeeded or failed — critical so the grid is back to its original state for other exploration attempts, both other directions from a parent call, and entirely different starting cells from the outer loop.</li>
+</ul>
+<h3>Why this is often preferred</h3>
+<p>Avoiding the <code>visited</code> set means avoiding the overhead of hashing <code>(r, c)</code> tuples and set insert/remove operations — directly mutating the grid (and restoring it) is typically faster in practice, even though the asymptotic time complexity is the same. It does, however, require read/write access to mutate the input grid temporarily, which is acceptable here since we always fully restore it before the function returns — worth noting as a design trade-off (mutating input, even temporarily, isn't always allowed or desirable in every context; some interviewers or codebases specifically forbid mutating function arguments).</p>
+<h3>Time &amp; space complexity</h3>
+<ul>
+<li><strong>Time: O(m · n · 4^L)</strong> — same as Approach 1.</li>
+<li><strong>Space: O(L)</strong> for the recursion depth only — no separate <code>visited</code> set needed, a small but real space improvement, since we're no longer paying for hash-set overhead on top of the recursion.</li>
+</ul>
+<hr />
+<h2>Common mistakes &amp; misconceptions</h2>
+<ol>
+<li><strong>Forgetting to restore the cell after marking it (both approaches).</strong> Without the undo step — either <code>visited.remove()</code> or restoring <code>board[r][c] = temp</code> — later starting points (or later branches from the same starting point) would incorrectly treat a cell from a <em>previous, failed</em> attempt as permanently unusable, causing valid paths to be missed.</li>
+<li><strong>Using a global "ever visited" set instead of a per-path set.</strong> This is a fundamentally different (and incorrect) tracking scheme — a cell used in one failed path attempt must be available again for a completely different path attempt starting elsewhere, which a global "ever visited anywhere" tracker would incorrectly forbid.</li>
+<li><strong>In the in-place marking version, assuming <code>word</code> could contain <code>'#'</code> and not accounting for it.</strong> If the word could genuinely contain the sentinel character, the mismatch check could falsely succeed on an already-marked cell — this specific approach implicitly relies on <code>'#'</code> being a character that can't appear in valid input, which is safe for this problem's usual constraints but worth being aware of as an assumption, not a universal guarantee.</li>
+<li><strong>Not short-circuiting the 4-direction <code>or</code> chain</strong>, e.g. by computing all four <code>dfs()</code> calls into separate variables first and then combining them with <code>or</code> afterward — this defeats the point of Python's short-circuit evaluation, doing unnecessary exploration even after an earlier direction already succeeded.</li>
+</ol>
+<h2>Summary</h2>
+<table>
+<thead>
+<tr>
+<th>Approach</th>
+<th>Time</th>
+<th>Space</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Backtracking + visited set</td>
+<td>O(m·n·4^L)</td>
+<td>O(L)</td>
+<td>Clear and explicit about what "visited" means.</td>
+</tr>
+<tr>
+<td>Backtracking + in-place marking</td>
+<td>O(m·n·4^L)</td>
+<td>O(L)</td>
+<td>Same complexity, avoids extra set overhead; standard "optimal" answer.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Key takeaway:</strong> for grid-based backtracking, temporarily marking cells <strong>in place</strong> (overwriting with a sentinel value, then restoring) is a common and slightly more efficient alternative to a separate <code>visited</code> set — both rely on the same essential backtracking discipline from the topic overview: mark before recursing, unmark after, no matter how the recursive call turned out, because the shared grid structure must return to a clean state before any sibling branch or starting point can correctly use it.</p>
+<div class="nav"><a href="../../project/leetcode-prep.html">&larr; Back to LeetCode Prep</a></div>
+</div>
+</body>
+</html>

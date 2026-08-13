@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>69. Spiral Matrix</title>
+<style>
+:root {
+  --bg: #fdfdfb; --fg: #24292f; --muted: #5b6470; --border: #e1e4e8;
+  --code-bg: #f3f4f6; --link: #0b5fff; --accent: #6a3fd1; --chip: #f0edfb;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg:#1a1d23; --fg:#dadee3; --muted:#98a0ab; --border:#2f343c; --code-bg:#20242b; --link:#7aa2ff; --accent:#b79cff; --chip:#242233; }
+}
+:root[data-theme="dark"] { --bg:#1a1d23; --fg:#dadee3; --muted:#98a0ab; --border:#2f343c; --code-bg:#20242b; --link:#7aa2ff; --accent:#b79cff; --chip:#242233; }
+.theme-toggle { margin-left: .5rem; background: none; border: 1px solid var(--border); border-radius: 999px; width: 1.9rem; height: 1.9rem; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; font-size: .95rem; color: var(--fg); line-height: 1; padding: 0; }
+.theme-toggle:hover { border-color: var(--accent); }
+.phase-pills .sep { color: var(--muted); font-size: .8rem; }
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.65; margin: 0;
+}
+.page { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 6rem; }
+.topnav {
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; flex-wrap: wrap; gap: .9rem;
+  background: var(--bg); border-bottom: 1px solid var(--border);
+  padding: .7rem 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,.08);
+}
+.topnav a.back, .topnav .home { text-decoration: none; font-weight: 600; font-size: .92rem; white-space: nowrap; color: var(--fg); }
+.phase-pills { display: flex; gap: .35rem; flex-wrap: wrap; margin-left: auto; }
+.phase-pills .pill {
+  text-decoration: none; color: var(--muted); font-size: .8rem; font-weight: 600;
+  border: 1px solid var(--border); border-radius: 999px; padding: .2rem .6rem;
+}
+.phase-pills .pill:hover { border-color: var(--accent); color: var(--accent); }
+.phase-pills .pill.current { background: var(--accent); border-color: var(--accent); color: #fff; }
+.phase-pill-wrap { position: relative; display: inline-block; padding-bottom: .6rem; margin-bottom: -.6rem; }
+.phase-dropdown {
+  display: none; position: absolute; top: 100%; right: 0;
+  background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+  padding: .35rem; min-width: 240px; max-height: 70vh; overflow-y: auto;
+  box-shadow: 0 6px 20px rgba(0,0,0,.15); z-index: 200;
+}
+.phase-pill-wrap:hover .phase-dropdown, .phase-pill-wrap:focus-within .phase-dropdown { display: block; }
+.phase-dropdown a {
+  display: block; text-decoration: none; color: var(--fg); font-size: .82rem; font-weight: 500;
+  padding: .35rem .55rem; border-radius: 6px; white-space: nowrap;
+}
+.phase-dropdown a:hover { background: var(--chip); color: var(--accent); }
+.phase-dropdown a.current { color: var(--accent); font-weight: 700; }
+[id] { scroll-margin-top: 4.5rem; }
+h1, h2, h3, h4 { line-height: 1.3; }
+h1 { font-size: 1.9rem; border-bottom: 2px solid var(--accent); padding-bottom: .5rem; }
+h2 { font-size: 1.4rem; margin-top: 2.5rem; border-bottom: 1px solid var(--border); padding-bottom: .3rem; }
+h3 { font-size: 1.15rem; margin-top: 2rem; color: var(--accent); }
+a { color: var(--link); }
+p code, li code, td code { background: var(--code-bg); padding: .15em .4em; border-radius: 4px; font-size: .9em; word-break: break-word; }
+pre { background: var(--code-bg); padding: 1rem; border-radius: 8px; overflow-x: auto; border: 1px solid var(--border); }
+pre code { background: none; padding: 0; }
+table { border-collapse: collapse; width: 100%; margin: 1rem 0; display: block; overflow-x: auto; }
+th, td { border: 1px solid var(--border); padding: .5rem .75rem; text-align: left; }
+th { background: var(--code-bg); }
+blockquote { border-left: 3px solid var(--accent); margin: 1rem 0; padding: .2rem 1rem; color: var(--muted); }
+hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+.nav { margin-bottom: 1.5rem; font-size: .9rem; }
+.nav a { text-decoration: none; }
+ul, ol { padding-left: 1.4rem; }
+li { margin: .3rem 0; }
+img { max-width: 100%; }
+.chk { display: inline-block; width: .9em; height: .9em; border: 1.5px solid var(--muted); border-radius: 3px; margin-right: .4em; vertical-align: middle; }
+.chk.done { background: var(--accent); border-color: var(--accent); color: #fff; text-align: center; line-height: .85em; font-size: .75em; }
+.codehilite { background: var(--code-bg) !important; border-radius: 8px; }
+pre { line-height: 125%; }
+td.linenos .normal { color: #666666; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: #666666; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+.codehilite .hll { background-color: #ffffcc }
+.codehilite { background: #f0f0f0; }
+.codehilite .c { color: #60A0B0; font-style: italic } /* Comment */
+.codehilite .err { border: 1px solid #F00 } /* Error */
+.codehilite .k { color: #007020; font-weight: bold } /* Keyword */
+.codehilite .o { color: #666 } /* Operator */
+.codehilite .ch { color: #60A0B0; font-style: italic } /* Comment.Hashbang */
+.codehilite .cm { color: #60A0B0; font-style: italic } /* Comment.Multiline */
+.codehilite .cp { color: #007020 } /* Comment.Preproc */
+.codehilite .cpf { color: #60A0B0; font-style: italic } /* Comment.PreprocFile */
+.codehilite .c1 { color: #60A0B0; font-style: italic } /* Comment.Single */
+.codehilite .cs { color: #60A0B0; background-color: #FFF0F0 } /* Comment.Special */
+.codehilite .gd { color: #A00000 } /* Generic.Deleted */
+.codehilite .ge { font-style: italic } /* Generic.Emph */
+.codehilite .ges { font-weight: bold; font-style: italic } /* Generic.EmphStrong */
+.codehilite .gr { color: #F00 } /* Generic.Error */
+.codehilite .gh { color: #000080; font-weight: bold } /* Generic.Heading */
+.codehilite .gi { color: #00A000 } /* Generic.Inserted */
+.codehilite .go { color: #888 } /* Generic.Output */
+.codehilite .gp { color: #C65D09; font-weight: bold } /* Generic.Prompt */
+.codehilite .gs { font-weight: bold } /* Generic.Strong */
+.codehilite .gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+.codehilite .gt { color: #04D } /* Generic.Traceback */
+.codehilite .kc { color: #007020; font-weight: bold } /* Keyword.Constant */
+.codehilite .kd { color: #007020; font-weight: bold } /* Keyword.Declaration */
+.codehilite .kn { color: #007020; font-weight: bold } /* Keyword.Namespace */
+.codehilite .kp { color: #007020 } /* Keyword.Pseudo */
+.codehilite .kr { color: #007020; font-weight: bold } /* Keyword.Reserved */
+.codehilite .kt { color: #902000 } /* Keyword.Type */
+.codehilite .m { color: #40A070 } /* Literal.Number */
+.codehilite .s { color: #4070A0 } /* Literal.String */
+.codehilite .na { color: #4070A0 } /* Name.Attribute */
+.codehilite .nb { color: #007020 } /* Name.Builtin */
+.codehilite .nc { color: #0E84B5; font-weight: bold } /* Name.Class */
+.codehilite .no { color: #60ADD5 } /* Name.Constant */
+.codehilite .nd { color: #555; font-weight: bold } /* Name.Decorator */
+.codehilite .ni { color: #D55537; font-weight: bold } /* Name.Entity */
+.codehilite .ne { color: #007020 } /* Name.Exception */
+.codehilite .nf { color: #06287E } /* Name.Function */
+.codehilite .nl { color: #002070; font-weight: bold } /* Name.Label */
+.codehilite .nn { color: #0E84B5; font-weight: bold } /* Name.Namespace */
+.codehilite .nt { color: #062873; font-weight: bold } /* Name.Tag */
+.codehilite .nv { color: #BB60D5 } /* Name.Variable */
+.codehilite .ow { color: #007020; font-weight: bold } /* Operator.Word */
+.codehilite .w { color: #BBB } /* Text.Whitespace */
+.codehilite .mb { color: #40A070 } /* Literal.Number.Bin */
+.codehilite .mf { color: #40A070 } /* Literal.Number.Float */
+.codehilite .mh { color: #40A070 } /* Literal.Number.Hex */
+.codehilite .mi { color: #40A070 } /* Literal.Number.Integer */
+.codehilite .mo { color: #40A070 } /* Literal.Number.Oct */
+.codehilite .sa { color: #4070A0 } /* Literal.String.Affix */
+.codehilite .sb { color: #4070A0 } /* Literal.String.Backtick */
+.codehilite .sc { color: #4070A0 } /* Literal.String.Char */
+.codehilite .dl { color: #4070A0 } /* Literal.String.Delimiter */
+.codehilite .sd { color: #4070A0; font-style: italic } /* Literal.String.Doc */
+.codehilite .s2 { color: #4070A0 } /* Literal.String.Double */
+.codehilite .se { color: #4070A0; font-weight: bold } /* Literal.String.Escape */
+.codehilite .sh { color: #4070A0 } /* Literal.String.Heredoc */
+.codehilite .si { color: #70A0D0; font-style: italic } /* Literal.String.Interpol */
+.codehilite .sx { color: #C65D09 } /* Literal.String.Other */
+.codehilite .sr { color: #235388 } /* Literal.String.Regex */
+.codehilite .s1 { color: #4070A0 } /* Literal.String.Single */
+.codehilite .ss { color: #517918 } /* Literal.String.Symbol */
+.codehilite .bp { color: #007020 } /* Name.Builtin.Pseudo */
+.codehilite .fm { color: #06287E } /* Name.Function.Magic */
+.codehilite .vc { color: #BB60D5 } /* Name.Variable.Class */
+.codehilite .vg { color: #BB60D5 } /* Name.Variable.Global */
+.codehilite .vi { color: #BB60D5 } /* Name.Variable.Instance */
+.codehilite .vm { color: #BB60D5 } /* Name.Variable.Magic */
+.codehilite .il { color: #40A070 } /* Literal.Number.Integer.Long */</style>
+<script>
+(function(){
+  try {
+    var t = localStorage.getItem('theme');
+    if (t) document.documentElement.setAttribute('data-theme', t);
+  } catch (e) {}
+})();
+function getEffectiveTheme(){
+  var attr = document.documentElement.getAttribute('data-theme');
+  if (attr) return attr;
+  return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+}
+function toggleTheme(){
+  var next = getEffectiveTheme() === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  try { localStorage.setItem('theme', next); } catch (e) {}
+  updateThemeToggleIcon();
+}
+function updateThemeToggleIcon(){
+  var btn = document.querySelector('.theme-toggle');
+  if (btn) btn.textContent = getEffectiveTheme() === 'dark' ? '☀️' : '🌙';
+}
+document.addEventListener('DOMContentLoaded', updateThemeToggleIcon);
+</script>
+</head><body>
+<nav class="topnav">
+<a class="back" href="../../project/leetcode-prep.html">&larr; Back to LeetCode Prep</a>
+<div class="phase-pills"><div class="phase-pill-wrap"><a class="pill current" href="../../project/leetcode-prep.html" title="LeetCode Prep">LeetCode Prep</a><div class="phase-dropdown"><a href="../../project/leetcode-prep.html#arrays-hashing">Arrays &amp; Hashing</a><a href="../../project/leetcode-prep.html#two-pointers">Two Pointers</a><a href="../../project/leetcode-prep.html#sliding-window">Sliding Window</a><a href="../../project/leetcode-prep.html#stack">Stack</a><a href="../../project/leetcode-prep.html#binary-search">Binary Search</a><a href="../../project/leetcode-prep.html#linked-list">Linked List</a><a href="../../project/leetcode-prep.html#trees">Trees</a><a href="../../project/leetcode-prep.html#heap-priority-queue">Heap / Priority Queue</a><a href="../../project/leetcode-prep.html#backtracking">Backtracking</a><a href="../../project/leetcode-prep.html#tries">Tries</a><a href="../../project/leetcode-prep.html#graphs">Graphs</a><a href="../../project/leetcode-prep.html#advanced-graphs">Advanced Graphs</a><a href="../../project/leetcode-prep.html#1d-dp">1-D Dynamic Programming</a><a href="../../project/leetcode-prep.html#2d-dp">2-D Dynamic Programming</a><a href="../../project/leetcode-prep.html#greedy">Greedy</a><a href="../../project/leetcode-prep.html#intervals">Intervals</a><a href="../../project/leetcode-prep.html#math-geometry">Math &amp; Geometry</a><a href="../../project/leetcode-prep.html#bit-manipulation">Bit Manipulation</a></div></div><span class="sep">|</span><div class="phase-pill-wrap"><a class="pill" href="../../index.html#phase-1" title="Phase 1">Phase1</a><div class="phase-dropdown"><a href="../../notes/phase-1-foundations/1.1-programming-fundamentals.html">1.1 Programming Fundamentals</a><a href="../../notes/phase-1-foundations/1.2-git-github-essentials.html">1.2 Git &amp; GitHub Essentials</a><a href="../../notes/phase-1-foundations/1.3-big-o-algorithmic-thinking.html">1.3 Big-O and Algorithmic Thinking</a><a href="../../notes/phase-1-foundations/1.4-arrays-strings.html">1.4 Arrays &amp; Strings</a><a href="../../notes/phase-1-foundations/1.5-linked-lists.html">1.5 Linked Lists</a><a href="../../notes/phase-1-foundations/1.6-stacks-queues.html">1.6 Stacks &amp; Queues</a><a href="../../notes/phase-1-foundations/1.7-hash-tables.html">1.7 Hash Tables</a><a href="../../notes/phase-1-foundations/1.8-recursion-backtracking.html">1.8 Recursion &amp; Backtracking</a><a href="../../notes/phase-1-foundations/1.9-sorting-searching.html">1.9 Sorting &amp; Searching</a><a href="../../notes/phase-1-foundations/1.10-trees-bst.html">1.10 Trees &amp; Binary Search Trees</a><a href="../../notes/phase-1-foundations/1.11-heaps-priority-queues.html">1.11 Heaps &amp; Priority Queues</a><a href="../../notes/phase-1-foundations/1.12-graphs.html">1.12 Graphs</a><a href="../../notes/phase-1-foundations/1.13-dp-greedy.html">1.13 Dynamic Programming &amp; Greedy</a><a href="../../notes/phase-1-foundations/1.14-phase-capstone.html">1.14 Phase Capstone</a></div></div><div class="phase-pill-wrap"><a class="pill" href="../../index.html#phase-2" title="Phase 2">Phase2</a><div class="phase-dropdown"><a href="../../notes/phase-2-backend-skills/2.1-relational-db-design-normalization.html">2.1 Relational DB Design &amp; Normalization</a><a href="../../notes/phase-2-backend-skills/2.2-sql-querying.html">2.2 SQL Querying</a><a href="../../notes/phase-2-backend-skills/2.3-indexing-query-performance.html">2.3 Indexing &amp; Query Performance</a><a href="../../notes/phase-2-backend-skills/2.4-rest-api-design-principles.html">2.4 REST API Design Principles</a><a href="../../notes/phase-2-backend-skills/2.5-building-apis-with-fastapi.html">2.5 Building APIs with FastAPI</a><a href="../../notes/phase-2-backend-skills/2.6-debugging-techniques-tools.html">2.6 Debugging Techniques &amp; Tools</a><a href="../../notes/phase-2-backend-skills/2.7-testing-fundamentals-tdd.html">2.7 Testing Fundamentals &amp; TDD</a><a href="../../notes/phase-2-backend-skills/2.8-phase-capstone.html">2.8 Phase Capstone</a></div></div><div class="phase-pill-wrap"><a class="pill" href="../../index.html#phase-3" title="Phase 3">Phase3</a><div class="phase-dropdown"><a href="../../notes/phase-3-language-internals/3.1-python-object-model-memory.html">3.1 Python Object Model &amp; Memory</a><a href="../../notes/phase-3-language-internals/3.2-collections-internals.html">3.2 Collections Internals</a><a href="../../notes/phase-3-language-internals/3.3-gil-multithreading.html">3.3 The GIL &amp; Multithreading</a><a href="../../notes/phase-3-language-internals/3.4-multiprocessing-asyncio.html">3.4 Multiprocessing &amp; Asyncio</a><a href="../../notes/phase-3-language-internals/3.5-phase-capstone.html">3.5 Phase Capstone</a></div></div><div class="phase-pill-wrap"><a class="pill" href="../../index.html#phase-4" title="Phase 4">Phase4</a><div class="phase-dropdown"><a href="../../notes/phase-4-design-thinking/4.1-oop-foundations-refresher.html">4.1 OOP Foundations Refresher</a><a href="../../notes/phase-4-design-thinking/4.2-solid-principles.html">4.2 SOLID Principles</a><a href="../../notes/phase-4-design-thinking/4.3-creational-design-patterns.html">4.3 Creational Design Patterns</a><a href="../../notes/phase-4-design-thinking/4.4-structural-design-patterns.html">4.4 Structural Design Patterns</a><a href="../../notes/phase-4-design-thinking/4.5-behavioral-design-patterns.html">4.5 Behavioral Design Patterns</a><a href="../../notes/phase-4-design-thinking/4.6-uml-lld-process.html">4.6 UML &amp; the LLD Process</a><a href="../../notes/phase-4-design-thinking/4.7-lld-practice-problems.html">4.7 LLD Practice Problems</a><a href="../../notes/phase-4-design-thinking/4.8-system-design-hld-fundamentals.html">4.8 System Design / HLD Fundamentals</a><a href="../../notes/phase-4-design-thinking/4.9-hld-case-studies.html">4.9 HLD Case Studies</a><a href="../../notes/phase-4-design-thinking/4.10-phase-capstone.html">4.10 Phase Capstone</a></div></div><div class="phase-pill-wrap"><a class="pill" href="../../index.html#phase-5" title="Phase 5">Phase5</a><div class="phase-dropdown"><a href="../../notes/phase-5-scaling-distributed-systems/5.1-caching-strategies-redis.html">5.1 Caching Strategies &amp; Redis</a><a href="../../notes/phase-5-scaling-distributed-systems/5.2-distributed-systems-fundamentals.html">5.2 Distributed Systems Fundamentals</a><a href="../../notes/phase-5-scaling-distributed-systems/5.3-idempotency-reliable-apis.html">5.3 Idempotency &amp; Reliable APIs</a><a href="../../notes/phase-5-scaling-distributed-systems/5.4-message-queues-streaming.html">5.4 Message Queues &amp; Streaming</a><a href="../../notes/phase-5-scaling-distributed-systems/5.5-security-ssl-tls.html">5.5 Security: SSL/TLS</a><a href="../../notes/phase-5-scaling-distributed-systems/5.6-security-jwt-oauth.html">5.6 Security: JWT &amp; OAuth</a><a href="../../notes/phase-5-scaling-distributed-systems/5.7-phase-capstone.html">5.7 Phase Capstone</a></div></div><div class="phase-pill-wrap"><a class="pill" href="../../index.html#phase-6" title="Phase 6">Phase6</a><div class="phase-dropdown"><a href="../../notes/phase-6-production-ops/6.1-docker-fundamentals.html">6.1 Docker Fundamentals</a><a href="../../notes/phase-6-production-ops/6.2-kubernetes-fundamentals.html">6.2 Kubernetes Fundamentals</a><a href="../../notes/phase-6-production-ops/6.3-cicd-github-actions.html">6.3 CI/CD with GitHub Actions</a><a href="../../notes/phase-6-production-ops/6.4-monitoring-logging.html">6.4 Monitoring &amp; Logging</a><a href="../../notes/phase-6-production-ops/6.5-phase-capstone.html">6.5 Phase Capstone</a></div></div></div>
+<button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle color theme" title="Toggle color theme">🌙</button>
+</nav>
+<div class="page">
+<h1>69. Spiral Matrix</h1>
+<p><strong>LeetCode:</strong> <a href="https://leetcode.com/problems/spiral-matrix/">#54 - Spiral Matrix</a> · <strong>Topic:</strong> <a href="../topics/17-math-geometry.html">Math &amp; Geometry</a> · <strong>Difficulty:</strong> Medium</p>
+<h2>Problem statement</h2>
+<p>Given an <code>m x n</code> matrix, return all its elements in <strong>spiral order</strong> (starting top-left, going right, then down, then left, then up, spiraling inward).</p>
+<p><strong>Example:</strong></p>
+<div class="codehilite"><pre><span></span><code>Input: [[1,2,3],
+        [4,5,6],
+        [7,8,9]]
+Output: [1,2,3,6,9,8,7,4,5]
+</code></pre></div>
+
+<h2>Applicable approaches</h2>
+<ul>
+<li><strong>Recursive Ring Peeling</strong> - process the outer ring, then recurse on the smaller inner sub-matrix.</li>
+<li><strong>Optimal - Iterative Shrinking Boundaries.</strong> The standard, expected, more commonly used solution.</li>
+</ul>
+<h2>Approach 1: Recursive Ring Peeling</h2>
+<h3>Intuition</h3>
+<p>Process the outermost "ring" of the current sub-matrix (top row left-to-right, right column top-to-bottom, bottom row right-to-left if it's a different row, left column bottom-to-top if it's a different column), then recursively do the same thing for the smaller sub-matrix left inside that ring.</p>
+<h3>Time &amp; space complexity</h3>
+<ul>
+<li><strong>Time: O(m · n)</strong> - every element processed once, across all recursive calls.</li>
+<li><strong>Space: O(min(m,n))</strong> for the recursion depth (number of rings), plus O(m·n) for the output.</li>
+</ul>
+<p><em>(A valid, correct approach, but the iterative version below is more commonly used in practice and avoids recursion overhead.)</em></p>
+<hr />
+<h2>Approach 2: Optimal - Iterative Shrinking Boundaries</h2>
+<h3>Intuition</h3>
+<p>Track four boundaries: <code>top</code>, <code>bottom</code>, <code>left</code>, <code>right</code>, representing the current unprocessed rectangular region. Repeatedly walk along each of the four sides of this region (top row left-to-right, right column top-to-bottom, bottom row right-to-left, left column bottom-to-top), shrinking the corresponding boundary inward after each side is processed, until the boundaries cross (nothing left to process).</p>
+<h3>Algorithm</h3>
+<ol>
+<li>Initialize <code>top=0</code>, <code>bottom=rows-1</code>, <code>left=0</code>, <code>right=cols-1</code>.</li>
+<li>While <code>top &lt;= bottom</code> and <code>left &lt;= right</code>:
+   - Walk the <strong>top row</strong> from <code>left</code> to <code>right</code>; then <code>top += 1</code>.
+   - Walk the <strong>right column</strong> from <code>top</code> to <code>bottom</code>; then <code>right -= 1</code>.
+   - <strong>If <code>top &lt;= bottom</code> still</strong> (there's still a distinct row left, i.e. we haven't already fully consumed this region into a single row that was just processed as "top"): walk the <strong>bottom row</strong> from <code>right</code> to <code>left</code>; then <code>bottom -= 1</code>.
+   - <strong>If <code>left &lt;= right</code> still</strong> (similarly, a distinct column remains): walk the <strong>left column</strong> from <code>bottom</code> to <code>top</code>; then <code>left += 1</code>.</li>
+<li>Return the collected result.</li>
+</ol>
+<h3>Python code</h3>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">spiralOrder</span><span class="p">(</span><span class="n">matrix</span><span class="p">):</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">top</span><span class="p">,</span> <span class="n">bottom</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">matrix</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span>
+    <span class="n">left</span><span class="p">,</span> <span class="n">right</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">matrix</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">-</span> <span class="mi">1</span>
+
+    <span class="k">while</span> <span class="n">top</span> <span class="o">&lt;=</span> <span class="n">bottom</span> <span class="ow">and</span> <span class="n">left</span> <span class="o">&lt;=</span> <span class="n">right</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">left</span><span class="p">,</span> <span class="n">right</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">matrix</span><span class="p">[</span><span class="n">top</span><span class="p">][</span><span class="n">c</span><span class="p">])</span>
+        <span class="n">top</span> <span class="o">+=</span> <span class="mi">1</span>
+
+        <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">top</span><span class="p">,</span> <span class="n">bottom</span> <span class="o">+</span> <span class="mi">1</span><span class="p">):</span>
+            <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">matrix</span><span class="p">[</span><span class="n">r</span><span class="p">][</span><span class="n">right</span><span class="p">])</span>
+        <span class="n">right</span> <span class="o">-=</span> <span class="mi">1</span>
+
+        <span class="k">if</span> <span class="n">top</span> <span class="o">&lt;=</span> <span class="n">bottom</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">right</span><span class="p">,</span> <span class="n">left</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">matrix</span><span class="p">[</span><span class="n">bottom</span><span class="p">][</span><span class="n">c</span><span class="p">])</span>
+            <span class="n">bottom</span> <span class="o">-=</span> <span class="mi">1</span>
+
+        <span class="k">if</span> <span class="n">left</span> <span class="o">&lt;=</span> <span class="n">right</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">bottom</span><span class="p">,</span> <span class="n">top</span> <span class="o">-</span> <span class="mi">1</span><span class="p">,</span> <span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+                <span class="n">result</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">matrix</span><span class="p">[</span><span class="n">r</span><span class="p">][</span><span class="n">left</span><span class="p">])</span>
+            <span class="n">left</span> <span class="o">+=</span> <span class="mi">1</span>
+
+    <span class="k">return</span> <span class="n">result</span>
+</code></pre></div>
+
+<h3>Line-by-line explanation</h3>
+<ul>
+<li><code>top, bottom, left, right</code> - the four boundaries of the currently-unprocessed rectangular region.</li>
+<li><code>while top &lt;= bottom and left &lt;= right:</code> - keep spiraling as long as a valid (non-empty, non-crossed) region remains.</li>
+<li><strong>Top row:</strong> <code>for c in range(left, right + 1): result.append(matrix[top][c])</code> - walk left to right along the current top row; <code>top += 1</code> shrinks the region, excluding this row from future consideration.</li>
+<li><strong>Right column:</strong> <code>for r in range(top, bottom + 1): ...</code> - <strong>note <code>top</code> has already been incremented</strong>, so this correctly starts just below the row we just processed, avoiding revisiting the top-right corner; walk top to bottom; <code>right -= 1</code> shrinks the region.</li>
+<li><code>if top &lt;= bottom:</code> - <strong>this check is essential</strong>: after processing the top row and right column, it's possible the region has been fully consumed (e.g. a single-row matrix) - without this check, we'd incorrectly re-process the same row as if it were a distinct "bottom" row.</li>
+<li><strong>Bottom row (only if it still exists as distinct from top):</strong> walk right to left; <code>bottom -= 1</code>.</li>
+<li><code>if left &lt;= right:</code> - similarly essential check, preventing double-processing a single remaining column.</li>
+<li><strong>Left column (only if it still exists as distinct from right):</strong> walk bottom to top; <code>left += 1</code>.</li>
+</ul>
+<h3>Dry run</h3>
+<p><code>matrix = [[1,2,3],[4,5,6],[7,8,9]]</code></p>
+<p><code>top=0,bottom=2,left=0,right=2</code>.</p>
+<p><strong>Iteration 1:</strong>
+- Top row (<code>c</code> from 0 to 2): append <code>matrix[0][0..2]</code> = <code>1,2,3</code>. <code>top=1</code>.
+- Right column (<code>r</code> from 1 to 2): append <code>matrix[1][2],matrix[2][2]</code> = <code>6,9</code>. <code>right=1</code>.
+- <code>top(1) &lt;= bottom(2)</code>? Yes → bottom row (<code>c</code> from 1 down to 0): append <code>matrix[2][1],matrix[2][0]</code> = <code>8,7</code>. <code>bottom=1</code>.
+- <code>left(0) &lt;= right(1)</code>? Yes → left column (<code>r</code> from 1 down to 1): append <code>matrix[1][0]</code> = <code>4</code>. <code>left=1</code>.</p>
+<p><code>result = [1,2,3,6,9,8,7,4]</code> so far. Check loop condition: <code>top(1)&lt;=bottom(1)</code> and <code>left(1)&lt;=right(1)</code> → both true, continue.</p>
+<p><strong>Iteration 2:</strong>
+- Top row (<code>c</code> from 1 to 1): append <code>matrix[1][1]</code> = <code>5</code>. <code>top=2</code>.
+- Right column (<code>r</code> from 2 to 1): <code>range(2,2)</code> is empty (since <code>bottom=1 &lt; 2</code>) → nothing appended. <code>right=0</code>.
+- <code>top(2) &lt;= bottom(1)</code>? No → skip bottom row.
+- <code>left(1) &lt;= right(0)</code>? No → skip left column.</p>
+<p><code>result = [1,2,3,6,9,8,7,4,5]</code>. Check loop condition: <code>top(2)&lt;=bottom(1)</code>? No → loop ends.</p>
+<p>Final: <code>[1,2,3,6,9,8,7,4,5]</code> ✅ matches expected output exactly.</p>
+<h3>Time &amp; space complexity</h3>
+<ul>
+<li><strong>Time: O(m · n)</strong> - every element visited exactly once, across all boundary shrinks.</li>
+<li><strong>Space: O(1)</strong> extra (not counting the output list, which is required and necessarily O(m·n)).</li>
+</ul>
+<hr />
+<h2>Common mistakes &amp; misconceptions</h2>
+<ol>
+<li><strong>Omitting the <code>if top &lt;= bottom</code> / <code>if left &lt;= right</code> guards before processing the bottom row / left column.</strong> As the dry run's second iteration shows, this is the single most common bug in spiral traversal - without these guards, a matrix that collapses to a single remaining row or column mid-spiral gets that row/column visited (and appended to the result) twice.</li>
+<li><strong>Processing the right column's range using the <em>old</em> (pre-increment) value of <code>top</code>.</strong> The right column walk must start from the <em>already-incremented</em> <code>top</code> (after the top row was just processed) - using the stale value would incorrectly re-visit the top-right corner cell a second time.</li>
+<li><strong>Assuming spiral traversal only works on square matrices.</strong> The four-boundary technique handles rectangular <code>m x n</code> matrices just as correctly as square ones - the boundary-crossing checks (<code>top &lt;= bottom</code>, <code>left &lt;= right</code>) are exactly what makes it robust to any aspect ratio, including single-row or single-column matrices.</li>
+<li><strong>Getting the direction order wrong</strong> (e.g. going down the left column before going right along the top row) - always match the exact order specified by the problem (typically right → down → left → up, starting from top-left), since a valid-looking but differently-ordered spiral produces a completely different output sequence.</li>
+</ol>
+<h2>Summary</h2>
+<table>
+<thead>
+<tr>
+<th>Approach</th>
+<th>Time</th>
+<th>Space</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Recursive ring peeling</td>
+<td>O(m·n)</td>
+<td>O(min(m,n)) recursion + O(m·n) output</td>
+<td>Valid, conceptually clean, less commonly used in practice.</td>
+</tr>
+<tr>
+<td>Iterative shrinking boundaries</td>
+<td>O(m·n)</td>
+<td>O(1) extra + O(m·n) output</td>
+<td>The standard, most commonly taught and used solution.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Key takeaway:</strong> the "four shrinking boundaries" technique is the standard tool for any spiral/ring-based matrix traversal - the trickiest part is correctly handling the <strong>edge cases where the region collapses to a single row or column mid-spiral</strong> (the <code>if top &lt;= bottom</code> / <code>if left &lt;= right</code> guards), which is exactly what prevents double-counting elements on matrices that aren't perfectly square with an odd side length.</p>
+<div class="nav"><a href="../../project/leetcode-prep.html">&larr; Back to LeetCode Prep</a></div>
+</div>
+</body>
+</html>

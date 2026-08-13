@@ -1,0 +1,353 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>21. Linked List Cycle</title>
+<style>
+:root {
+  --bg: #fdfdfb; --fg: #24292f; --muted: #5b6470; --border: #e1e4e8;
+  --code-bg: #f3f4f6; --link: #0b5fff; --accent: #6a3fd1; --chip: #f0edfb;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg:#1a1d23; --fg:#dadee3; --muted:#98a0ab; --border:#2f343c; --code-bg:#20242b; --link:#7aa2ff; --accent:#b79cff; --chip:#242233; }
+}
+:root[data-theme="dark"] { --bg:#1a1d23; --fg:#dadee3; --muted:#98a0ab; --border:#2f343c; --code-bg:#20242b; --link:#7aa2ff; --accent:#b79cff; --chip:#242233; }
+.theme-toggle { margin-left: .5rem; background: none; border: 1px solid var(--border); border-radius: 999px; width: 1.9rem; height: 1.9rem; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; font-size: .95rem; color: var(--fg); line-height: 1; padding: 0; }
+.theme-toggle:hover { border-color: var(--accent); }
+.phase-pills .sep { color: var(--muted); font-size: .8rem; }
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.65; margin: 0;
+}
+.page { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 6rem; }
+.topnav {
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; flex-wrap: wrap; gap: .9rem;
+  background: var(--bg); border-bottom: 1px solid var(--border);
+  padding: .7rem 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,.08);
+}
+.topnav a.back, .topnav .home { text-decoration: none; font-weight: 600; font-size: .92rem; white-space: nowrap; color: var(--fg); }
+.phase-pills { display: flex; gap: .35rem; flex-wrap: wrap; margin-left: auto; }
+.phase-pills .pill {
+  text-decoration: none; color: var(--muted); font-size: .8rem; font-weight: 600;
+  border: 1px solid var(--border); border-radius: 999px; padding: .2rem .6rem;
+}
+.phase-pills .pill:hover { border-color: var(--accent); color: var(--accent); }
+.phase-pills .pill.current { background: var(--accent); border-color: var(--accent); color: #fff; }
+.phase-pill-wrap { position: relative; display: inline-block; padding-bottom: .6rem; margin-bottom: -.6rem; }
+.phase-dropdown {
+  display: none; position: absolute; top: 100%; right: 0;
+  background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+  padding: .35rem; min-width: 240px; max-height: 70vh; overflow-y: auto;
+  box-shadow: 0 6px 20px rgba(0,0,0,.15); z-index: 200;
+}
+.phase-pill-wrap:hover .phase-dropdown, .phase-pill-wrap:focus-within .phase-dropdown { display: block; }
+.phase-dropdown a {
+  display: block; text-decoration: none; color: var(--fg); font-size: .82rem; font-weight: 500;
+  padding: .35rem .55rem; border-radius: 6px; white-space: nowrap;
+}
+.phase-dropdown a:hover { background: var(--chip); color: var(--accent); }
+.phase-dropdown a.current { color: var(--accent); font-weight: 700; }
+[id] { scroll-margin-top: 4.5rem; }
+h1, h2, h3, h4 { line-height: 1.3; }
+h1 { font-size: 1.9rem; border-bottom: 2px solid var(--accent); padding-bottom: .5rem; }
+h2 { font-size: 1.4rem; margin-top: 2.5rem; border-bottom: 1px solid var(--border); padding-bottom: .3rem; }
+h3 { font-size: 1.15rem; margin-top: 2rem; color: var(--accent); }
+a { color: var(--link); }
+p code, li code, td code { background: var(--code-bg); padding: .15em .4em; border-radius: 4px; font-size: .9em; word-break: break-word; }
+pre { background: var(--code-bg); padding: 1rem; border-radius: 8px; overflow-x: auto; border: 1px solid var(--border); }
+pre code { background: none; padding: 0; }
+table { border-collapse: collapse; width: 100%; margin: 1rem 0; display: block; overflow-x: auto; }
+th, td { border: 1px solid var(--border); padding: .5rem .75rem; text-align: left; }
+th { background: var(--code-bg); }
+blockquote { border-left: 3px solid var(--accent); margin: 1rem 0; padding: .2rem 1rem; color: var(--muted); }
+hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+.nav { margin-bottom: 1.5rem; font-size: .9rem; }
+.nav a { text-decoration: none; }
+ul, ol { padding-left: 1.4rem; }
+li { margin: .3rem 0; }
+img { max-width: 100%; }
+.chk { display: inline-block; width: .9em; height: .9em; border: 1.5px solid var(--muted); border-radius: 3px; margin-right: .4em; vertical-align: middle; }
+.chk.done { background: var(--accent); border-color: var(--accent); color: #fff; text-align: center; line-height: .85em; font-size: .75em; }
+.codehilite { background: var(--code-bg) !important; border-radius: 8px; }
+pre { line-height: 125%; }
+td.linenos .normal { color: #666666; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: #666666; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+.codehilite .hll { background-color: #ffffcc }
+.codehilite { background: #f0f0f0; }
+.codehilite .c { color: #60A0B0; font-style: italic } /* Comment */
+.codehilite .err { border: 1px solid #F00 } /* Error */
+.codehilite .k { color: #007020; font-weight: bold } /* Keyword */
+.codehilite .o { color: #666 } /* Operator */
+.codehilite .ch { color: #60A0B0; font-style: italic } /* Comment.Hashbang */
+.codehilite .cm { color: #60A0B0; font-style: italic } /* Comment.Multiline */
+.codehilite .cp { color: #007020 } /* Comment.Preproc */
+.codehilite .cpf { color: #60A0B0; font-style: italic } /* Comment.PreprocFile */
+.codehilite .c1 { color: #60A0B0; font-style: italic } /* Comment.Single */
+.codehilite .cs { color: #60A0B0; background-color: #FFF0F0 } /* Comment.Special */
+.codehilite .gd { color: #A00000 } /* Generic.Deleted */
+.codehilite .ge { font-style: italic } /* Generic.Emph */
+.codehilite .ges { font-weight: bold; font-style: italic } /* Generic.EmphStrong */
+.codehilite .gr { color: #F00 } /* Generic.Error */
+.codehilite .gh { color: #000080; font-weight: bold } /* Generic.Heading */
+.codehilite .gi { color: #00A000 } /* Generic.Inserted */
+.codehilite .go { color: #888 } /* Generic.Output */
+.codehilite .gp { color: #C65D09; font-weight: bold } /* Generic.Prompt */
+.codehilite .gs { font-weight: bold } /* Generic.Strong */
+.codehilite .gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+.codehilite .gt { color: #04D } /* Generic.Traceback */
+.codehilite .kc { color: #007020; font-weight: bold } /* Keyword.Constant */
+.codehilite .kd { color: #007020; font-weight: bold } /* Keyword.Declaration */
+.codehilite .kn { color: #007020; font-weight: bold } /* Keyword.Namespace */
+.codehilite .kp { color: #007020 } /* Keyword.Pseudo */
+.codehilite .kr { color: #007020; font-weight: bold } /* Keyword.Reserved */
+.codehilite .kt { color: #902000 } /* Keyword.Type */
+.codehilite .m { color: #40A070 } /* Literal.Number */
+.codehilite .s { color: #4070A0 } /* Literal.String */
+.codehilite .na { color: #4070A0 } /* Name.Attribute */
+.codehilite .nb { color: #007020 } /* Name.Builtin */
+.codehilite .nc { color: #0E84B5; font-weight: bold } /* Name.Class */
+.codehilite .no { color: #60ADD5 } /* Name.Constant */
+.codehilite .nd { color: #555; font-weight: bold } /* Name.Decorator */
+.codehilite .ni { color: #D55537; font-weight: bold } /* Name.Entity */
+.codehilite .ne { color: #007020 } /* Name.Exception */
+.codehilite .nf { color: #06287E } /* Name.Function */
+.codehilite .nl { color: #002070; font-weight: bold } /* Name.Label */
+.codehilite .nn { color: #0E84B5; font-weight: bold } /* Name.Namespace */
+.codehilite .nt { color: #062873; font-weight: bold } /* Name.Tag */
+.codehilite .nv { color: #BB60D5 } /* Name.Variable */
+.codehilite .ow { color: #007020; font-weight: bold } /* Operator.Word */
+.codehilite .w { color: #BBB } /* Text.Whitespace */
+.codehilite .mb { color: #40A070 } /* Literal.Number.Bin */
+.codehilite .mf { color: #40A070 } /* Literal.Number.Float */
+.codehilite .mh { color: #40A070 } /* Literal.Number.Hex */
+.codehilite .mi { color: #40A070 } /* Literal.Number.Integer */
+.codehilite .mo { color: #40A070 } /* Literal.Number.Oct */
+.codehilite .sa { color: #4070A0 } /* Literal.String.Affix */
+.codehilite .sb { color: #4070A0 } /* Literal.String.Backtick */
+.codehilite .sc { color: #4070A0 } /* Literal.String.Char */
+.codehilite .dl { color: #4070A0 } /* Literal.String.Delimiter */
+.codehilite .sd { color: #4070A0; font-style: italic } /* Literal.String.Doc */
+.codehilite .s2 { color: #4070A0 } /* Literal.String.Double */
+.codehilite .se { color: #4070A0; font-weight: bold } /* Literal.String.Escape */
+.codehilite .sh { color: #4070A0 } /* Literal.String.Heredoc */
+.codehilite .si { color: #70A0D0; font-style: italic } /* Literal.String.Interpol */
+.codehilite .sx { color: #C65D09 } /* Literal.String.Other */
+.codehilite .sr { color: #235388 } /* Literal.String.Regex */
+.codehilite .s1 { color: #4070A0 } /* Literal.String.Single */
+.codehilite .ss { color: #517918 } /* Literal.String.Symbol */
+.codehilite .bp { color: #007020 } /* Name.Builtin.Pseudo */
+.codehilite .fm { color: #06287E } /* Name.Function.Magic */
+.codehilite .vc { color: #BB60D5 } /* Name.Variable.Class */
+.codehilite .vg { color: #BB60D5 } /* Name.Variable.Global */
+.codehilite .vi { color: #BB60D5 } /* Name.Variable.Instance */
+.codehilite .vm { color: #BB60D5 } /* Name.Variable.Magic */
+.codehilite .il { color: #40A070 } /* Literal.Number.Integer.Long */</style>
+<script>
+(function(){
+  try {
+    var t = localStorage.getItem('theme');
+    if (t) document.documentElement.setAttribute('data-theme', t);
+  } catch (e) {}
+})();
+function getEffectiveTheme(){
+  var attr = document.documentElement.getAttribute('data-theme');
+  if (attr) return attr;
+  return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+}
+function toggleTheme(){
+  var next = getEffectiveTheme() === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  try { localStorage.setItem('theme', next); } catch (e) {}
+  updateThemeToggleIcon();
+}
+function updateThemeToggleIcon(){
+  var btn = document.querySelector('.theme-toggle');
+  if (btn) btn.textContent = getEffectiveTheme() === 'dark' ? '☀️' : '🌙';
+}
+document.addEventListener('DOMContentLoaded', updateThemeToggleIcon);
+</script>
+</head><body>
+<nav class="topnav">
+<a class="back" href="../../project/leetcode-prep.html">&larr; Back to LeetCode Prep</a>
+<div class="phase-pills"><div class="phase-pill-wrap"><a class="pill current" href="../../project/leetcode-prep.html" title="LeetCode Prep">LeetCode Prep</a><div class="phase-dropdown"><a href="../../project/leetcode-prep.html#arrays-hashing">Arrays &amp; Hashing</a><a href="../../project/leetcode-prep.html#two-pointers">Two Pointers</a><a href="../../project/leetcode-prep.html#sliding-window">Sliding Window</a><a href="../../project/leetcode-prep.html#stack">Stack</a><a href="../../project/leetcode-prep.html#binary-search">Binary Search</a><a href="../../project/leetcode-prep.html#linked-list">Linked List</a><a href="../../project/leetcode-prep.html#trees">Trees</a><a href="../../project/leetcode-prep.html#heap-priority-queue">Heap / Priority Queue</a><a href="../../project/leetcode-prep.html#backtracking">Backtracking</a><a href="../../project/leetcode-prep.html#tries">Tries</a><a href="../../project/leetcode-prep.html#graphs">Graphs</a><a href="../../project/leetcode-prep.html#advanced-graphs">Advanced Graphs</a><a href="../../project/leetcode-prep.html#1d-dp">1-D Dynamic Programming</a><a href="../../project/leetcode-prep.html#2d-dp">2-D Dynamic Programming</a><a href="../../project/leetcode-prep.html#greedy">Greedy</a><a href="../../project/leetcode-prep.html#intervals">Intervals</a><a href="../../project/leetcode-prep.html#math-geometry">Math &amp; Geometry</a><a href="../../project/leetcode-prep.html#bit-manipulation">Bit Manipulation</a></div></div><span class="sep">|</span><div class="phase-pill-wrap"><a class="pill" href="../../index.html#phase-1" title="Phase 1">Phase1</a><div class="phase-dropdown"><a href="../../notes/phase-1-foundations/1.1-programming-fundamentals.html">1.1 Programming Fundamentals</a><a href="../../notes/phase-1-foundations/1.2-git-github-essentials.html">1.2 Git &amp; GitHub Essentials</a><a href="../../notes/phase-1-foundations/1.3-big-o-algorithmic-thinking.html">1.3 Big-O and Algorithmic Thinking</a><a href="../../notes/phase-1-foundations/1.4-arrays-strings.html">1.4 Arrays &amp; Strings</a><a href="../../notes/phase-1-foundations/1.5-linked-lists.html">1.5 Linked Lists</a><a href="../../notes/phase-1-foundations/1.6-stacks-queues.html">1.6 Stacks &amp; Queues</a><a href="../../notes/phase-1-foundations/1.7-hash-tables.html">1.7 Hash Tables</a><a href="../../notes/phase-1-foundations/1.8-recursion-backtracking.html">1.8 Recursion &amp; Backtracking</a><a href="../../notes/phase-1-foundations/1.9-sorting-searching.html">1.9 Sorting &amp; Searching</a><a href="../../notes/phase-1-foundations/1.10-trees-bst.html">1.10 Trees &amp; Binary Search Trees</a><a href="../../notes/phase-1-foundations/1.11-heaps-priority-queues.html">1.11 Heaps &amp; Priority Queues</a><a href="../../notes/phase-1-foundations/1.12-graphs.html">1.12 Graphs</a><a href="../../notes/phase-1-foundations/1.13-dp-greedy.html">1.13 Dynamic Programming &amp; Greedy</a><a href="../../notes/phase-1-foundations/1.14-phase-capstone.html">1.14 Phase Capstone</a></div></div><div class="phase-pill-wrap"><a class="pill" href="../../index.html#phase-2" title="Phase 2">Phase2</a><div class="phase-dropdown"><a href="../../notes/phase-2-backend-skills/2.1-relational-db-design-normalization.html">2.1 Relational DB Design &amp; Normalization</a><a href="../../notes/phase-2-backend-skills/2.2-sql-querying.html">2.2 SQL Querying</a><a href="../../notes/phase-2-backend-skills/2.3-indexing-query-performance.html">2.3 Indexing &amp; Query Performance</a><a href="../../notes/phase-2-backend-skills/2.4-rest-api-design-principles.html">2.4 REST API Design Principles</a><a href="../../notes/phase-2-backend-skills/2.5-building-apis-with-fastapi.html">2.5 Building APIs with FastAPI</a><a href="../../notes/phase-2-backend-skills/2.6-debugging-techniques-tools.html">2.6 Debugging Techniques &amp; Tools</a><a href="../../notes/phase-2-backend-skills/2.7-testing-fundamentals-tdd.html">2.7 Testing Fundamentals &amp; TDD</a><a href="../../notes/phase-2-backend-skills/2.8-phase-capstone.html">2.8 Phase Capstone</a></div></div><div class="phase-pill-wrap"><a class="pill" href="../../index.html#phase-3" title="Phase 3">Phase3</a><div class="phase-dropdown"><a href="../../notes/phase-3-language-internals/3.1-python-object-model-memory.html">3.1 Python Object Model &amp; Memory</a><a href="../../notes/phase-3-language-internals/3.2-collections-internals.html">3.2 Collections Internals</a><a href="../../notes/phase-3-language-internals/3.3-gil-multithreading.html">3.3 The GIL &amp; Multithreading</a><a href="../../notes/phase-3-language-internals/3.4-multiprocessing-asyncio.html">3.4 Multiprocessing &amp; Asyncio</a><a href="../../notes/phase-3-language-internals/3.5-phase-capstone.html">3.5 Phase Capstone</a></div></div><div class="phase-pill-wrap"><a class="pill" href="../../index.html#phase-4" title="Phase 4">Phase4</a><div class="phase-dropdown"><a href="../../notes/phase-4-design-thinking/4.1-oop-foundations-refresher.html">4.1 OOP Foundations Refresher</a><a href="../../notes/phase-4-design-thinking/4.2-solid-principles.html">4.2 SOLID Principles</a><a href="../../notes/phase-4-design-thinking/4.3-creational-design-patterns.html">4.3 Creational Design Patterns</a><a href="../../notes/phase-4-design-thinking/4.4-structural-design-patterns.html">4.4 Structural Design Patterns</a><a href="../../notes/phase-4-design-thinking/4.5-behavioral-design-patterns.html">4.5 Behavioral Design Patterns</a><a href="../../notes/phase-4-design-thinking/4.6-uml-lld-process.html">4.6 UML &amp; the LLD Process</a><a href="../../notes/phase-4-design-thinking/4.7-lld-practice-problems.html">4.7 LLD Practice Problems</a><a href="../../notes/phase-4-design-thinking/4.8-system-design-hld-fundamentals.html">4.8 System Design / HLD Fundamentals</a><a href="../../notes/phase-4-design-thinking/4.9-hld-case-studies.html">4.9 HLD Case Studies</a><a href="../../notes/phase-4-design-thinking/4.10-phase-capstone.html">4.10 Phase Capstone</a></div></div><div class="phase-pill-wrap"><a class="pill" href="../../index.html#phase-5" title="Phase 5">Phase5</a><div class="phase-dropdown"><a href="../../notes/phase-5-scaling-distributed-systems/5.1-caching-strategies-redis.html">5.1 Caching Strategies &amp; Redis</a><a href="../../notes/phase-5-scaling-distributed-systems/5.2-distributed-systems-fundamentals.html">5.2 Distributed Systems Fundamentals</a><a href="../../notes/phase-5-scaling-distributed-systems/5.3-idempotency-reliable-apis.html">5.3 Idempotency &amp; Reliable APIs</a><a href="../../notes/phase-5-scaling-distributed-systems/5.4-message-queues-streaming.html">5.4 Message Queues &amp; Streaming</a><a href="../../notes/phase-5-scaling-distributed-systems/5.5-security-ssl-tls.html">5.5 Security: SSL/TLS</a><a href="../../notes/phase-5-scaling-distributed-systems/5.6-security-jwt-oauth.html">5.6 Security: JWT &amp; OAuth</a><a href="../../notes/phase-5-scaling-distributed-systems/5.7-phase-capstone.html">5.7 Phase Capstone</a></div></div><div class="phase-pill-wrap"><a class="pill" href="../../index.html#phase-6" title="Phase 6">Phase6</a><div class="phase-dropdown"><a href="../../notes/phase-6-production-ops/6.1-docker-fundamentals.html">6.1 Docker Fundamentals</a><a href="../../notes/phase-6-production-ops/6.2-kubernetes-fundamentals.html">6.2 Kubernetes Fundamentals</a><a href="../../notes/phase-6-production-ops/6.3-cicd-github-actions.html">6.3 CI/CD with GitHub Actions</a><a href="../../notes/phase-6-production-ops/6.4-monitoring-logging.html">6.4 Monitoring &amp; Logging</a><a href="../../notes/phase-6-production-ops/6.5-phase-capstone.html">6.5 Phase Capstone</a></div></div></div>
+<button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle color theme" title="Toggle color theme">🌙</button>
+</nav>
+<div class="page">
+<h1>21. Linked List Cycle</h1>
+<p><strong>LeetCode:</strong> <a href="https://leetcode.com/problems/linked-list-cycle/">#141 - Linked List Cycle</a> · <strong>Topic:</strong> <a href="../topics/06-linked-list.html">Linked List</a> · <strong>Difficulty:</strong> Easy</p>
+<h2>Problem statement</h2>
+<p>Given the <code>head</code> of a linked list, determine if the list has a <strong>cycle</strong> in it (some node's <code>.next</code> eventually points back to a node already visited, instead of reaching <code>None</code>).</p>
+<p><strong>Example:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="n">Input</span><span class="o">:</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="o">-</span><span class="mi">4</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="p">(</span><span class="n">back</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">node</span><span class="w"> </span><span class="n">with</span><span class="w"> </span><span class="n">value</span><span class="w"> </span><span class="mi">2</span><span class="p">)</span>
+<span class="kr">Output</span><span class="o">:</span><span class="w"> </span><span class="kr">true</span>
+</code></pre></div>
+
+<h2>Applicable approaches</h2>
+<ul>
+<li><strong>Brute Force — Hash Set of visited nodes.</strong></li>
+<li><strong>Optimal — Floyd's Tortoise and Hare (fast &amp; slow pointers).</strong> The standard, expected O(1)-space solution.</li>
+</ul>
+<h2>Approach 1: Brute Force — Hash Set of Visited Nodes</h2>
+<h3>Intuition</h3>
+<p>Walk through the list, remembering every node <strong>object</strong> we've already visited (not values — two different nodes could coincidentally have the same value, so we must track node <em>identity</em>, not node <em>value</em>, to correctly detect a true structural cycle). If we ever land on a node we've seen before, there's a cycle, because reaching an already-visited node means we followed <code>.next</code> pointers back to somewhere we've been — the only way that's possible in a singly linked structure. If we reach <code>None</code>, the chain has a genuine end, so there's no cycle.</p>
+<h3>Algorithm</h3>
+<ol>
+<li>Create an empty set <code>seen</code>.</li>
+<li>Walk the list with a pointer <code>node</code>, starting at <code>head</code>.</li>
+<li>If <code>node</code> is already in <code>seen</code>, return <code>True</code> (cycle found).</li>
+<li>Otherwise, add <code>node</code> to <code>seen</code>, and move to <code>node.next</code>.</li>
+<li>If we ever reach <code>None</code>, return <code>False</code> (no cycle).</li>
+</ol>
+<h3>Python code</h3>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">hasCycle</span><span class="p">(</span><span class="n">head</span><span class="p">):</span>
+    <span class="n">seen</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="n">node</span> <span class="o">=</span> <span class="n">head</span>
+    <span class="k">while</span> <span class="n">node</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">seen</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+        <span class="n">seen</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">node</span><span class="p">)</span>
+        <span class="n">node</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">next</span>
+    <span class="k">return</span> <span class="kc">False</span>
+</code></pre></div>
+
+<h3>Line-by-line explanation</h3>
+<ul>
+<li><code>seen = set()</code> — stores node <em>references</em> (Python's default equality/hashing for a plain object like <code>ListNode</code> is based on identity — memory address, essentially — so this correctly distinguishes different nodes even if they happen to hold equal <code>.val</code>s).</li>
+<li><code>if node in seen: return True</code> — we've been here before → this node's <code>.next</code> chain loops back onto itself somewhere → cycle exists.</li>
+<li><code>seen.add(node)</code> — remember this node.</li>
+<li><code>node = node.next</code> — advance.</li>
+<li><code>return False</code> — reached the natural end of the list (<code>None</code>) without ever revisiting a node → no cycle; every node was distinct and the chain genuinely terminated.</li>
+</ul>
+<h3>Time &amp; space complexity</h3>
+<ul>
+<li><strong>Time: O(n)</strong> — each node visited once, each set operation O(1) average.</li>
+<li><strong>Space: O(n)</strong> — the set stores up to every node in the list, which is exactly the cost the optimal approach below eliminates.</li>
+</ul>
+<hr />
+<h2>Approach 2: Optimal — Floyd's Tortoise and Hare</h2>
+<h3>Intuition</h3>
+<p>Imagine two runners on a track: a slow one (<code>slow</code>, moving 1 step at a time) and a fast one (<code>fast</code>, moving 2 steps at a time). If the track is a straight line with an end (<code>None</code>), the fast runner simply reaches the end first (or reaches a point where taking 2 more steps isn't possible), and they never meet. But if the track has a <strong>loop</strong> in it, both runners are eventually forced to keep circling that loop forever — and because the fast runner gains on the slow one by exactly 1 extra step of distance every iteration (moving 2 vs. 1), that gap between them, once both are trapped in a finite loop, must eventually shrink to exactly 0 — they're forced to land on the same node. This isn't a heuristic or a "usually works" claim: within a cycle of length <code>L</code>, the gap between the two runners decreases by 1 (modulo <code>L</code>) every iteration, so within at most <code>L</code> iterations after both have entered the cycle, the gap must hit exactly 0. No extra memory is needed at all — just two pointers, a genuine O(1)-space improvement over the hash-set approach.</p>
+<h3>Algorithm</h3>
+<ol>
+<li>Set <code>slow = head</code>, <code>fast = head</code>.</li>
+<li>Loop while <code>fast</code> and <code>fast.next</code> are both not <code>None</code> (if <code>fast</code> ever reaches the end, there's no cycle — a real end means no loop, since a fast runner on a genuine dead-end track always reaches the end first):
+   - Move <code>slow</code> forward by 1: <code>slow = slow.next</code>.
+   - Move <code>fast</code> forward by 2: <code>fast = fast.next.next</code>.
+   - If <code>slow is fast</code> (the same node object), a cycle has been detected — return <code>True</code>.</li>
+<li>If the loop exits because <code>fast</code> (or <code>fast.next</code>) reached <code>None</code>, there's no cycle — return <code>False</code>.</li>
+</ol>
+<h3>Python code</h3>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">hasCycle</span><span class="p">(</span><span class="n">head</span><span class="p">):</span>
+    <span class="n">slow</span><span class="p">,</span> <span class="n">fast</span> <span class="o">=</span> <span class="n">head</span><span class="p">,</span> <span class="n">head</span>
+
+    <span class="k">while</span> <span class="n">fast</span> <span class="ow">and</span> <span class="n">fast</span><span class="o">.</span><span class="n">next</span><span class="p">:</span>
+        <span class="n">slow</span> <span class="o">=</span> <span class="n">slow</span><span class="o">.</span><span class="n">next</span>
+        <span class="n">fast</span> <span class="o">=</span> <span class="n">fast</span><span class="o">.</span><span class="n">next</span><span class="o">.</span><span class="n">next</span>
+        <span class="k">if</span> <span class="n">slow</span> <span class="ow">is</span> <span class="n">fast</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="k">return</span> <span class="kc">False</span>
+</code></pre></div>
+
+<h3>Line-by-line explanation</h3>
+<ul>
+<li><code>slow, fast = head, head</code> — both pointers start at the same place.</li>
+<li><code>while fast and fast.next:</code> — this condition checks that the fast pointer can safely take its next 2-step move without crashing on <code>None.next</code> — if <code>fast</code> (or <code>fast.next</code>) is <code>None</code>, the list has a genuine end reachable by the <em>faster</em> pointer, meaning no cycle exists (if there were a cycle, <code>fast</code> could never escape it to reach <code>None</code>, since every node in a cycle has a valid <code>.next</code>).</li>
+<li><code>slow = slow.next</code> — the slow pointer advances one node.</li>
+<li><code>fast = fast.next.next</code> — the fast pointer advances two nodes. This is safe specifically because the <code>while</code> condition already confirmed <code>fast.next</code> exists before we try to access <code>fast.next.next</code>.</li>
+<li><code>if slow is fast:</code> — <strong>use <code>is</code>, not <code>==</code></strong> — we need to check they're the <em>same node object</em> (identity), the same distinction made in the brute force's hash-set approach. <code>is</code> makes this intent explicit and unambiguous.</li>
+<li><code>return True</code> — the two pointers landed on the same node → a cycle exists, by the gap-shrinking argument above: in a cycle-free list, a faster pointer moving in the same direction as a slower one can never "catch up" to it on a straight, non-looping path — meeting is only possible if they're both trapped looping around the same cycle.</li>
+<li><code>return False</code> — the loop ended naturally (fast pointer hit the real end) → no cycle.</li>
+</ul>
+<h3>Dry run</h3>
+<p>List: <code>3 -&gt; 2 -&gt; 0 -&gt; -4 -&gt; (back to node "2")</code> (a cycle exists, the tail <code>-4</code> node points back to the second node)</p>
+<p>Let's label nodes by position for clarity: <code>A(3) -&gt; B(2) -&gt; C(0) -&gt; D(-4) -&gt; back to B</code></p>
+<table>
+<thead>
+<tr>
+<th>iteration</th>
+<th>slow (before move)</th>
+<th>fast (before move)</th>
+<th>slow after (slow.next)</th>
+<th>fast after (fast.next.next)</th>
+<th>slow is fast?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>A</td>
+<td>A</td>
+<td>B</td>
+<td>C (A→B→C)</td>
+<td>no</td>
+</tr>
+<tr>
+<td>2</td>
+<td>B</td>
+<td>C</td>
+<td>C</td>
+<td>B (C→D→B)</td>
+<td>no</td>
+</tr>
+<tr>
+<td>3</td>
+<td>C</td>
+<td>B</td>
+<td>D</td>
+<td>D (B→C→D)</td>
+<td><strong>yes!</strong></td>
+</tr>
+</tbody>
+</table>
+<p>At iteration 3, both pointers land on node D → cycle detected → return <code>True</code> ✅</p>
+<p>(For a cycle-free list, <code>fast</code> would simply reach <code>None</code> — or <code>fast.next</code> would be <code>None</code> — within roughly <code>n/2</code> iterations, and the loop would exit normally via the <code>while</code> condition, returning <code>False</code>. Try this yourself on <code>1 -&gt; 2 -&gt; None</code> to confirm: <code>fast</code> starts at 1, moves to <code>1.next.next</code> which requires <code>1.next</code> = 2 to have a <code>.next</code> — it's <code>None</code>, so <code>fast.next.next</code> would fail; but the <code>while fast and fast.next</code> check catches this <em>before</em> attempting the move, since after the first iteration <code>fast</code> lands on <code>None</code> and the loop condition correctly stops.)</p>
+<h3>Time &amp; space complexity</h3>
+<ul>
+<li><strong>Time: O(n)</strong> — even though <code>fast</code> moves twice as fast, both pointers still only take a number of steps proportional to n. In the worst case, once <code>slow</code> enters the cycle, <code>fast</code> might need to lap it up to once more before catching up, but this is still bounded by O(cycle length) ≤ O(n) additional steps — the total is still O(n), not more.</li>
+<li><strong>Space: O(1)</strong> — only two pointers, no matter how long the list is. This is the key advantage over the hash-set approach — genuinely constant memory regardless of input size.</li>
+</ul>
+<hr />
+<h2>Common mistakes &amp; misconceptions</h2>
+<ol>
+<li><strong>Using <code>==</code> instead of <code>is</code> to compare <code>slow</code> and <code>fast</code>.</strong> For a plain class like <code>ListNode</code> without a custom <code>__eq__</code> defined, Python's default <code>==</code> actually falls back to identity comparison too — so this specific mistake happens to not cause a bug <em>in this exact problem</em> — but relying on that default is fragile and easy to break if <code>ListNode</code> is ever given a custom <code>__eq__</code> (e.g. comparing by <code>.val</code>) elsewhere in a larger codebase. Using <code>is</code> explicitly is always correct and always communicates the actual intent.</li>
+<li><strong>Checking <code>while fast.next and fast.next.next</code> instead of <code>while fast and fast.next</code>.</strong> These are subtly different: the version in the code above checks <code>fast</code> isn't <code>None</code> <em>first</em> (to safely access <code>fast.next</code>), then checks <code>fast.next</code> isn't <code>None</code> (to safely access <code>fast.next.next</code>) — reordering or restructuring this check can lead to an <code>AttributeError</code> on <code>None.next</code> if not done carefully.</li>
+<li><strong>Believing the fast/slow pointers meet at the start of the cycle.</strong> They don't — they meet at <em>some</em> point inside the cycle, not necessarily its beginning. Finding <em>where</em> the cycle begins (a common follow-up question) requires an additional step after detection (resetting one pointer to <code>head</code> and advancing both at the same speed until they meet again), not something this basic detection algorithm gives you for free.</li>
+<li><strong>Assuming this approach works for detecting cycles in structures other than singly linked lists</strong> (e.g. general graphs) without modification — Floyd's algorithm specifically relies on each node having exactly one outgoing <code>.next</code> pointer; a general graph node can have multiple outgoing edges, and "fast/slow" doesn't have an unambiguous meaning there. Graph cycle detection (covered in the Graphs topic) uses different techniques entirely.</li>
+</ol>
+<h2>Summary</h2>
+<table>
+<thead>
+<tr>
+<th>Approach</th>
+<th>Time</th>
+<th>Space</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Hash Set of visited nodes</td>
+<td>O(n)</td>
+<td>O(n)</td>
+<td>Simple and intuitive, but uses extra memory proportional to list length.</td>
+</tr>
+<tr>
+<td>Floyd's Tortoise and Hare</td>
+<td>O(n)</td>
+<td>O(1)</td>
+<td>The standard, expected, memory-optimal solution.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Key takeaway:</strong> the fast/slow pointer trick isn't just for cycle detection — the same "two pointers moving at different speeds" idea also finds the <em>middle</em> of a list in one pass (slow ends up at the midpoint when fast reaches the end, since fast covers exactly twice the distance), and (with additional steps) finds exactly <em>where</em> a cycle begins, which is a common follow-up question to this exact problem.</p>
+<div class="nav"><a href="../../project/leetcode-prep.html">&larr; Back to LeetCode Prep</a></div>
+</div>
+</body>
+</html>

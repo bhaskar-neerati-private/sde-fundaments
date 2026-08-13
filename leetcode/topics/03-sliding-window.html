@@ -1,0 +1,266 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Topic 3: Sliding Window</title>
+<style>
+:root {
+  --bg: #fdfdfb; --fg: #24292f; --muted: #5b6470; --border: #e1e4e8;
+  --code-bg: #f3f4f6; --link: #0b5fff; --accent: #6a3fd1; --chip: #f0edfb;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg:#1a1d23; --fg:#dadee3; --muted:#98a0ab; --border:#2f343c; --code-bg:#20242b; --link:#7aa2ff; --accent:#b79cff; --chip:#242233; }
+}
+:root[data-theme="dark"] { --bg:#1a1d23; --fg:#dadee3; --muted:#98a0ab; --border:#2f343c; --code-bg:#20242b; --link:#7aa2ff; --accent:#b79cff; --chip:#242233; }
+.theme-toggle { margin-left: .5rem; background: none; border: 1px solid var(--border); border-radius: 999px; width: 1.9rem; height: 1.9rem; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; font-size: .95rem; color: var(--fg); line-height: 1; padding: 0; }
+.theme-toggle:hover { border-color: var(--accent); }
+.phase-pills .sep { color: var(--muted); font-size: .8rem; }
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.65; margin: 0;
+}
+.page { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 6rem; }
+.topnav {
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; flex-wrap: wrap; gap: .9rem;
+  background: var(--bg); border-bottom: 1px solid var(--border);
+  padding: .7rem 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,.08);
+}
+.topnav a.back, .topnav .home { text-decoration: none; font-weight: 600; font-size: .92rem; white-space: nowrap; color: var(--fg); }
+.phase-pills { display: flex; gap: .35rem; flex-wrap: wrap; margin-left: auto; }
+.phase-pills .pill {
+  text-decoration: none; color: var(--muted); font-size: .8rem; font-weight: 600;
+  border: 1px solid var(--border); border-radius: 999px; padding: .2rem .6rem;
+}
+.phase-pills .pill:hover { border-color: var(--accent); color: var(--accent); }
+.phase-pills .pill.current { background: var(--accent); border-color: var(--accent); color: #fff; }
+.phase-pill-wrap { position: relative; display: inline-block; padding-bottom: .6rem; margin-bottom: -.6rem; }
+.phase-dropdown {
+  display: none; position: absolute; top: 100%; right: 0;
+  background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+  padding: .35rem; min-width: 240px; max-height: 70vh; overflow-y: auto;
+  box-shadow: 0 6px 20px rgba(0,0,0,.15); z-index: 200;
+}
+.phase-pill-wrap:hover .phase-dropdown, .phase-pill-wrap:focus-within .phase-dropdown { display: block; }
+.phase-dropdown a {
+  display: block; text-decoration: none; color: var(--fg); font-size: .82rem; font-weight: 500;
+  padding: .35rem .55rem; border-radius: 6px; white-space: nowrap;
+}
+.phase-dropdown a:hover { background: var(--chip); color: var(--accent); }
+.phase-dropdown a.current { color: var(--accent); font-weight: 700; }
+[id] { scroll-margin-top: 4.5rem; }
+h1, h2, h3, h4 { line-height: 1.3; }
+h1 { font-size: 1.9rem; border-bottom: 2px solid var(--accent); padding-bottom: .5rem; }
+h2 { font-size: 1.4rem; margin-top: 2.5rem; border-bottom: 1px solid var(--border); padding-bottom: .3rem; }
+h3 { font-size: 1.15rem; margin-top: 2rem; color: var(--accent); }
+a { color: var(--link); }
+p code, li code, td code { background: var(--code-bg); padding: .15em .4em; border-radius: 4px; font-size: .9em; word-break: break-word; }
+pre { background: var(--code-bg); padding: 1rem; border-radius: 8px; overflow-x: auto; border: 1px solid var(--border); }
+pre code { background: none; padding: 0; }
+table { border-collapse: collapse; width: 100%; margin: 1rem 0; display: block; overflow-x: auto; }
+th, td { border: 1px solid var(--border); padding: .5rem .75rem; text-align: left; }
+th { background: var(--code-bg); }
+blockquote { border-left: 3px solid var(--accent); margin: 1rem 0; padding: .2rem 1rem; color: var(--muted); }
+hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+.nav { margin-bottom: 1.5rem; font-size: .9rem; }
+.nav a { text-decoration: none; }
+ul, ol { padding-left: 1.4rem; }
+li { margin: .3rem 0; }
+img { max-width: 100%; }
+.chk { display: inline-block; width: .9em; height: .9em; border: 1.5px solid var(--muted); border-radius: 3px; margin-right: .4em; vertical-align: middle; }
+.chk.done { background: var(--accent); border-color: var(--accent); color: #fff; text-align: center; line-height: .85em; font-size: .75em; }
+.codehilite { background: var(--code-bg) !important; border-radius: 8px; }
+pre { line-height: 125%; }
+td.linenos .normal { color: #666666; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: #666666; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+.codehilite .hll { background-color: #ffffcc }
+.codehilite { background: #f0f0f0; }
+.codehilite .c { color: #60A0B0; font-style: italic } /* Comment */
+.codehilite .err { border: 1px solid #F00 } /* Error */
+.codehilite .k { color: #007020; font-weight: bold } /* Keyword */
+.codehilite .o { color: #666 } /* Operator */
+.codehilite .ch { color: #60A0B0; font-style: italic } /* Comment.Hashbang */
+.codehilite .cm { color: #60A0B0; font-style: italic } /* Comment.Multiline */
+.codehilite .cp { color: #007020 } /* Comment.Preproc */
+.codehilite .cpf { color: #60A0B0; font-style: italic } /* Comment.PreprocFile */
+.codehilite .c1 { color: #60A0B0; font-style: italic } /* Comment.Single */
+.codehilite .cs { color: #60A0B0; background-color: #FFF0F0 } /* Comment.Special */
+.codehilite .gd { color: #A00000 } /* Generic.Deleted */
+.codehilite .ge { font-style: italic } /* Generic.Emph */
+.codehilite .ges { font-weight: bold; font-style: italic } /* Generic.EmphStrong */
+.codehilite .gr { color: #F00 } /* Generic.Error */
+.codehilite .gh { color: #000080; font-weight: bold } /* Generic.Heading */
+.codehilite .gi { color: #00A000 } /* Generic.Inserted */
+.codehilite .go { color: #888 } /* Generic.Output */
+.codehilite .gp { color: #C65D09; font-weight: bold } /* Generic.Prompt */
+.codehilite .gs { font-weight: bold } /* Generic.Strong */
+.codehilite .gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+.codehilite .gt { color: #04D } /* Generic.Traceback */
+.codehilite .kc { color: #007020; font-weight: bold } /* Keyword.Constant */
+.codehilite .kd { color: #007020; font-weight: bold } /* Keyword.Declaration */
+.codehilite .kn { color: #007020; font-weight: bold } /* Keyword.Namespace */
+.codehilite .kp { color: #007020 } /* Keyword.Pseudo */
+.codehilite .kr { color: #007020; font-weight: bold } /* Keyword.Reserved */
+.codehilite .kt { color: #902000 } /* Keyword.Type */
+.codehilite .m { color: #40A070 } /* Literal.Number */
+.codehilite .s { color: #4070A0 } /* Literal.String */
+.codehilite .na { color: #4070A0 } /* Name.Attribute */
+.codehilite .nb { color: #007020 } /* Name.Builtin */
+.codehilite .nc { color: #0E84B5; font-weight: bold } /* Name.Class */
+.codehilite .no { color: #60ADD5 } /* Name.Constant */
+.codehilite .nd { color: #555; font-weight: bold } /* Name.Decorator */
+.codehilite .ni { color: #D55537; font-weight: bold } /* Name.Entity */
+.codehilite .ne { color: #007020 } /* Name.Exception */
+.codehilite .nf { color: #06287E } /* Name.Function */
+.codehilite .nl { color: #002070; font-weight: bold } /* Name.Label */
+.codehilite .nn { color: #0E84B5; font-weight: bold } /* Name.Namespace */
+.codehilite .nt { color: #062873; font-weight: bold } /* Name.Tag */
+.codehilite .nv { color: #BB60D5 } /* Name.Variable */
+.codehilite .ow { color: #007020; font-weight: bold } /* Operator.Word */
+.codehilite .w { color: #BBB } /* Text.Whitespace */
+.codehilite .mb { color: #40A070 } /* Literal.Number.Bin */
+.codehilite .mf { color: #40A070 } /* Literal.Number.Float */
+.codehilite .mh { color: #40A070 } /* Literal.Number.Hex */
+.codehilite .mi { color: #40A070 } /* Literal.Number.Integer */
+.codehilite .mo { color: #40A070 } /* Literal.Number.Oct */
+.codehilite .sa { color: #4070A0 } /* Literal.String.Affix */
+.codehilite .sb { color: #4070A0 } /* Literal.String.Backtick */
+.codehilite .sc { color: #4070A0 } /* Literal.String.Char */
+.codehilite .dl { color: #4070A0 } /* Literal.String.Delimiter */
+.codehilite .sd { color: #4070A0; font-style: italic } /* Literal.String.Doc */
+.codehilite .s2 { color: #4070A0 } /* Literal.String.Double */
+.codehilite .se { color: #4070A0; font-weight: bold } /* Literal.String.Escape */
+.codehilite .sh { color: #4070A0 } /* Literal.String.Heredoc */
+.codehilite .si { color: #70A0D0; font-style: italic } /* Literal.String.Interpol */
+.codehilite .sx { color: #C65D09 } /* Literal.String.Other */
+.codehilite .sr { color: #235388 } /* Literal.String.Regex */
+.codehilite .s1 { color: #4070A0 } /* Literal.String.Single */
+.codehilite .ss { color: #517918 } /* Literal.String.Symbol */
+.codehilite .bp { color: #007020 } /* Name.Builtin.Pseudo */
+.codehilite .fm { color: #06287E } /* Name.Function.Magic */
+.codehilite .vc { color: #BB60D5 } /* Name.Variable.Class */
+.codehilite .vg { color: #BB60D5 } /* Name.Variable.Global */
+.codehilite .vi { color: #BB60D5 } /* Name.Variable.Instance */
+.codehilite .vm { color: #BB60D5 } /* Name.Variable.Magic */
+.codehilite .il { color: #40A070 } /* Literal.Number.Integer.Long */</style>
+<script>
+(function(){
+  try {
+    var t = localStorage.getItem('theme');
+    if (t) document.documentElement.setAttribute('data-theme', t);
+  } catch (e) {}
+})();
+function getEffectiveTheme(){
+  var attr = document.documentElement.getAttribute('data-theme');
+  if (attr) return attr;
+  return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+}
+function toggleTheme(){
+  var next = getEffectiveTheme() === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  try { localStorage.setItem('theme', next); } catch (e) {}
+  updateThemeToggleIcon();
+}
+function updateThemeToggleIcon(){
+  var btn = document.querySelector('.theme-toggle');
+  if (btn) btn.textContent = getEffectiveTheme() === 'dark' ? '☀️' : '🌙';
+}
+document.addEventListener('DOMContentLoaded', updateThemeToggleIcon);
+</script>
+</head><body>
+<nav class="topnav">
+<a class="back" href="../../project/leetcode-prep.html">&larr; Back to LeetCode Prep</a>
+<div class="phase-pills"><div class="phase-pill-wrap"><a class="pill current" href="../../project/leetcode-prep.html" title="LeetCode Prep">LeetCode Prep</a><div class="phase-dropdown"><a href="../../project/leetcode-prep.html#arrays-hashing">Arrays &amp; Hashing</a><a href="../../project/leetcode-prep.html#two-pointers">Two Pointers</a><a href="../../project/leetcode-prep.html#sliding-window">Sliding Window</a><a href="../../project/leetcode-prep.html#stack">Stack</a><a href="../../project/leetcode-prep.html#binary-search">Binary Search</a><a href="../../project/leetcode-prep.html#linked-list">Linked List</a><a href="../../project/leetcode-prep.html#trees">Trees</a><a href="../../project/leetcode-prep.html#heap-priority-queue">Heap / Priority Queue</a><a href="../../project/leetcode-prep.html#backtracking">Backtracking</a><a href="../../project/leetcode-prep.html#tries">Tries</a><a href="../../project/leetcode-prep.html#graphs">Graphs</a><a href="../../project/leetcode-prep.html#advanced-graphs">Advanced Graphs</a><a href="../../project/leetcode-prep.html#1d-dp">1-D Dynamic Programming</a><a href="../../project/leetcode-prep.html#2d-dp">2-D Dynamic Programming</a><a href="../../project/leetcode-prep.html#greedy">Greedy</a><a href="../../project/leetcode-prep.html#intervals">Intervals</a><a href="../../project/leetcode-prep.html#math-geometry">Math &amp; Geometry</a><a href="../../project/leetcode-prep.html#bit-manipulation">Bit Manipulation</a></div></div><span class="sep">|</span><div class="phase-pill-wrap"><a class="pill" href="../../index.html#phase-1" title="Phase 1">Phase1</a><div class="phase-dropdown"><a href="../../notes/phase-1-foundations/1.1-programming-fundamentals.html">1.1 Programming Fundamentals</a><a href="../../notes/phase-1-foundations/1.2-git-github-essentials.html">1.2 Git &amp; GitHub Essentials</a><a href="../../notes/phase-1-foundations/1.3-big-o-algorithmic-thinking.html">1.3 Big-O and Algorithmic Thinking</a><a href="../../notes/phase-1-foundations/1.4-arrays-strings.html">1.4 Arrays &amp; Strings</a><a href="../../notes/phase-1-foundations/1.5-linked-lists.html">1.5 Linked Lists</a><a href="../../notes/phase-1-foundations/1.6-stacks-queues.html">1.6 Stacks &amp; Queues</a><a href="../../notes/phase-1-foundations/1.7-hash-tables.html">1.7 Hash Tables</a><a href="../../notes/phase-1-foundations/1.8-recursion-backtracking.html">1.8 Recursion &amp; Backtracking</a><a href="../../notes/phase-1-foundations/1.9-sorting-searching.html">1.9 Sorting &amp; Searching</a><a href="../../notes/phase-1-foundations/1.10-trees-bst.html">1.10 Trees &amp; Binary Search Trees</a><a href="../../notes/phase-1-foundations/1.11-heaps-priority-queues.html">1.11 Heaps &amp; Priority Queues</a><a href="../../notes/phase-1-foundations/1.12-graphs.html">1.12 Graphs</a><a href="../../notes/phase-1-foundations/1.13-dp-greedy.html">1.13 Dynamic Programming &amp; Greedy</a><a href="../../notes/phase-1-foundations/1.14-phase-capstone.html">1.14 Phase Capstone</a></div></div><div class="phase-pill-wrap"><a class="pill" href="../../index.html#phase-2" title="Phase 2">Phase2</a><div class="phase-dropdown"><a href="../../notes/phase-2-backend-skills/2.1-relational-db-design-normalization.html">2.1 Relational DB Design &amp; Normalization</a><a href="../../notes/phase-2-backend-skills/2.2-sql-querying.html">2.2 SQL Querying</a><a href="../../notes/phase-2-backend-skills/2.3-indexing-query-performance.html">2.3 Indexing &amp; Query Performance</a><a href="../../notes/phase-2-backend-skills/2.4-rest-api-design-principles.html">2.4 REST API Design Principles</a><a href="../../notes/phase-2-backend-skills/2.5-building-apis-with-fastapi.html">2.5 Building APIs with FastAPI</a><a href="../../notes/phase-2-backend-skills/2.6-debugging-techniques-tools.html">2.6 Debugging Techniques &amp; Tools</a><a href="../../notes/phase-2-backend-skills/2.7-testing-fundamentals-tdd.html">2.7 Testing Fundamentals &amp; TDD</a><a href="../../notes/phase-2-backend-skills/2.8-phase-capstone.html">2.8 Phase Capstone</a></div></div><div class="phase-pill-wrap"><a class="pill" href="../../index.html#phase-3" title="Phase 3">Phase3</a><div class="phase-dropdown"><a href="../../notes/phase-3-language-internals/3.1-python-object-model-memory.html">3.1 Python Object Model &amp; Memory</a><a href="../../notes/phase-3-language-internals/3.2-collections-internals.html">3.2 Collections Internals</a><a href="../../notes/phase-3-language-internals/3.3-gil-multithreading.html">3.3 The GIL &amp; Multithreading</a><a href="../../notes/phase-3-language-internals/3.4-multiprocessing-asyncio.html">3.4 Multiprocessing &amp; Asyncio</a><a href="../../notes/phase-3-language-internals/3.5-phase-capstone.html">3.5 Phase Capstone</a></div></div><div class="phase-pill-wrap"><a class="pill" href="../../index.html#phase-4" title="Phase 4">Phase4</a><div class="phase-dropdown"><a href="../../notes/phase-4-design-thinking/4.1-oop-foundations-refresher.html">4.1 OOP Foundations Refresher</a><a href="../../notes/phase-4-design-thinking/4.2-solid-principles.html">4.2 SOLID Principles</a><a href="../../notes/phase-4-design-thinking/4.3-creational-design-patterns.html">4.3 Creational Design Patterns</a><a href="../../notes/phase-4-design-thinking/4.4-structural-design-patterns.html">4.4 Structural Design Patterns</a><a href="../../notes/phase-4-design-thinking/4.5-behavioral-design-patterns.html">4.5 Behavioral Design Patterns</a><a href="../../notes/phase-4-design-thinking/4.6-uml-lld-process.html">4.6 UML &amp; the LLD Process</a><a href="../../notes/phase-4-design-thinking/4.7-lld-practice-problems.html">4.7 LLD Practice Problems</a><a href="../../notes/phase-4-design-thinking/4.8-system-design-hld-fundamentals.html">4.8 System Design / HLD Fundamentals</a><a href="../../notes/phase-4-design-thinking/4.9-hld-case-studies.html">4.9 HLD Case Studies</a><a href="../../notes/phase-4-design-thinking/4.10-phase-capstone.html">4.10 Phase Capstone</a></div></div><div class="phase-pill-wrap"><a class="pill" href="../../index.html#phase-5" title="Phase 5">Phase5</a><div class="phase-dropdown"><a href="../../notes/phase-5-scaling-distributed-systems/5.1-caching-strategies-redis.html">5.1 Caching Strategies &amp; Redis</a><a href="../../notes/phase-5-scaling-distributed-systems/5.2-distributed-systems-fundamentals.html">5.2 Distributed Systems Fundamentals</a><a href="../../notes/phase-5-scaling-distributed-systems/5.3-idempotency-reliable-apis.html">5.3 Idempotency &amp; Reliable APIs</a><a href="../../notes/phase-5-scaling-distributed-systems/5.4-message-queues-streaming.html">5.4 Message Queues &amp; Streaming</a><a href="../../notes/phase-5-scaling-distributed-systems/5.5-security-ssl-tls.html">5.5 Security: SSL/TLS</a><a href="../../notes/phase-5-scaling-distributed-systems/5.6-security-jwt-oauth.html">5.6 Security: JWT &amp; OAuth</a><a href="../../notes/phase-5-scaling-distributed-systems/5.7-phase-capstone.html">5.7 Phase Capstone</a></div></div><div class="phase-pill-wrap"><a class="pill" href="../../index.html#phase-6" title="Phase 6">Phase6</a><div class="phase-dropdown"><a href="../../notes/phase-6-production-ops/6.1-docker-fundamentals.html">6.1 Docker Fundamentals</a><a href="../../notes/phase-6-production-ops/6.2-kubernetes-fundamentals.html">6.2 Kubernetes Fundamentals</a><a href="../../notes/phase-6-production-ops/6.3-cicd-github-actions.html">6.3 CI/CD with GitHub Actions</a><a href="../../notes/phase-6-production-ops/6.4-monitoring-logging.html">6.4 Monitoring &amp; Logging</a><a href="../../notes/phase-6-production-ops/6.5-phase-capstone.html">6.5 Phase Capstone</a></div></div></div>
+<button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle color theme" title="Toggle color theme">🌙</button>
+</nav>
+<div class="page">
+<h1>Topic 3: Sliding Window</h1>
+<h2>Core concepts / data structures</h2>
+<h3>The Sliding Window technique</h3>
+<p><strong>What it is:</strong> a way to examine every contiguous subarray/substring of a sequence without recomputing everything from scratch for each one. You maintain a "window" — a contiguous range <code>[left, right]</code> — and instead of restarting from scratch every time the window changes, you <strong>incrementally</strong> update your tracked information as the window expands (grow <code>right</code>) or contracts (grow <code>left</code>).</p>
+<p><strong>The conceptual leap, precisely stated:</strong> a brute-force scan of every contiguous subarray inherently considers O(n²) ranges (there are <code>n(n+1)/2</code> of them), and if evaluating each range costs even O(1) beyond the scan itself, you're at O(n²) or worse. Sliding Window's insight is that as the window shifts by one position, <em>most</em> of its contents don't change — only one element enters (at <code>right</code>) and, when shrinking, one element leaves (at <code>left</code>). If you can update your tracked state (a sum, a count, a frequency map) in O(1) per element added/removed, rather than recomputing it from the whole window every time, then the <em>total</em> work across the entire scan — summed over every window ever considered — is bounded by how many times any single element can enter and leave the window, which is a small constant (each element enters once and leaves at most once). That's what makes the technique O(n) instead of O(n²): it's not "a clever shortcut," it's a direct consequence of doing incremental updates instead of full recomputation.</p>
+<p><strong>Simple analogy:</strong> imagine looking at a stretch of a book through a physical window that you can slide along the page, and stretch or shrink. Instead of re-reading everything inside the window from the start every time you move it a little, you just note what new text came into view and what text left view — much faster than re-reading the whole visible section from scratch each time, and specifically because reading <em>new</em> text is proportional to how much text is new, not to how much text is currently visible.</p>
+<h3>The two window shapes</h3>
+<p><strong>1. Fixed-size window</strong> (the window's width never changes, only its position)</p>
+<div class="codehilite"><pre><span></span><code><span class="n">window_sum</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">arr</span><span class="p">[:</span><span class="n">k</span><span class="p">])</span>  <span class="c1"># first window</span>
+<span class="n">best</span> <span class="o">=</span> <span class="n">window_sum</span>
+<span class="k">for</span> <span class="n">right</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">arr</span><span class="p">)):</span>
+    <span class="n">window_sum</span> <span class="o">+=</span> <span class="n">arr</span><span class="p">[</span><span class="n">right</span><span class="p">]</span>        <span class="c1"># new element enters on the right</span>
+    <span class="n">window_sum</span> <span class="o">-=</span> <span class="n">arr</span><span class="p">[</span><span class="n">right</span> <span class="o">-</span> <span class="n">k</span><span class="p">]</span>    <span class="c1"># oldest element leaves on the left</span>
+    <span class="n">best</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="n">best</span><span class="p">,</span> <span class="n">window_sum</span><span class="p">)</span>
+</code></pre></div>
+
+<p>Used for: "find the best sum/average/etc. of every subarray of exactly size k."</p>
+<p><strong>2. Variable-size window</strong> (the window grows and shrinks based on a condition)</p>
+<div class="codehilite"><pre><span></span><code><span class="n">left</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="n">window_state</span> <span class="o">=</span> <span class="o">...</span>  <span class="c1"># e.g. a running sum, or a hash map of counts inside the window</span>
+<span class="k">for</span> <span class="n">right</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">arr</span><span class="p">)):</span>
+    <span class="c1"># add arr[right] into window_state</span>
+    <span class="k">while</span> <span class="o">&lt;</span><span class="n">window</span> <span class="ow">is</span> <span class="n">invalid</span><span class="p">,</span> <span class="n">e</span><span class="o">.</span><span class="n">g</span><span class="o">.</span> <span class="n">too</span> <span class="n">big</span> <span class="o">/</span> <span class="n">violates</span> <span class="n">a</span> <span class="n">constraint</span><span class="o">&gt;</span><span class="p">:</span>
+        <span class="c1"># remove arr[left] from window_state</span>
+        <span class="n">left</span> <span class="o">+=</span> <span class="mi">1</span>
+    <span class="c1"># window [left, right] is now valid; update the answer here</span>
+</code></pre></div>
+
+<p>Used for: "find the longest/shortest subarray satisfying some condition" — the window expands (via <code>right</code>) until it breaks a rule, then shrinks (via <code>left</code>) until it's valid again, repeating until <code>right</code> reaches the end.</p>
+<h2>Common patterns / techniques in this topic</h2>
+<table>
+<thead>
+<tr>
+<th>Pattern</th>
+<th>When it applies</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Fixed window + running total</strong></td>
+<td>"Max/min sum (or average) of every subarray of exactly size k."</td>
+</tr>
+<tr>
+<td><strong>Variable window, expand-then-shrink</strong></td>
+<td>"Longest substring/subarray satisfying condition X" (e.g. no repeating characters, at most k distinct characters).</td>
+</tr>
+<tr>
+<td><strong>Variable window with a hash map of counts</strong></td>
+<td>Tracking character/element frequency <em>within</em> the current window (e.g. "at most k distinct characters," "contains all characters of another string").</td>
+</tr>
+<tr>
+<td><strong>Shrink-while-invalid loop</strong></td>
+<td>The <code>while</code> loop inside the <code>for</code> loop that pulls <code>left</code> forward until the window becomes valid again — this is what makes the whole thing O(n) instead of O(n²).</td>
+</tr>
+</tbody>
+</table>
+<h2>Key terminology</h2>
+<ul>
+<li><strong>Window</strong> — the current contiguous range <code>[left, right]</code> being considered.</li>
+<li><strong>Expand</strong> — moving <code>right</code> forward to include a new element in the window.</li>
+<li><strong>Shrink / contract</strong> — moving <code>left</code> forward to exclude an element from the window (usually because the window became invalid, or because we're specifically searching for the <em>shortest</em> valid window).</li>
+<li><strong>Amortized O(n)</strong> — the rigorous justification, not just a claim: even though there's a <code>for</code> loop with a <code>while</code> loop nested inside it (which superficially looks like it could be O(n²)), <code>left</code> only ever moves forward across the <em>entire</em> run of the algorithm — it is <strong>never reset backward</strong>. Since <code>left</code> can move forward at most n times total (bounded by the array's length), the combined number of iterations of the inner <code>while</code> loop, summed across <em>every</em> outer iteration, cannot exceed n. This is the exact same "total movement bounded by n, regardless of how it's distributed across outer iterations" argument used to show Two Pointers algorithms are O(n) — Sliding Window is that same argument applied to a window's boundary instead of two independent pointers converging.</li>
+</ul>
+<h2>Common beginner mistakes</h2>
+<ol>
+<li><strong>Thinking a nested <code>for</code> + <code>while</code> is automatically O(n²).</strong> As explained above, if <code>left</code> (or whatever the inner loop's variable is) never resets backward, the total combined work across the whole algorithm is still O(n). Always check whether the "inner loop" variable resets or just keeps moving forward — this single check distinguishes a true O(n) sliding window from an accidental O(n²) one (which happens if, for instance, <code>left</code> gets reset to some earlier value instead of only ever advancing).</li>
+<li><strong>Forgetting to shrink the window after it becomes invalid, or shrinking only once instead of using a <code>while</code>.</strong> The shrink step needs to run in a loop (potentially removing several elements), not just once conditionally with an <code>if</code> — a single expansion can require the window to shrink by more than one element to become valid again, especially if a duplicate character with a very old previous occurrence just entered.</li>
+<li><strong>Off-by-one on window size.</strong> For fixed windows, mixing up <code>right - left + 1</code> (inclusive window size, correct) vs <code>right - left</code> (off by one, a very common bug) — always sanity-check with a window of exactly two elements: <code>left=0, right=1</code> should give size 2, and <code>1 - 0 = 1</code> is visibly wrong while <code>1 - 0 + 1 = 2</code> is correct.</li>
+<li><strong>Updating the "best answer" at the wrong point in the loop.</strong> A common bug is recording the max window length <em>before</em> the shrink step has actually run, meaning it reflects a window that hasn't yet been confirmed valid — the update to the answer should happen only after the shrink loop has fully executed and the window is guaranteed to satisfy the constraint again.</li>
+<li><strong>Not correctly removing an element's effect when it leaves the window.</strong> E.g. decrementing a character's count in a frequency map when <code>left</code> moves past it, but forgetting that if your window-validity check depends on something like "number of distinct keys currently in the map," you may also need to delete the key entirely once its count hits 0 — leaving a stale <code>key: 0</code> entry in the map can silently corrupt a distinct-count check.</li>
+</ol>
+<h2>How this compares to Two Pointers</h2>
+<p>Sliding Window is best understood as a <strong>specialization of Two Pointers</strong>: both use two indices moving through the array, and both rely on the same "total movement bounded by n" argument for their O(n) complexity. The difference is <em>what</em> each pointer pair is tracking. Plain Two Pointers (as in 3Sum or Container With Most Water) usually only cares about the two elements the pointers currently point <em>at</em> — the value at <code>left</code> and the value at <code>right</code> individually. Sliding Window cares about <strong>everything between the pointers</strong> — the whole window's aggregate state (a sum, a set of character counts, etc.). If you've built comfort with the "two indices, moving based on a provably-safe condition" shape from Two Pointers, Sliding Window is the natural next step: same shape, but now the thing you're incrementally maintaining is a summary of an entire <em>range</em>, not just two endpoint values.</p>
+<h2>Starter problems (easy, to warm up)</h2>
+<ol>
+<li><strong>Best Time to Buy and Sell Stock</strong> (LeetCode #121) — a simplified sliding window (track the minimum seen so far, i.e. a window that only ever grows from a fixed low point, never needing an explicit shrink step). Also in your Blind 75 list.</li>
+<li><strong>Maximum Average Subarray I</strong> (LeetCode #643) — not in Blind 75, but the purest fixed-size window example, good to build the basic pattern before tackling variable windows.</li>
+<li><strong>Contains Duplicate II</strong> (LeetCode #219) — not in Blind 75, but a nice variable-window-with-a-set warm-up ("are there two equal values within distance k of each other?").</li>
+</ol>
+<h2>What carries over from here</h2>
+<p>The "expand right, shrink left while invalid" shape shows up again (in a different form) in <strong>Backtracking</strong> (try something, undo it if it doesn't work — a conceptually similar "advance, then retreat when a constraint is violated" rhythm, though achieved through recursion rather than pointer movement) and, more directly, the fixed/variable window bookkeeping habits (running sums, hash maps tracking "what's currently active") reappear in <strong>Intervals</strong> problems, which are conceptually about overlapping ranges — a close cousin of sliding windows over arrays.</p>
+<div class="nav"><a href="../../project/leetcode-prep.html">&larr; Back to LeetCode Prep</a></div>
+</div>
+</body>
+</html>

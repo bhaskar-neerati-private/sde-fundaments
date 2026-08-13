@@ -1,0 +1,412 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>1. Two Sum</title>
+<style>
+:root {
+  --bg: #fdfdfb; --fg: #24292f; --muted: #5b6470; --border: #e1e4e8;
+  --code-bg: #f3f4f6; --link: #0b5fff; --accent: #6a3fd1; --chip: #f0edfb;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg:#1a1d23; --fg:#dadee3; --muted:#98a0ab; --border:#2f343c; --code-bg:#20242b; --link:#7aa2ff; --accent:#b79cff; --chip:#242233; }
+}
+:root[data-theme="dark"] { --bg:#1a1d23; --fg:#dadee3; --muted:#98a0ab; --border:#2f343c; --code-bg:#20242b; --link:#7aa2ff; --accent:#b79cff; --chip:#242233; }
+.theme-toggle { margin-left: .5rem; background: none; border: 1px solid var(--border); border-radius: 999px; width: 1.9rem; height: 1.9rem; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; font-size: .95rem; color: var(--fg); line-height: 1; padding: 0; }
+.theme-toggle:hover { border-color: var(--accent); }
+.phase-pills .sep { color: var(--muted); font-size: .8rem; }
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.65; margin: 0;
+}
+.page { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 6rem; }
+.topnav {
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; flex-wrap: wrap; gap: .9rem;
+  background: var(--bg); border-bottom: 1px solid var(--border);
+  padding: .7rem 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,.08);
+}
+.topnav a.back, .topnav .home { text-decoration: none; font-weight: 600; font-size: .92rem; white-space: nowrap; color: var(--fg); }
+.phase-pills { display: flex; gap: .35rem; flex-wrap: wrap; margin-left: auto; }
+.phase-pills .pill {
+  text-decoration: none; color: var(--muted); font-size: .8rem; font-weight: 600;
+  border: 1px solid var(--border); border-radius: 999px; padding: .2rem .6rem;
+}
+.phase-pills .pill:hover { border-color: var(--accent); color: var(--accent); }
+.phase-pills .pill.current { background: var(--accent); border-color: var(--accent); color: #fff; }
+.phase-pill-wrap { position: relative; display: inline-block; padding-bottom: .6rem; margin-bottom: -.6rem; }
+.phase-dropdown {
+  display: none; position: absolute; top: 100%; right: 0;
+  background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+  padding: .35rem; min-width: 240px; max-height: 70vh; overflow-y: auto;
+  box-shadow: 0 6px 20px rgba(0,0,0,.15); z-index: 200;
+}
+.phase-pill-wrap:hover .phase-dropdown, .phase-pill-wrap:focus-within .phase-dropdown { display: block; }
+.phase-dropdown a {
+  display: block; text-decoration: none; color: var(--fg); font-size: .82rem; font-weight: 500;
+  padding: .35rem .55rem; border-radius: 6px; white-space: nowrap;
+}
+.phase-dropdown a:hover { background: var(--chip); color: var(--accent); }
+.phase-dropdown a.current { color: var(--accent); font-weight: 700; }
+[id] { scroll-margin-top: 4.5rem; }
+h1, h2, h3, h4 { line-height: 1.3; }
+h1 { font-size: 1.9rem; border-bottom: 2px solid var(--accent); padding-bottom: .5rem; }
+h2 { font-size: 1.4rem; margin-top: 2.5rem; border-bottom: 1px solid var(--border); padding-bottom: .3rem; }
+h3 { font-size: 1.15rem; margin-top: 2rem; color: var(--accent); }
+a { color: var(--link); }
+p code, li code, td code { background: var(--code-bg); padding: .15em .4em; border-radius: 4px; font-size: .9em; word-break: break-word; }
+pre { background: var(--code-bg); padding: 1rem; border-radius: 8px; overflow-x: auto; border: 1px solid var(--border); }
+pre code { background: none; padding: 0; }
+table { border-collapse: collapse; width: 100%; margin: 1rem 0; display: block; overflow-x: auto; }
+th, td { border: 1px solid var(--border); padding: .5rem .75rem; text-align: left; }
+th { background: var(--code-bg); }
+blockquote { border-left: 3px solid var(--accent); margin: 1rem 0; padding: .2rem 1rem; color: var(--muted); }
+hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+.nav { margin-bottom: 1.5rem; font-size: .9rem; }
+.nav a { text-decoration: none; }
+ul, ol { padding-left: 1.4rem; }
+li { margin: .3rem 0; }
+img { max-width: 100%; }
+.chk { display: inline-block; width: .9em; height: .9em; border: 1.5px solid var(--muted); border-radius: 3px; margin-right: .4em; vertical-align: middle; }
+.chk.done { background: var(--accent); border-color: var(--accent); color: #fff; text-align: center; line-height: .85em; font-size: .75em; }
+.codehilite { background: var(--code-bg) !important; border-radius: 8px; }
+pre { line-height: 125%; }
+td.linenos .normal { color: #666666; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: #666666; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+.codehilite .hll { background-color: #ffffcc }
+.codehilite { background: #f0f0f0; }
+.codehilite .c { color: #60A0B0; font-style: italic } /* Comment */
+.codehilite .err { border: 1px solid #F00 } /* Error */
+.codehilite .k { color: #007020; font-weight: bold } /* Keyword */
+.codehilite .o { color: #666 } /* Operator */
+.codehilite .ch { color: #60A0B0; font-style: italic } /* Comment.Hashbang */
+.codehilite .cm { color: #60A0B0; font-style: italic } /* Comment.Multiline */
+.codehilite .cp { color: #007020 } /* Comment.Preproc */
+.codehilite .cpf { color: #60A0B0; font-style: italic } /* Comment.PreprocFile */
+.codehilite .c1 { color: #60A0B0; font-style: italic } /* Comment.Single */
+.codehilite .cs { color: #60A0B0; background-color: #FFF0F0 } /* Comment.Special */
+.codehilite .gd { color: #A00000 } /* Generic.Deleted */
+.codehilite .ge { font-style: italic } /* Generic.Emph */
+.codehilite .ges { font-weight: bold; font-style: italic } /* Generic.EmphStrong */
+.codehilite .gr { color: #F00 } /* Generic.Error */
+.codehilite .gh { color: #000080; font-weight: bold } /* Generic.Heading */
+.codehilite .gi { color: #00A000 } /* Generic.Inserted */
+.codehilite .go { color: #888 } /* Generic.Output */
+.codehilite .gp { color: #C65D09; font-weight: bold } /* Generic.Prompt */
+.codehilite .gs { font-weight: bold } /* Generic.Strong */
+.codehilite .gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+.codehilite .gt { color: #04D } /* Generic.Traceback */
+.codehilite .kc { color: #007020; font-weight: bold } /* Keyword.Constant */
+.codehilite .kd { color: #007020; font-weight: bold } /* Keyword.Declaration */
+.codehilite .kn { color: #007020; font-weight: bold } /* Keyword.Namespace */
+.codehilite .kp { color: #007020 } /* Keyword.Pseudo */
+.codehilite .kr { color: #007020; font-weight: bold } /* Keyword.Reserved */
+.codehilite .kt { color: #902000 } /* Keyword.Type */
+.codehilite .m { color: #40A070 } /* Literal.Number */
+.codehilite .s { color: #4070A0 } /* Literal.String */
+.codehilite .na { color: #4070A0 } /* Name.Attribute */
+.codehilite .nb { color: #007020 } /* Name.Builtin */
+.codehilite .nc { color: #0E84B5; font-weight: bold } /* Name.Class */
+.codehilite .no { color: #60ADD5 } /* Name.Constant */
+.codehilite .nd { color: #555; font-weight: bold } /* Name.Decorator */
+.codehilite .ni { color: #D55537; font-weight: bold } /* Name.Entity */
+.codehilite .ne { color: #007020 } /* Name.Exception */
+.codehilite .nf { color: #06287E } /* Name.Function */
+.codehilite .nl { color: #002070; font-weight: bold } /* Name.Label */
+.codehilite .nn { color: #0E84B5; font-weight: bold } /* Name.Namespace */
+.codehilite .nt { color: #062873; font-weight: bold } /* Name.Tag */
+.codehilite .nv { color: #BB60D5 } /* Name.Variable */
+.codehilite .ow { color: #007020; font-weight: bold } /* Operator.Word */
+.codehilite .w { color: #BBB } /* Text.Whitespace */
+.codehilite .mb { color: #40A070 } /* Literal.Number.Bin */
+.codehilite .mf { color: #40A070 } /* Literal.Number.Float */
+.codehilite .mh { color: #40A070 } /* Literal.Number.Hex */
+.codehilite .mi { color: #40A070 } /* Literal.Number.Integer */
+.codehilite .mo { color: #40A070 } /* Literal.Number.Oct */
+.codehilite .sa { color: #4070A0 } /* Literal.String.Affix */
+.codehilite .sb { color: #4070A0 } /* Literal.String.Backtick */
+.codehilite .sc { color: #4070A0 } /* Literal.String.Char */
+.codehilite .dl { color: #4070A0 } /* Literal.String.Delimiter */
+.codehilite .sd { color: #4070A0; font-style: italic } /* Literal.String.Doc */
+.codehilite .s2 { color: #4070A0 } /* Literal.String.Double */
+.codehilite .se { color: #4070A0; font-weight: bold } /* Literal.String.Escape */
+.codehilite .sh { color: #4070A0 } /* Literal.String.Heredoc */
+.codehilite .si { color: #70A0D0; font-style: italic } /* Literal.String.Interpol */
+.codehilite .sx { color: #C65D09 } /* Literal.String.Other */
+.codehilite .sr { color: #235388 } /* Literal.String.Regex */
+.codehilite .s1 { color: #4070A0 } /* Literal.String.Single */
+.codehilite .ss { color: #517918 } /* Literal.String.Symbol */
+.codehilite .bp { color: #007020 } /* Name.Builtin.Pseudo */
+.codehilite .fm { color: #06287E } /* Name.Function.Magic */
+.codehilite .vc { color: #BB60D5 } /* Name.Variable.Class */
+.codehilite .vg { color: #BB60D5 } /* Name.Variable.Global */
+.codehilite .vi { color: #BB60D5 } /* Name.Variable.Instance */
+.codehilite .vm { color: #BB60D5 } /* Name.Variable.Magic */
+.codehilite .il { color: #40A070 } /* Literal.Number.Integer.Long */</style>
+<script>
+(function(){
+  try {
+    var t = localStorage.getItem('theme');
+    if (t) document.documentElement.setAttribute('data-theme', t);
+  } catch (e) {}
+})();
+function getEffectiveTheme(){
+  var attr = document.documentElement.getAttribute('data-theme');
+  if (attr) return attr;
+  return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+}
+function toggleTheme(){
+  var next = getEffectiveTheme() === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  try { localStorage.setItem('theme', next); } catch (e) {}
+  updateThemeToggleIcon();
+}
+function updateThemeToggleIcon(){
+  var btn = document.querySelector('.theme-toggle');
+  if (btn) btn.textContent = getEffectiveTheme() === 'dark' ? '☀️' : '🌙';
+}
+document.addEventListener('DOMContentLoaded', updateThemeToggleIcon);
+</script>
+</head><body>
+<nav class="topnav">
+<a class="back" href="../../project/leetcode-prep.html">&larr; Back to LeetCode Prep</a>
+<div class="phase-pills"><div class="phase-pill-wrap"><a class="pill current" href="../../project/leetcode-prep.html" title="LeetCode Prep">LeetCode Prep</a><div class="phase-dropdown"><a href="../../project/leetcode-prep.html#arrays-hashing">Arrays &amp; Hashing</a><a href="../../project/leetcode-prep.html#two-pointers">Two Pointers</a><a href="../../project/leetcode-prep.html#sliding-window">Sliding Window</a><a href="../../project/leetcode-prep.html#stack">Stack</a><a href="../../project/leetcode-prep.html#binary-search">Binary Search</a><a href="../../project/leetcode-prep.html#linked-list">Linked List</a><a href="../../project/leetcode-prep.html#trees">Trees</a><a href="../../project/leetcode-prep.html#heap-priority-queue">Heap / Priority Queue</a><a href="../../project/leetcode-prep.html#backtracking">Backtracking</a><a href="../../project/leetcode-prep.html#tries">Tries</a><a href="../../project/leetcode-prep.html#graphs">Graphs</a><a href="../../project/leetcode-prep.html#advanced-graphs">Advanced Graphs</a><a href="../../project/leetcode-prep.html#1d-dp">1-D Dynamic Programming</a><a href="../../project/leetcode-prep.html#2d-dp">2-D Dynamic Programming</a><a href="../../project/leetcode-prep.html#greedy">Greedy</a><a href="../../project/leetcode-prep.html#intervals">Intervals</a><a href="../../project/leetcode-prep.html#math-geometry">Math &amp; Geometry</a><a href="../../project/leetcode-prep.html#bit-manipulation">Bit Manipulation</a></div></div><span class="sep">|</span><div class="phase-pill-wrap"><a class="pill" href="../../index.html#phase-1" title="Phase 1">Phase1</a><div class="phase-dropdown"><a href="../../notes/phase-1-foundations/1.1-programming-fundamentals.html">1.1 Programming Fundamentals</a><a href="../../notes/phase-1-foundations/1.2-git-github-essentials.html">1.2 Git &amp; GitHub Essentials</a><a href="../../notes/phase-1-foundations/1.3-big-o-algorithmic-thinking.html">1.3 Big-O and Algorithmic Thinking</a><a href="../../notes/phase-1-foundations/1.4-arrays-strings.html">1.4 Arrays &amp; Strings</a><a href="../../notes/phase-1-foundations/1.5-linked-lists.html">1.5 Linked Lists</a><a href="../../notes/phase-1-foundations/1.6-stacks-queues.html">1.6 Stacks &amp; Queues</a><a href="../../notes/phase-1-foundations/1.7-hash-tables.html">1.7 Hash Tables</a><a href="../../notes/phase-1-foundations/1.8-recursion-backtracking.html">1.8 Recursion &amp; Backtracking</a><a href="../../notes/phase-1-foundations/1.9-sorting-searching.html">1.9 Sorting &amp; Searching</a><a href="../../notes/phase-1-foundations/1.10-trees-bst.html">1.10 Trees &amp; Binary Search Trees</a><a href="../../notes/phase-1-foundations/1.11-heaps-priority-queues.html">1.11 Heaps &amp; Priority Queues</a><a href="../../notes/phase-1-foundations/1.12-graphs.html">1.12 Graphs</a><a href="../../notes/phase-1-foundations/1.13-dp-greedy.html">1.13 Dynamic Programming &amp; Greedy</a><a href="../../notes/phase-1-foundations/1.14-phase-capstone.html">1.14 Phase Capstone</a></div></div><div class="phase-pill-wrap"><a class="pill" href="../../index.html#phase-2" title="Phase 2">Phase2</a><div class="phase-dropdown"><a href="../../notes/phase-2-backend-skills/2.1-relational-db-design-normalization.html">2.1 Relational DB Design &amp; Normalization</a><a href="../../notes/phase-2-backend-skills/2.2-sql-querying.html">2.2 SQL Querying</a><a href="../../notes/phase-2-backend-skills/2.3-indexing-query-performance.html">2.3 Indexing &amp; Query Performance</a><a href="../../notes/phase-2-backend-skills/2.4-rest-api-design-principles.html">2.4 REST API Design Principles</a><a href="../../notes/phase-2-backend-skills/2.5-building-apis-with-fastapi.html">2.5 Building APIs with FastAPI</a><a href="../../notes/phase-2-backend-skills/2.6-debugging-techniques-tools.html">2.6 Debugging Techniques &amp; Tools</a><a href="../../notes/phase-2-backend-skills/2.7-testing-fundamentals-tdd.html">2.7 Testing Fundamentals &amp; TDD</a><a href="../../notes/phase-2-backend-skills/2.8-phase-capstone.html">2.8 Phase Capstone</a></div></div><div class="phase-pill-wrap"><a class="pill" href="../../index.html#phase-3" title="Phase 3">Phase3</a><div class="phase-dropdown"><a href="../../notes/phase-3-language-internals/3.1-python-object-model-memory.html">3.1 Python Object Model &amp; Memory</a><a href="../../notes/phase-3-language-internals/3.2-collections-internals.html">3.2 Collections Internals</a><a href="../../notes/phase-3-language-internals/3.3-gil-multithreading.html">3.3 The GIL &amp; Multithreading</a><a href="../../notes/phase-3-language-internals/3.4-multiprocessing-asyncio.html">3.4 Multiprocessing &amp; Asyncio</a><a href="../../notes/phase-3-language-internals/3.5-phase-capstone.html">3.5 Phase Capstone</a></div></div><div class="phase-pill-wrap"><a class="pill" href="../../index.html#phase-4" title="Phase 4">Phase4</a><div class="phase-dropdown"><a href="../../notes/phase-4-design-thinking/4.1-oop-foundations-refresher.html">4.1 OOP Foundations Refresher</a><a href="../../notes/phase-4-design-thinking/4.2-solid-principles.html">4.2 SOLID Principles</a><a href="../../notes/phase-4-design-thinking/4.3-creational-design-patterns.html">4.3 Creational Design Patterns</a><a href="../../notes/phase-4-design-thinking/4.4-structural-design-patterns.html">4.4 Structural Design Patterns</a><a href="../../notes/phase-4-design-thinking/4.5-behavioral-design-patterns.html">4.5 Behavioral Design Patterns</a><a href="../../notes/phase-4-design-thinking/4.6-uml-lld-process.html">4.6 UML &amp; the LLD Process</a><a href="../../notes/phase-4-design-thinking/4.7-lld-practice-problems.html">4.7 LLD Practice Problems</a><a href="../../notes/phase-4-design-thinking/4.8-system-design-hld-fundamentals.html">4.8 System Design / HLD Fundamentals</a><a href="../../notes/phase-4-design-thinking/4.9-hld-case-studies.html">4.9 HLD Case Studies</a><a href="../../notes/phase-4-design-thinking/4.10-phase-capstone.html">4.10 Phase Capstone</a></div></div><div class="phase-pill-wrap"><a class="pill" href="../../index.html#phase-5" title="Phase 5">Phase5</a><div class="phase-dropdown"><a href="../../notes/phase-5-scaling-distributed-systems/5.1-caching-strategies-redis.html">5.1 Caching Strategies &amp; Redis</a><a href="../../notes/phase-5-scaling-distributed-systems/5.2-distributed-systems-fundamentals.html">5.2 Distributed Systems Fundamentals</a><a href="../../notes/phase-5-scaling-distributed-systems/5.3-idempotency-reliable-apis.html">5.3 Idempotency &amp; Reliable APIs</a><a href="../../notes/phase-5-scaling-distributed-systems/5.4-message-queues-streaming.html">5.4 Message Queues &amp; Streaming</a><a href="../../notes/phase-5-scaling-distributed-systems/5.5-security-ssl-tls.html">5.5 Security: SSL/TLS</a><a href="../../notes/phase-5-scaling-distributed-systems/5.6-security-jwt-oauth.html">5.6 Security: JWT &amp; OAuth</a><a href="../../notes/phase-5-scaling-distributed-systems/5.7-phase-capstone.html">5.7 Phase Capstone</a></div></div><div class="phase-pill-wrap"><a class="pill" href="../../index.html#phase-6" title="Phase 6">Phase6</a><div class="phase-dropdown"><a href="../../notes/phase-6-production-ops/6.1-docker-fundamentals.html">6.1 Docker Fundamentals</a><a href="../../notes/phase-6-production-ops/6.2-kubernetes-fundamentals.html">6.2 Kubernetes Fundamentals</a><a href="../../notes/phase-6-production-ops/6.3-cicd-github-actions.html">6.3 CI/CD with GitHub Actions</a><a href="../../notes/phase-6-production-ops/6.4-monitoring-logging.html">6.4 Monitoring &amp; Logging</a><a href="../../notes/phase-6-production-ops/6.5-phase-capstone.html">6.5 Phase Capstone</a></div></div></div>
+<button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle color theme" title="Toggle color theme">🌙</button>
+</nav>
+<div class="page">
+<h1>1. Two Sum</h1>
+<p><strong>LeetCode:</strong> <a href="https://leetcode.com/problems/two-sum/">#1 - Two Sum</a> · <strong>Topic:</strong> <a href="../topics/01-arrays-hashing.html">Arrays &amp; Hashing</a> · <strong>Difficulty:</strong> Easy</p>
+<h2>Problem statement</h2>
+<p>Given an array of integers <code>nums</code> and an integer <code>target</code>, return the <strong>indices</strong> of the two numbers that add up to <code>target</code>.</p>
+<ul>
+<li>You may assume each input has <strong>exactly one</strong> valid answer.</li>
+<li>You cannot use the same element twice.</li>
+<li>Return the answer in any order.</li>
+</ul>
+<p><strong>Example:</strong></p>
+<div class="codehilite"><pre><span></span><code>Input: nums = [2, 7, 11, 15], target = 9
+Output: [0, 1]
+Explanation: nums[0] + nums[1] = 2 + 7 = 9
+</code></pre></div>
+
+<h2>Applicable approaches</h2>
+<ul>
+<li><strong>Brute Force</strong> — check every pair of numbers.</li>
+<li><strong>Optimal — Hash Map (one-pass)</strong> — the standard, expected solution.</li>
+</ul>
+<p><strong>What doesn't apply, and why:</strong> Two Pointers (from the next topic) is <em>not</em> a good fit here, even though this problem is superficially "find a pair summing to a target" — the exact shape Two Pointers usually loves. The reason: Two Pointers needs the array <strong>sorted</strong> to work, and sorting <code>nums</code> would scramble the original indices, which is exactly what the problem asks you to return. You <em>could</em> sort <code>(value, original_index)</code> pairs and use Two Pointers on those, preserving the indices — but that's strictly more bookkeeping than the hash map approach for no speed benefit (both are effectively O(n), and Two Pointers here would cost an extra O(n log n) sort that the hash map approach doesn't need). So it's not that Two Pointers is <em>impossible</em>, it's that it's a worse tool for this specific version of the problem — don't reach for it just because "pair sums to target" pattern-matches.</p>
+<hr />
+<h2>Approach 1: Brute Force</h2>
+<h3>Intuition</h3>
+<p>Before reaching for any clever data structure, ask the most literal possible question the problem allows: for every possible pairing of two numbers in the array, does that pair sum to the target? There's no cleverness here — this is the "try everything" baseline every optimization gets measured against. It's worth explicitly starting here (even in an interview) because it establishes correctness first, and because the inefficiency you're about to fix only makes sense once you've seen what it's fixing.</p>
+<h3>Algorithm</h3>
+<ol>
+<li>Loop through the array with index <code>i</code>.</li>
+<li>For each <code>i</code>, loop through the rest of the array with index <code>j</code> (starting right after <code>i</code>, so we never reuse the same element or check the same pair twice).</li>
+<li>If <code>nums[i] + nums[j] == target</code>, return <code>[i, j]</code>.</li>
+</ol>
+<h3>Python code</h3>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">twoSum</span><span class="p">(</span><span class="n">nums</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+    <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">nums</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">n</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">nums</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">+</span> <span class="n">nums</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">==</span> <span class="n">target</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span>
+    <span class="k">return</span> <span class="p">[]</span>  <span class="c1"># no answer found (problem guarantees this won&#39;t happen)</span>
+</code></pre></div>
+
+<h3>Line-by-line explanation</h3>
+<ul>
+<li><code>n = len(nums)</code> — store the length once. Trivial here, but it's a habit worth having: recomputing <code>len(nums)</code> inside a loop condition doesn't change asymptotic complexity in Python (<code>len()</code> is O(1)), but caching it makes the loop bounds obviously fixed and easier to reason about.</li>
+<li><code>for i in range(n)</code> — the first number in the pair; try every possible starting position.</li>
+<li><code>for j in range(i + 1, n)</code> — <strong>this <code>i + 1</code> is not arbitrary and not just "for style."</strong> Starting <code>j</code> at <code>0</code> would re-check pairs like <code>(1, 0)</code> after already checking <code>(0, 1)</code> — wasted work, since addition is commutative and we'd find the same sum twice. Starting <code>j</code> at <code>i</code> itself would allow <code>nums[i] + nums[i]</code>, using the same array slot twice, which the problem explicitly forbids ("you cannot use the same element twice"). <code>i + 1</code> is the exact boundary that avoids both problems at once.</li>
+<li><code>if nums[i] + nums[j] == target</code> — the actual check.</li>
+<li><code>return [i, j]</code> — return the moment a match is found; there's no reason to keep scanning once the (guaranteed unique) answer is in hand.</li>
+<li><code>return []</code> — mathematically unreachable given the problem's guarantee of exactly one solution, but it's good practice to make the "no answer" path explicit rather than let the function implicitly return <code>None</code> if the loops exhaust.</li>
+</ul>
+<h3>Dry run</h3>
+<p><code>nums = [2, 7, 11, 15]</code>, <code>target = 9</code></p>
+<table>
+<thead>
+<tr>
+<th>i</th>
+<th>j</th>
+<th>nums[i]</th>
+<th>nums[j]</th>
+<th>sum</th>
+<th>match?</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>1</td>
+<td>2</td>
+<td>7</td>
+<td>9</td>
+<td>✅ yes → return <code>[0, 1]</code></td>
+</tr>
+</tbody>
+</table>
+<p>Found on the very first comparison — this is a best-case dry run. To see the actual cost, imagine the answer were <code>nums[2]</code> and <code>nums[3]</code> instead: the loop would have to exhaust <code>j</code> for <code>i=0</code> (checking against 7, 11, 15 — 3 checks), then <code>j</code> for <code>i=1</code> (checking against 11, 15 — 2 checks), before finally reaching <code>i=2, j=3</code>. That's 6 checks for a 4-element array where the naive pair count is <code>C(4,2) = 6</code> — i.e., worst case, every pair gets checked.</p>
+<h3>Time &amp; space complexity</h3>
+<ul>
+<li><strong>Time: O(n²).</strong> For each of the n elements (outer loop), the inner loop scans up to the remaining elements — summing <code>(n-1) + (n-2) + ... + 1 = n(n-1)/2</code> comparisons in the worst case (no match until the very last pair, or genuinely no match at all). This is quadratic because we're comparing every element against every <em>other</em> element at least once — there is no shortcut being taken.</li>
+<li><strong>Space: O(1)</strong> — no data structure grows with input size; just a couple of loop counters.</li>
+<li><strong>Best case:</strong> O(1) if the first two elements happen to be the answer (as in the dry run above) — but you should never <em>design around</em> best case; always reason about worst case unless the problem guarantees favorable structure.</li>
+</ul>
+<hr />
+<h2>Approach 2: Optimal — Hash Map (one-pass)</h2>
+<h3>Intuition</h3>
+<p>Here's the conceptual leap: the brute force is slow specifically because, for every number, it <strong>re-searches the entire rest of the array</strong> looking for a partner — and that search is the wasted work, not the "trying pairs" idea itself. Reframe the question: instead of "for this number, which <em>other</em> number completes it?" (a search), ask "have I already walked past the number that would complete <em>this</em> one?" (a lookup). Those sound similar but they're fundamentally different operations — one requires scanning, the other requires only remembering.</p>
+<p>The trick is that a hash map lets you <strong>remember every number you've walked past so far</strong>, and check "have I seen X?" in O(1) instead of O(n). So instead of searching forward from each position, you search <em>backward through your own memory</em> — which costs nothing to query because it's addressed, not scanned (see the topic overview's mental model). This converts the brute force's O(n) <em>inner search, repeated n times</em> into an O(1) <em>lookup, done n times</em> — that's the entire source of the speedup, not some unrelated cleverness.</p>
+<h3>Algorithm</h3>
+<ol>
+<li>Create an empty hash map <code>seen</code> that will store <code>value → index</code>.</li>
+<li>Loop through the array once, with index <code>i</code> and value <code>num</code>.</li>
+<li>Compute <code>complement = target - num</code> (the number we'd need to pair with <code>num</code> to reach the target).</li>
+<li>If <code>complement</code> is already a key in <code>seen</code>, we've found our pair — return <code>[seen[complement], i]</code>.</li>
+<li>Otherwise, add the current number to the map: <code>seen[num] = i</code>.</li>
+<li>Continue to the next number.</li>
+</ol>
+<h3>Python code</h3>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">twoSum</span><span class="p">(</span><span class="n">nums</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>
+    <span class="n">seen</span> <span class="o">=</span> <span class="p">{}</span>  <span class="c1"># value -&gt; index</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">num</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">nums</span><span class="p">):</span>
+        <span class="n">complement</span> <span class="o">=</span> <span class="n">target</span> <span class="o">-</span> <span class="n">num</span>
+        <span class="k">if</span> <span class="n">complement</span> <span class="ow">in</span> <span class="n">seen</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[</span><span class="n">seen</span><span class="p">[</span><span class="n">complement</span><span class="p">],</span> <span class="n">i</span><span class="p">]</span>
+        <span class="n">seen</span><span class="p">[</span><span class="n">num</span><span class="p">]</span> <span class="o">=</span> <span class="n">i</span>
+    <span class="k">return</span> <span class="p">[]</span>
+</code></pre></div>
+
+<h3>Line-by-line explanation</h3>
+<ul>
+<li><code>seen = {}</code> — our hash map, empty at the start. This holds every number we've walked past so far, mapped to its index — this is the "memory" that replaces the brute force's re-search.</li>
+<li><code>for i, num in enumerate(nums)</code> — walk through the array once, giving us both the index <code>i</code> and the value <code>num</code> at each step.</li>
+<li><code>complement = target - num</code> — the exact value that, paired with <code>num</code>, sums to <code>target</code>. If <code>target = 9</code> and <code>num = 2</code>, we need a <code>7</code> — this line computes what to look for, before we look for it.</li>
+<li><code>if complement in seen</code> — O(1) hash map lookup: have we already walked past the number we need?</li>
+<li><code>return [seen[complement], i]</code> — <code>seen[complement]</code> is the index where the partner was recorded earlier; <code>i</code> is the current index. Order doesn't matter per the problem statement.</li>
+<li><code>seen[num] = i</code> — <strong>this line runs <em>after</em> the check above, not before — and that ordering is the single most important detail in this solution.</strong> If we inserted <code>num</code> into <code>seen</code> <em>before</em> checking for its complement, then for an input like <code>nums = [3, 3]</code>, <code>target = 6</code>, the number <code>3</code> would find <em>itself</em> already in the map and incorrectly return <code>[0, 0]</code> — using the same element twice, which the problem forbids. Checking first, inserting second, guarantees a match can only ever be a <em>different</em>, earlier-seen element.</li>
+</ul>
+<h3>Dry run</h3>
+<p><code>nums = [2, 7, 11, 15]</code>, <code>target = 9</code></p>
+<table>
+<thead>
+<tr>
+<th>i</th>
+<th>num</th>
+<th>complement (9 - num)</th>
+<th>complement in seen?</th>
+<th>action</th>
+<th>seen after this step</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>2</td>
+<td>7</td>
+<td>No (<code>seen</code> is empty)</td>
+<td>add <code>2 → 0</code></td>
+<td><code>{2: 0}</code></td>
+</tr>
+<tr>
+<td>1</td>
+<td>7</td>
+<td>2</td>
+<td><strong>Yes</strong>, <code>seen[2] = 0</code></td>
+<td>return <code>[0, 1]</code></td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p>One pass, done after just 2 steps — but note this is a favorable ordering. Compare against a case where the match is spread further apart: <code>nums = [3, 2, 4]</code>, <code>target = 6</code></p>
+<table>
+<thead>
+<tr>
+<th>i</th>
+<th>num</th>
+<th>complement</th>
+<th>in seen?</th>
+<th>action</th>
+<th>seen after</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>0</td>
+<td>3</td>
+<td>3</td>
+<td>No</td>
+<td>add <code>3 → 0</code></td>
+<td><code>{3: 0}</code></td>
+</tr>
+<tr>
+<td>1</td>
+<td>2</td>
+<td>4</td>
+<td>No</td>
+<td>add <code>2 → 1</code></td>
+<td><code>{3: 0, 2: 1}</code></td>
+</tr>
+<tr>
+<td>2</td>
+<td>4</td>
+<td>2</td>
+<td><strong>Yes</strong>, <code>seen[2] = 1</code></td>
+<td>return <code>[1, 2]</code></td>
+<td>—</td>
+</tr>
+</tbody>
+</table>
+<p>Check: <code>nums[1] + nums[2] = 2 + 4 = 6</code> ✅. This dry run is worth doing specifically because <code>3</code>'s complement (<code>3</code>) is never found — it's checking for itself-as-complement on the very first step, when <code>seen</code> is still empty, so it correctly moves on rather than incorrectly matching against nothing.</p>
+<h3>Time &amp; space complexity</h3>
+<ul>
+<li><strong>Time: O(n).</strong> A single pass through the array; each hash map lookup (<code>in</code>) and insert is O(1) <em>average case</em> (see the topic overview's note on hash collisions — worst case for a single operation is O(n) under pathological hashing, but this is not something you need to design around in practice, and the standard, expected answer for this problem is O(n)).</li>
+<li><strong>Space: O(n).</strong> In the worst case (the two matching numbers are the very last two elements checked), the hash map ends up storing nearly every element before the match is found.</li>
+<li><strong>Contrast with brute force:</strong> brute force is O(n²) time, O(1) space. This solution trades O(n) <em>extra</em> space for turning O(n²) time into O(n) — a classic time/space tradeoff, not a free win. If space were extremely constrained and n were small, brute force could theoretically be preferable, but for this problem's constraints, the hash map approach is unambiguously the expected answer.</li>
+</ul>
+<hr />
+<h2>Common mistakes &amp; misconceptions</h2>
+<ol>
+<li><strong>Inserting into <code>seen</code> before checking for the complement.</strong> As explained above, this breaks the "can't use the same element twice" rule for inputs where a number is its own complement (e.g. <code>target</code> is exactly double some element). The fix is check-then-insert, always in that order.</li>
+<li><strong>Assuming the hash map should store <code>index → value</code> instead of <code>value → index</code>.</strong> You need to look up by <em>value</em> (does the complement exist?) and retrieve an <em>index</em> (what position was it at?) — storing it backward makes the lookup itself O(n) again, defeating the entire point of using a hash map.</li>
+<li><strong>Reaching for Two Pointers because the problem "smells like" a pair-sum problem.</strong> As discussed above, this specific version of Two Sum returns <em>original indices</em>, which sorting (required for Two Pointers) would destroy without extra bookkeeping. Recognize <em>why</em> a pattern applies, not just that it superficially matches.</li>
+<li><strong>Forgetting the problem guarantees exactly one solution.</strong> This means you don't need to handle "no answer found" as a real code path, and you don't need to keep searching after the first match — but don't let this guarantee make you sloppy about the check-then-insert ordering above; the "exactly one solution" guarantee is about the <em>problem's input</em>, not a license to skip correctness in <em>how</em> you find it.</li>
+</ol>
+<h2>Summary</h2>
+<table>
+<thead>
+<tr>
+<th>Approach</th>
+<th>Time</th>
+<th>Space</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Brute Force</td>
+<td>O(n²)</td>
+<td>O(1)</td>
+<td>Simple but slow; establishes correctness before optimizing.</td>
+</tr>
+<tr>
+<td>Hash Map (one-pass)</td>
+<td>O(n)</td>
+<td>O(n)</td>
+<td>The expected answer; trades space for a huge time improvement.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Key takeaway:</strong> the brute force's inefficiency is specifically "re-searching the remaining array for every element" — and the fix is specifically "replace searching with remembering," using a hash map's O(1) addressed lookup in place of an O(n) scan. This exact trick — and the exact check-before-insert ordering discipline — reappears constantly (Contains Duplicate, Group Anagrams, and many others in this list).</p>
+<div class="nav"><a href="../../project/leetcode-prep.html">&larr; Back to LeetCode Prep</a></div>
+</div>
+</body>
+</html>

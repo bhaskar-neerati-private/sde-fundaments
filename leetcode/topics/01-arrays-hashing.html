@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Topic 1: Arrays & Hashing</title>
+<style>
+:root {
+  --bg: #fdfdfb; --fg: #24292f; --muted: #5b6470; --border: #e1e4e8;
+  --code-bg: #f3f4f6; --link: #0b5fff; --accent: #6a3fd1; --chip: #f0edfb;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg:#1a1d23; --fg:#dadee3; --muted:#98a0ab; --border:#2f343c; --code-bg:#20242b; --link:#7aa2ff; --accent:#b79cff; --chip:#242233; }
+}
+:root[data-theme="dark"] { --bg:#1a1d23; --fg:#dadee3; --muted:#98a0ab; --border:#2f343c; --code-bg:#20242b; --link:#7aa2ff; --accent:#b79cff; --chip:#242233; }
+.theme-toggle { margin-left: .5rem; background: none; border: 1px solid var(--border); border-radius: 999px; width: 1.9rem; height: 1.9rem; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; font-size: .95rem; color: var(--fg); line-height: 1; padding: 0; }
+.theme-toggle:hover { border-color: var(--accent); }
+.phase-pills .sep { color: var(--muted); font-size: .8rem; }
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.65; margin: 0;
+}
+.page { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 6rem; }
+.topnav {
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; flex-wrap: wrap; gap: .9rem;
+  background: var(--bg); border-bottom: 1px solid var(--border);
+  padding: .7rem 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,.08);
+}
+.topnav a.back, .topnav .home { text-decoration: none; font-weight: 600; font-size: .92rem; white-space: nowrap; color: var(--fg); }
+.phase-pills { display: flex; gap: .35rem; flex-wrap: wrap; margin-left: auto; }
+.phase-pills .pill {
+  text-decoration: none; color: var(--muted); font-size: .8rem; font-weight: 600;
+  border: 1px solid var(--border); border-radius: 999px; padding: .2rem .6rem;
+}
+.phase-pills .pill:hover { border-color: var(--accent); color: var(--accent); }
+.phase-pills .pill.current { background: var(--accent); border-color: var(--accent); color: #fff; }
+.phase-pill-wrap { position: relative; display: inline-block; padding-bottom: .6rem; margin-bottom: -.6rem; }
+.phase-dropdown {
+  display: none; position: absolute; top: 100%; right: 0;
+  background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+  padding: .35rem; min-width: 240px; max-height: 70vh; overflow-y: auto;
+  box-shadow: 0 6px 20px rgba(0,0,0,.15); z-index: 200;
+}
+.phase-pill-wrap:hover .phase-dropdown, .phase-pill-wrap:focus-within .phase-dropdown { display: block; }
+.phase-dropdown a {
+  display: block; text-decoration: none; color: var(--fg); font-size: .82rem; font-weight: 500;
+  padding: .35rem .55rem; border-radius: 6px; white-space: nowrap;
+}
+.phase-dropdown a:hover { background: var(--chip); color: var(--accent); }
+.phase-dropdown a.current { color: var(--accent); font-weight: 700; }
+[id] { scroll-margin-top: 4.5rem; }
+h1, h2, h3, h4 { line-height: 1.3; }
+h1 { font-size: 1.9rem; border-bottom: 2px solid var(--accent); padding-bottom: .5rem; }
+h2 { font-size: 1.4rem; margin-top: 2.5rem; border-bottom: 1px solid var(--border); padding-bottom: .3rem; }
+h3 { font-size: 1.15rem; margin-top: 2rem; color: var(--accent); }
+a { color: var(--link); }
+p code, li code, td code { background: var(--code-bg); padding: .15em .4em; border-radius: 4px; font-size: .9em; word-break: break-word; }
+pre { background: var(--code-bg); padding: 1rem; border-radius: 8px; overflow-x: auto; border: 1px solid var(--border); }
+pre code { background: none; padding: 0; }
+table { border-collapse: collapse; width: 100%; margin: 1rem 0; display: block; overflow-x: auto; }
+th, td { border: 1px solid var(--border); padding: .5rem .75rem; text-align: left; }
+th { background: var(--code-bg); }
+blockquote { border-left: 3px solid var(--accent); margin: 1rem 0; padding: .2rem 1rem; color: var(--muted); }
+hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+.nav { margin-bottom: 1.5rem; font-size: .9rem; }
+.nav a { text-decoration: none; }
+ul, ol { padding-left: 1.4rem; }
+li { margin: .3rem 0; }
+img { max-width: 100%; }
+.chk { display: inline-block; width: .9em; height: .9em; border: 1.5px solid var(--muted); border-radius: 3px; margin-right: .4em; vertical-align: middle; }
+.chk.done { background: var(--accent); border-color: var(--accent); color: #fff; text-align: center; line-height: .85em; font-size: .75em; }
+.codehilite { background: var(--code-bg) !important; border-radius: 8px; }
+pre { line-height: 125%; }
+td.linenos .normal { color: #666666; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: #666666; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+.codehilite .hll { background-color: #ffffcc }
+.codehilite { background: #f0f0f0; }
+.codehilite .c { color: #60A0B0; font-style: italic } /* Comment */
+.codehilite .err { border: 1px solid #F00 } /* Error */
+.codehilite .k { color: #007020; font-weight: bold } /* Keyword */
+.codehilite .o { color: #666 } /* Operator */
+.codehilite .ch { color: #60A0B0; font-style: italic } /* Comment.Hashbang */
+.codehilite .cm { color: #60A0B0; font-style: italic } /* Comment.Multiline */
+.codehilite .cp { color: #007020 } /* Comment.Preproc */
+.codehilite .cpf { color: #60A0B0; font-style: italic } /* Comment.PreprocFile */
+.codehilite .c1 { color: #60A0B0; font-style: italic } /* Comment.Single */
+.codehilite .cs { color: #60A0B0; background-color: #FFF0F0 } /* Comment.Special */
+.codehilite .gd { color: #A00000 } /* Generic.Deleted */
+.codehilite .ge { font-style: italic } /* Generic.Emph */
+.codehilite .ges { font-weight: bold; font-style: italic } /* Generic.EmphStrong */
+.codehilite .gr { color: #F00 } /* Generic.Error */
+.codehilite .gh { color: #000080; font-weight: bold } /* Generic.Heading */
+.codehilite .gi { color: #00A000 } /* Generic.Inserted */
+.codehilite .go { color: #888 } /* Generic.Output */
+.codehilite .gp { color: #C65D09; font-weight: bold } /* Generic.Prompt */
+.codehilite .gs { font-weight: bold } /* Generic.Strong */
+.codehilite .gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+.codehilite .gt { color: #04D } /* Generic.Traceback */
+.codehilite .kc { color: #007020; font-weight: bold } /* Keyword.Constant */
+.codehilite .kd { color: #007020; font-weight: bold } /* Keyword.Declaration */
+.codehilite .kn { color: #007020; font-weight: bold } /* Keyword.Namespace */
+.codehilite .kp { color: #007020 } /* Keyword.Pseudo */
+.codehilite .kr { color: #007020; font-weight: bold } /* Keyword.Reserved */
+.codehilite .kt { color: #902000 } /* Keyword.Type */
+.codehilite .m { color: #40A070 } /* Literal.Number */
+.codehilite .s { color: #4070A0 } /* Literal.String */
+.codehilite .na { color: #4070A0 } /* Name.Attribute */
+.codehilite .nb { color: #007020 } /* Name.Builtin */
+.codehilite .nc { color: #0E84B5; font-weight: bold } /* Name.Class */
+.codehilite .no { color: #60ADD5 } /* Name.Constant */
+.codehilite .nd { color: #555; font-weight: bold } /* Name.Decorator */
+.codehilite .ni { color: #D55537; font-weight: bold } /* Name.Entity */
+.codehilite .ne { color: #007020 } /* Name.Exception */
+.codehilite .nf { color: #06287E } /* Name.Function */
+.codehilite .nl { color: #002070; font-weight: bold } /* Name.Label */
+.codehilite .nn { color: #0E84B5; font-weight: bold } /* Name.Namespace */
+.codehilite .nt { color: #062873; font-weight: bold } /* Name.Tag */
+.codehilite .nv { color: #BB60D5 } /* Name.Variable */
+.codehilite .ow { color: #007020; font-weight: bold } /* Operator.Word */
+.codehilite .w { color: #BBB } /* Text.Whitespace */
+.codehilite .mb { color: #40A070 } /* Literal.Number.Bin */
+.codehilite .mf { color: #40A070 } /* Literal.Number.Float */
+.codehilite .mh { color: #40A070 } /* Literal.Number.Hex */
+.codehilite .mi { color: #40A070 } /* Literal.Number.Integer */
+.codehilite .mo { color: #40A070 } /* Literal.Number.Oct */
+.codehilite .sa { color: #4070A0 } /* Literal.String.Affix */
+.codehilite .sb { color: #4070A0 } /* Literal.String.Backtick */
+.codehilite .sc { color: #4070A0 } /* Literal.String.Char */
+.codehilite .dl { color: #4070A0 } /* Literal.String.Delimiter */
+.codehilite .sd { color: #4070A0; font-style: italic } /* Literal.String.Doc */
+.codehilite .s2 { color: #4070A0 } /* Literal.String.Double */
+.codehilite .se { color: #4070A0; font-weight: bold } /* Literal.String.Escape */
+.codehilite .sh { color: #4070A0 } /* Literal.String.Heredoc */
+.codehilite .si { color: #70A0D0; font-style: italic } /* Literal.String.Interpol */
+.codehilite .sx { color: #C65D09 } /* Literal.String.Other */
+.codehilite .sr { color: #235388 } /* Literal.String.Regex */
+.codehilite .s1 { color: #4070A0 } /* Literal.String.Single */
+.codehilite .ss { color: #517918 } /* Literal.String.Symbol */
+.codehilite .bp { color: #007020 } /* Name.Builtin.Pseudo */
+.codehilite .fm { color: #06287E } /* Name.Function.Magic */
+.codehilite .vc { color: #BB60D5 } /* Name.Variable.Class */
+.codehilite .vg { color: #BB60D5 } /* Name.Variable.Global */
+.codehilite .vi { color: #BB60D5 } /* Name.Variable.Instance */
+.codehilite .vm { color: #BB60D5 } /* Name.Variable.Magic */
+.codehilite .il { color: #40A070 } /* Literal.Number.Integer.Long */</style>
+<script>
+(function(){
+  try {
+    var t = localStorage.getItem('theme');
+    if (t) document.documentElement.setAttribute('data-theme', t);
+  } catch (e) {}
+})();
+function getEffectiveTheme(){
+  var attr = document.documentElement.getAttribute('data-theme');
+  if (attr) return attr;
+  return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+}
+function toggleTheme(){
+  var next = getEffectiveTheme() === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  try { localStorage.setItem('theme', next); } catch (e) {}
+  updateThemeToggleIcon();
+}
+function updateThemeToggleIcon(){
+  var btn = document.querySelector('.theme-toggle');
+  if (btn) btn.textContent = getEffectiveTheme() === 'dark' ? '☀️' : '🌙';
+}
+document.addEventListener('DOMContentLoaded', updateThemeToggleIcon);
+</script>
+</head><body>
+<nav class="topnav">
+<a class="back" href="../../project/leetcode-prep.html">&larr; Back to LeetCode Prep</a>
+<div class="phase-pills"><div class="phase-pill-wrap"><a class="pill current" href="../../project/leetcode-prep.html" title="LeetCode Prep">LeetCode Prep</a><div class="phase-dropdown"><a href="../../project/leetcode-prep.html#arrays-hashing">Arrays &amp; Hashing</a><a href="../../project/leetcode-prep.html#two-pointers">Two Pointers</a><a href="../../project/leetcode-prep.html#sliding-window">Sliding Window</a><a href="../../project/leetcode-prep.html#stack">Stack</a><a href="../../project/leetcode-prep.html#binary-search">Binary Search</a><a href="../../project/leetcode-prep.html#linked-list">Linked List</a><a href="../../project/leetcode-prep.html#trees">Trees</a><a href="../../project/leetcode-prep.html#heap-priority-queue">Heap / Priority Queue</a><a href="../../project/leetcode-prep.html#backtracking">Backtracking</a><a href="../../project/leetcode-prep.html#tries">Tries</a><a href="../../project/leetcode-prep.html#graphs">Graphs</a><a href="../../project/leetcode-prep.html#advanced-graphs">Advanced Graphs</a><a href="../../project/leetcode-prep.html#1d-dp">1-D Dynamic Programming</a><a href="../../project/leetcode-prep.html#2d-dp">2-D Dynamic Programming</a><a href="../../project/leetcode-prep.html#greedy">Greedy</a><a href="../../project/leetcode-prep.html#intervals">Intervals</a><a href="../../project/leetcode-prep.html#math-geometry">Math &amp; Geometry</a><a href="../../project/leetcode-prep.html#bit-manipulation">Bit Manipulation</a></div></div><span class="sep">|</span><div class="phase-pill-wrap"><a class="pill" href="../../index.html#phase-1" title="Phase 1">Phase1</a><div class="phase-dropdown"><a href="../../notes/phase-1-foundations/1.1-programming-fundamentals.html">1.1 Programming Fundamentals</a><a href="../../notes/phase-1-foundations/1.2-git-github-essentials.html">1.2 Git &amp; GitHub Essentials</a><a href="../../notes/phase-1-foundations/1.3-big-o-algorithmic-thinking.html">1.3 Big-O and Algorithmic Thinking</a><a href="../../notes/phase-1-foundations/1.4-arrays-strings.html">1.4 Arrays &amp; Strings</a><a href="../../notes/phase-1-foundations/1.5-linked-lists.html">1.5 Linked Lists</a><a href="../../notes/phase-1-foundations/1.6-stacks-queues.html">1.6 Stacks &amp; Queues</a><a href="../../notes/phase-1-foundations/1.7-hash-tables.html">1.7 Hash Tables</a><a href="../../notes/phase-1-foundations/1.8-recursion-backtracking.html">1.8 Recursion &amp; Backtracking</a><a href="../../notes/phase-1-foundations/1.9-sorting-searching.html">1.9 Sorting &amp; Searching</a><a href="../../notes/phase-1-foundations/1.10-trees-bst.html">1.10 Trees &amp; Binary Search Trees</a><a href="../../notes/phase-1-foundations/1.11-heaps-priority-queues.html">1.11 Heaps &amp; Priority Queues</a><a href="../../notes/phase-1-foundations/1.12-graphs.html">1.12 Graphs</a><a href="../../notes/phase-1-foundations/1.13-dp-greedy.html">1.13 Dynamic Programming &amp; Greedy</a><a href="../../notes/phase-1-foundations/1.14-phase-capstone.html">1.14 Phase Capstone</a></div></div><div class="phase-pill-wrap"><a class="pill" href="../../index.html#phase-2" title="Phase 2">Phase2</a><div class="phase-dropdown"><a href="../../notes/phase-2-backend-skills/2.1-relational-db-design-normalization.html">2.1 Relational DB Design &amp; Normalization</a><a href="../../notes/phase-2-backend-skills/2.2-sql-querying.html">2.2 SQL Querying</a><a href="../../notes/phase-2-backend-skills/2.3-indexing-query-performance.html">2.3 Indexing &amp; Query Performance</a><a href="../../notes/phase-2-backend-skills/2.4-rest-api-design-principles.html">2.4 REST API Design Principles</a><a href="../../notes/phase-2-backend-skills/2.5-building-apis-with-fastapi.html">2.5 Building APIs with FastAPI</a><a href="../../notes/phase-2-backend-skills/2.6-debugging-techniques-tools.html">2.6 Debugging Techniques &amp; Tools</a><a href="../../notes/phase-2-backend-skills/2.7-testing-fundamentals-tdd.html">2.7 Testing Fundamentals &amp; TDD</a><a href="../../notes/phase-2-backend-skills/2.8-phase-capstone.html">2.8 Phase Capstone</a></div></div><div class="phase-pill-wrap"><a class="pill" href="../../index.html#phase-3" title="Phase 3">Phase3</a><div class="phase-dropdown"><a href="../../notes/phase-3-language-internals/3.1-python-object-model-memory.html">3.1 Python Object Model &amp; Memory</a><a href="../../notes/phase-3-language-internals/3.2-collections-internals.html">3.2 Collections Internals</a><a href="../../notes/phase-3-language-internals/3.3-gil-multithreading.html">3.3 The GIL &amp; Multithreading</a><a href="../../notes/phase-3-language-internals/3.4-multiprocessing-asyncio.html">3.4 Multiprocessing &amp; Asyncio</a><a href="../../notes/phase-3-language-internals/3.5-phase-capstone.html">3.5 Phase Capstone</a></div></div><div class="phase-pill-wrap"><a class="pill" href="../../index.html#phase-4" title="Phase 4">Phase4</a><div class="phase-dropdown"><a href="../../notes/phase-4-design-thinking/4.1-oop-foundations-refresher.html">4.1 OOP Foundations Refresher</a><a href="../../notes/phase-4-design-thinking/4.2-solid-principles.html">4.2 SOLID Principles</a><a href="../../notes/phase-4-design-thinking/4.3-creational-design-patterns.html">4.3 Creational Design Patterns</a><a href="../../notes/phase-4-design-thinking/4.4-structural-design-patterns.html">4.4 Structural Design Patterns</a><a href="../../notes/phase-4-design-thinking/4.5-behavioral-design-patterns.html">4.5 Behavioral Design Patterns</a><a href="../../notes/phase-4-design-thinking/4.6-uml-lld-process.html">4.6 UML &amp; the LLD Process</a><a href="../../notes/phase-4-design-thinking/4.7-lld-practice-problems.html">4.7 LLD Practice Problems</a><a href="../../notes/phase-4-design-thinking/4.8-system-design-hld-fundamentals.html">4.8 System Design / HLD Fundamentals</a><a href="../../notes/phase-4-design-thinking/4.9-hld-case-studies.html">4.9 HLD Case Studies</a><a href="../../notes/phase-4-design-thinking/4.10-phase-capstone.html">4.10 Phase Capstone</a></div></div><div class="phase-pill-wrap"><a class="pill" href="../../index.html#phase-5" title="Phase 5">Phase5</a><div class="phase-dropdown"><a href="../../notes/phase-5-scaling-distributed-systems/5.1-caching-strategies-redis.html">5.1 Caching Strategies &amp; Redis</a><a href="../../notes/phase-5-scaling-distributed-systems/5.2-distributed-systems-fundamentals.html">5.2 Distributed Systems Fundamentals</a><a href="../../notes/phase-5-scaling-distributed-systems/5.3-idempotency-reliable-apis.html">5.3 Idempotency &amp; Reliable APIs</a><a href="../../notes/phase-5-scaling-distributed-systems/5.4-message-queues-streaming.html">5.4 Message Queues &amp; Streaming</a><a href="../../notes/phase-5-scaling-distributed-systems/5.5-security-ssl-tls.html">5.5 Security: SSL/TLS</a><a href="../../notes/phase-5-scaling-distributed-systems/5.6-security-jwt-oauth.html">5.6 Security: JWT &amp; OAuth</a><a href="../../notes/phase-5-scaling-distributed-systems/5.7-phase-capstone.html">5.7 Phase Capstone</a></div></div><div class="phase-pill-wrap"><a class="pill" href="../../index.html#phase-6" title="Phase 6">Phase6</a><div class="phase-dropdown"><a href="../../notes/phase-6-production-ops/6.1-docker-fundamentals.html">6.1 Docker Fundamentals</a><a href="../../notes/phase-6-production-ops/6.2-kubernetes-fundamentals.html">6.2 Kubernetes Fundamentals</a><a href="../../notes/phase-6-production-ops/6.3-cicd-github-actions.html">6.3 CI/CD with GitHub Actions</a><a href="../../notes/phase-6-production-ops/6.4-monitoring-logging.html">6.4 Monitoring &amp; Logging</a><a href="../../notes/phase-6-production-ops/6.5-phase-capstone.html">6.5 Phase Capstone</a></div></div></div>
+<button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle color theme" title="Toggle color theme">🌙</button>
+</nav>
+<div class="page">
+<h1>Topic 1: Arrays &amp; Hashing</h1>
+<h2>Why this topic comes first</h2>
+<p>Almost every other topic in this list (Two Pointers, Sliding Window, Trees, Graphs, DP) eventually uses an array to store data and a hash map/set to look things up quickly. If this topic isn't solid, everything after it is harder than it needs to be. Take your time here.</p>
+<h2>Core concepts / data structures</h2>
+<h3>Array</h3>
+<p><strong>What it is:</strong> a block of memory that stores items one after another, each reachable instantly by its index (position number, starting at 0).</p>
+<p><strong>The mental model that actually matters:</strong> an array isn't just "a list of things" — it's a <em>contract with memory</em>. When you create <code>arr = [10, 20, 30, 40]</code>, the computer reserves one continuous strip of memory, and it knows the address of the very first element. Because every element is the same fixed size, the address of element <code>i</code> is just <code>start_address + i * element_size</code> — pure arithmetic, no searching. This is <em>why</em> <code>arr[5]</code> is O(1): the computer isn't "looking for" position 5, it's computing where position 5 lives and jumping straight there, the same way you don't search for house number 42 on a street — you walk to where 42 must be, because house numbering is arithmetic on the street's starting point.</p>
+<p>This mental model is what explains every other array fact below — you don't need to memorize "insert at front is O(n)," you can <em>derive</em> it: if the array is a contiguous strip and you want to add something at the front, everything else has to physically shift down to make room, because the arithmetic (<code>start_address + i * size</code>) only works if there are no gaps.</p>
+<p><strong>What's fast and what's slow, and why:</strong>
+- Read/write by index (<code>arr[i]</code>, <code>arr[i] = x</code>): <strong>O(1)</strong> — direct address computation, no traversal.
+- Append to the end (<code>arr.append(x)</code>): <strong>O(1) amortized</strong> — Python's list actually over-allocates extra capacity when it grows, so most appends just write into already-reserved space; only occasionally (when that spare capacity runs out) does it need to allocate a bigger block and copy everything over, an O(n) event. Spread across many appends, the <em>average</em> cost per append stays O(1) — this is what "amortized" means, and it's not the same claim as "always O(1)."
+- Insert/delete at the front or middle (<code>arr.insert(0, x)</code>, <code>arr.pop(0)</code>): <strong>O(n)</strong> — every item after that position has to physically shift over by one slot, like everyone in a line taking one step forward to let a new person in at the front.
+- Search for a value you don't know the index of (<code>x in arr</code>): <strong>O(n)</strong> — there is no shortcut; without an index, you're checking lockers one by one because arithmetic can't tell you <em>which</em> index holds a given value, only what value lives at a given index.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">arr</span> <span class="o">=</span> <span class="p">[</span><span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">30</span><span class="p">,</span> <span class="mi">40</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">arr</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>       <span class="c1"># 30 - instant, direct index access</span>
+<span class="n">arr</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="mi">50</span><span class="p">)</span>      <span class="c1"># [10, 20, 30, 40, 50] - fast (amortized)</span>
+<span class="n">arr</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>    <span class="c1"># [5, 10, 20, 30, 40, 50] - slow, everything shifts right</span>
+</code></pre></div>
+
+<h3>Hash Map (Python <code>dict</code>) and Hash Set (Python <code>set</code>)</h3>
+<p><strong>What it is:</strong> a data structure that stores key→value pairs (map) or just unique keys (set), and can tell you "is this key in here?" or "what's the value for this key?" in O(1) time on average — regardless of how many items are stored.</p>
+<p><strong>How it actually works (the mental model, not just the claim):</strong> a hash map keeps an internal array, exactly like the array above. The difference is <em>how it decides where to put things</em>. When you insert a key, it runs the key through a <strong>hash function</strong> — a formula that deterministically turns <em>any</em> value (a string, a tuple, whatever) into a number — and uses that number (modulo the array's size) as the index to store it at. Looking up a key later runs the <em>same</em> hash function again, computes the <em>same</em> index, and jumps straight there — no searching, for the exact same reason array indexing is O(1): it's arithmetic, not search. The insight that makes hashing powerful: <strong>it converts "does this value exist?" from a search problem into an addressing problem.</strong></p>
+<p><strong>Simple analogy:</strong> imagine a library where, instead of alphabetizing books and scanning shelves, every book's ID number runs through a formula that says "this book lives on shelf 47, slot 3" — you compute the answer, you don't search for it. That's a hash map.</p>
+<p><strong>Why this matters for problem-solving:</strong> any time you catch yourself thinking "I need to check if I've seen this value before" or "I need to count how many times something appears," a hash map/set is almost always the answer, because it replaces an O(n) <em>search</em> with an O(1) <em>computation</em> — and this is the single most common way an O(n²) brute-force solution becomes an O(n) one in this entire curriculum.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">seen</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+<span class="n">seen</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+<span class="n">seen</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="mi">5</span> <span class="ow">in</span> <span class="n">seen</span><span class="p">)</span>     <span class="c1"># True - O(1) lookup, not a loop through the set</span>
+
+<span class="n">counts</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">counts</span><span class="p">[</span><span class="s2">&quot;apple&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">counts</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;apple&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>   <span class="c1"># counting pattern</span>
+</code></pre></div>
+
+<p><strong>Collisions — and why "O(1) on average" is not the same as "always O(1)":</strong> two different keys can hash to the same slot (a "collision") — the hash function's output space is much smaller than the space of all possible inputs, so by the pigeonhole principle, collisions are mathematically inevitable, not a bug. Python's dict/set handle this internally (open addressing — probing for the next open slot), so you never implement collision handling yourself. But it's <em>why</em> hash operations are described as <strong>O(1) average-case</strong>, not worst-case: in a pathological scenario where many keys collide, a lookup could degrade toward O(n) (having to check many colliding entries). In practice this is rare enough (and Python's hash function is designed to make it rare) that you should treat hash operations as O(1) by default, but it's worth knowing this isn't a mathematical guarantee the way array indexing is.</p>
+<p><strong>What can be a key — and why:</strong> only <strong>hashable</strong> (effectively: immutable) types — numbers, strings, tuples of hashable things. You cannot use a <code>list</code> or another <code>dict</code> as a dictionary key or set element. The reason isn't arbitrary: the hash function computes a slot <em>once</em>, at insertion time. If the key's value could change afterward (like a list you later mutate), its hash would change too, but the item would still be sitting in the <em>old</em> slot — the map would become permanently broken, unable to find its own contents. Immutability is what guarantees a key's slot stays valid for its entire lifetime in the structure.</p>
+<h2>Common patterns / techniques in this topic</h2>
+<table>
+<thead>
+<tr>
+<th>Pattern</th>
+<th>When it applies</th>
+<th>Why it works</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Frequency counting</strong> (<code>dict</code> mapping value → count)</td>
+<td>"How many times does X appear?", "find duplicates," "find the most/least common item."</td>
+<td>Reduces "how many times have I seen X" from an O(n) rescan to an O(1) lookup+increment.</td>
+</tr>
+<tr>
+<td><strong>Seen-before check</strong> (<code>set</code> of values you've already visited)</td>
+<td>"Have I encountered this value already?"</td>
+<td>Turns an O(n²) nested-loop check (compare every pair) into O(n) (check each item against a running memory of what's been seen).</td>
+</tr>
+<tr>
+<td><strong>Complement lookup</strong> (store what you <em>need</em> to find, not just what you've seen)</td>
+<td>Two Sum-style problems: for each number, check if <code>target - number</code> is already in the map.</td>
+<td>Reframes "find a pair" from "check every pair" (O(n²)) to "for each item, ask one O(1) question" (O(n)).</td>
+</tr>
+<tr>
+<td><strong>Sorting as a first move</strong></td>
+<td>When order doesn't matter for the final answer but makes comparison easy (e.g. two anagrams sorted become identical strings).</td>
+<td>Costs O(n log n) once, but converts a comparison that would otherwise need O(n) work (comparing letter-by-letter, accounting for reordering) into O(1) (string equality).</td>
+</tr>
+<tr>
+<td><strong>Prefix / suffix products or sums</strong></td>
+<td>When you need "everything before index i" and "everything after index i" without recomputing from scratch each time.</td>
+<td>Precomputing running totals turns what looks like an O(n) recomputation <em>per index</em> (O(n²) total) into two O(n) passes.</td>
+</tr>
+<tr>
+<td><strong>Grouping by a computed key</strong> (<code>dict</code> mapping key → list of items)</td>
+<td>"Group these items by some property" (e.g. group words that are anagrams of each other).</td>
+<td>The key acts as an automatic bucket-sorter: anything that should be grouped together is <em>engineered</em> to produce the same key, so the hash map does the grouping as a side effect of insertion.</td>
+</tr>
+</tbody>
+</table>
+<h2>Key terminology</h2>
+<ul>
+<li><strong>Hash function</strong> — a formula that converts a value (string, number, etc.) into an integer, used to decide where to store it. Deterministic: the same input always produces the same output.</li>
+<li><strong>Collision</strong> — when two different keys hash to the same storage slot; handled internally by Python, not something you implement.</li>
+<li><strong>Amortized O(1)</strong> — "O(1) on average across many operations," even if one specific operation is occasionally slower (e.g. <code>list.append</code> is amortized O(1) because Python resizes the underlying array in big jumps, not every single append — most appends are cheap, occasional ones are expensive, and it averages out).</li>
+<li><strong>In-place</strong> — modifying the existing array/structure directly instead of creating a new one, to save space (O(1) extra space instead of O(n)).</li>
+<li><strong>Hashable</strong> — a type that can be used as a dict key or set element (must be immutable: int, str, tuple, frozenset — not list or dict).</li>
+<li><strong>Two-pass vs. one-pass</strong> — whether you loop through the data twice (once to gather info, once to use it) or manage to do it in a single loop. One-pass is usually the "optimal" version once you're comfortable with the pattern, but it's worth explicitly checking whether a one-pass version is <em>actually</em> correct, not just shorter — see the misconceptions below.</li>
+</ul>
+<h2>Common beginner mistakes (and <em>why</em> each one is wrong, not just that it is)</h2>
+<ol>
+<li><strong>Using <code>x in some_list</code> inside a loop.</strong> <code>in</code> on a <code>list</code> is O(n) — it linearly checks every element, because a plain list has no addressing shortcut for "does this value exist" (only for "what's at this index"). Doing this inside another loop silently creates an O(n²) algorithm that <em>looks</em> like it should be O(n) at a glance. Use a <code>set</code> instead — <code>in</code> on a <code>set</code> is O(1) because it's a hash lookup, not a scan.</li>
+<li><strong>Forgetting that sorting changes order.</strong> If a problem needs you to return answers in original input order, sorting the actual input array destroys the information needed to answer the question. Sort a copy, or sort <code>(value, original_index)</code> pairs so the original position travels with the value.</li>
+<li><strong>Trying to use a mutable type as a dict key or set element.</strong> Python raises <code>TypeError: unhashable type</code> — this isn't a workaround-able restriction, it's protecting you from the "key's slot becomes permanently wrong" bug described above. Convert to a <code>tuple</code> first if you need a sequence as a key.</li>
+<li><strong>Off-by-one errors with prefix sums/products.</strong> Specifically: forgetting whether <code>prefix[i]</code> means "sum up to and including index i" or "sum up to but <em>not</em> including index i" — these are genuinely different definitions that lead to different index arithmetic everywhere they're used. Pick one convention, write it down as a comment while you code, and never mix the two within one solution.</li>
+<li><strong>Assuming a "seen it before" hash-set check is safe without thinking about <em>what</em> needs to be "seen."</strong> A common subtle bug: checking <code>if num in seen</code> and <em>then</em> adding <code>num</code> to <code>seen</code> — versus adding first and checking second — can silently allow (or silently prevent) a value from matching <em>itself</em>. In Two Sum, checking the complement <em>before</em> inserting the current number is what correctly handles <code>nums = [3,3], target = 6</code> without letting a number match itself; get this ordering backward and the same-index-reuse bug creeps in.</li>
+<li><strong>Modifying a list while iterating over it.</strong> Removing items from a list during a <code>for item in list</code> loop skips elements, because list iteration is index-based internally, and removing an element shifts every later element's index down by one — the loop's internal position counter doesn't know that happened, so it skips whatever slid into the position it just visited. Iterate over a copy (<code>for item in list[:]</code>), or build a new list instead.</li>
+</ol>
+<h2>Starter problems (easy, do these before Blind 75's Arrays &amp; Hashing set if you want extra warm-up)</h2>
+<ol>
+<li><strong>Two Sum</strong> (LeetCode #1) — the canonical hash-map lookup problem. (Also the first problem in your Blind 75 list.)</li>
+<li><strong>Contains Duplicate</strong> (LeetCode #217) — seen-before check with a set. (Also in your Blind 75 list.)</li>
+<li><strong>Valid Anagram</strong> (LeetCode #242) — frequency counting or sorting. (Also in your Blind 75 list.)</li>
+<li><strong>Single Number</strong> (LeetCode #136) — not in Blind 75, but a great warm-up: find the one number that doesn't repeat, using either a hash set or the XOR bit trick (covered later in Bit Manipulation).</li>
+<li><strong>Majority Element</strong> (LeetCode #169) — not in Blind 75, but reinforces frequency counting with a twist (Boyer-Moore voting is the O(1)-space optimal answer, worth knowing about even if you solve it with a hash map first).</li>
+</ol>
+<h2>What carries over from here</h2>
+<p>Everything in this topic — hash maps for O(1) lookup, frequency counting, the "have I seen this before" pattern — shows up constantly in later topics: Two Pointers and Sliding Window both often pair with a hash map/set to track what's "in the current window," Graphs use hash sets for "visited" tracking, and Backtracking uses them to avoid revisiting states. Arrays &amp; Hashing isn't just topic 1 — it's a toolbox you keep reaching into for the rest of the list. Every time a later topic's approach "uses a hash map," it's leaning on the exact addressing-not-searching mental model built here.</p>
+<div class="nav"><a href="../../project/leetcode-prep.html">&larr; Back to LeetCode Prep</a></div>
+</div>
+</body>
+</html>

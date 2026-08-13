@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>19. Reverse Linked List</title>
+<style>
+:root {
+  --bg: #fdfdfb; --fg: #24292f; --muted: #5b6470; --border: #e1e4e8;
+  --code-bg: #f3f4f6; --link: #0b5fff; --accent: #6a3fd1; --chip: #f0edfb;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg:#1a1d23; --fg:#dadee3; --muted:#98a0ab; --border:#2f343c; --code-bg:#20242b; --link:#7aa2ff; --accent:#b79cff; --chip:#242233; }
+}
+:root[data-theme="dark"] { --bg:#1a1d23; --fg:#dadee3; --muted:#98a0ab; --border:#2f343c; --code-bg:#20242b; --link:#7aa2ff; --accent:#b79cff; --chip:#242233; }
+.theme-toggle { margin-left: .5rem; background: none; border: 1px solid var(--border); border-radius: 999px; width: 1.9rem; height: 1.9rem; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; font-size: .95rem; color: var(--fg); line-height: 1; padding: 0; }
+.theme-toggle:hover { border-color: var(--accent); }
+.phase-pills .sep { color: var(--muted); font-size: .8rem; }
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.65; margin: 0;
+}
+.page { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 6rem; }
+.topnav {
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; flex-wrap: wrap; gap: .9rem;
+  background: var(--bg); border-bottom: 1px solid var(--border);
+  padding: .7rem 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,.08);
+}
+.topnav a.back, .topnav .home { text-decoration: none; font-weight: 600; font-size: .92rem; white-space: nowrap; color: var(--fg); }
+.phase-pills { display: flex; gap: .35rem; flex-wrap: wrap; margin-left: auto; }
+.phase-pills .pill {
+  text-decoration: none; color: var(--muted); font-size: .8rem; font-weight: 600;
+  border: 1px solid var(--border); border-radius: 999px; padding: .2rem .6rem;
+}
+.phase-pills .pill:hover { border-color: var(--accent); color: var(--accent); }
+.phase-pills .pill.current { background: var(--accent); border-color: var(--accent); color: #fff; }
+.phase-pill-wrap { position: relative; display: inline-block; padding-bottom: .6rem; margin-bottom: -.6rem; }
+.phase-dropdown {
+  display: none; position: absolute; top: 100%; right: 0;
+  background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+  padding: .35rem; min-width: 240px; max-height: 70vh; overflow-y: auto;
+  box-shadow: 0 6px 20px rgba(0,0,0,.15); z-index: 200;
+}
+.phase-pill-wrap:hover .phase-dropdown, .phase-pill-wrap:focus-within .phase-dropdown { display: block; }
+.phase-dropdown a {
+  display: block; text-decoration: none; color: var(--fg); font-size: .82rem; font-weight: 500;
+  padding: .35rem .55rem; border-radius: 6px; white-space: nowrap;
+}
+.phase-dropdown a:hover { background: var(--chip); color: var(--accent); }
+.phase-dropdown a.current { color: var(--accent); font-weight: 700; }
+[id] { scroll-margin-top: 4.5rem; }
+h1, h2, h3, h4 { line-height: 1.3; }
+h1 { font-size: 1.9rem; border-bottom: 2px solid var(--accent); padding-bottom: .5rem; }
+h2 { font-size: 1.4rem; margin-top: 2.5rem; border-bottom: 1px solid var(--border); padding-bottom: .3rem; }
+h3 { font-size: 1.15rem; margin-top: 2rem; color: var(--accent); }
+a { color: var(--link); }
+p code, li code, td code { background: var(--code-bg); padding: .15em .4em; border-radius: 4px; font-size: .9em; word-break: break-word; }
+pre { background: var(--code-bg); padding: 1rem; border-radius: 8px; overflow-x: auto; border: 1px solid var(--border); }
+pre code { background: none; padding: 0; }
+table { border-collapse: collapse; width: 100%; margin: 1rem 0; display: block; overflow-x: auto; }
+th, td { border: 1px solid var(--border); padding: .5rem .75rem; text-align: left; }
+th { background: var(--code-bg); }
+blockquote { border-left: 3px solid var(--accent); margin: 1rem 0; padding: .2rem 1rem; color: var(--muted); }
+hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+.nav { margin-bottom: 1.5rem; font-size: .9rem; }
+.nav a { text-decoration: none; }
+ul, ol { padding-left: 1.4rem; }
+li { margin: .3rem 0; }
+img { max-width: 100%; }
+.chk { display: inline-block; width: .9em; height: .9em; border: 1.5px solid var(--muted); border-radius: 3px; margin-right: .4em; vertical-align: middle; }
+.chk.done { background: var(--accent); border-color: var(--accent); color: #fff; text-align: center; line-height: .85em; font-size: .75em; }
+.codehilite { background: var(--code-bg) !important; border-radius: 8px; }
+pre { line-height: 125%; }
+td.linenos .normal { color: #666666; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: #666666; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+.codehilite .hll { background-color: #ffffcc }
+.codehilite { background: #f0f0f0; }
+.codehilite .c { color: #60A0B0; font-style: italic } /* Comment */
+.codehilite .err { border: 1px solid #F00 } /* Error */
+.codehilite .k { color: #007020; font-weight: bold } /* Keyword */
+.codehilite .o { color: #666 } /* Operator */
+.codehilite .ch { color: #60A0B0; font-style: italic } /* Comment.Hashbang */
+.codehilite .cm { color: #60A0B0; font-style: italic } /* Comment.Multiline */
+.codehilite .cp { color: #007020 } /* Comment.Preproc */
+.codehilite .cpf { color: #60A0B0; font-style: italic } /* Comment.PreprocFile */
+.codehilite .c1 { color: #60A0B0; font-style: italic } /* Comment.Single */
+.codehilite .cs { color: #60A0B0; background-color: #FFF0F0 } /* Comment.Special */
+.codehilite .gd { color: #A00000 } /* Generic.Deleted */
+.codehilite .ge { font-style: italic } /* Generic.Emph */
+.codehilite .ges { font-weight: bold; font-style: italic } /* Generic.EmphStrong */
+.codehilite .gr { color: #F00 } /* Generic.Error */
+.codehilite .gh { color: #000080; font-weight: bold } /* Generic.Heading */
+.codehilite .gi { color: #00A000 } /* Generic.Inserted */
+.codehilite .go { color: #888 } /* Generic.Output */
+.codehilite .gp { color: #C65D09; font-weight: bold } /* Generic.Prompt */
+.codehilite .gs { font-weight: bold } /* Generic.Strong */
+.codehilite .gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+.codehilite .gt { color: #04D } /* Generic.Traceback */
+.codehilite .kc { color: #007020; font-weight: bold } /* Keyword.Constant */
+.codehilite .kd { color: #007020; font-weight: bold } /* Keyword.Declaration */
+.codehilite .kn { color: #007020; font-weight: bold } /* Keyword.Namespace */
+.codehilite .kp { color: #007020 } /* Keyword.Pseudo */
+.codehilite .kr { color: #007020; font-weight: bold } /* Keyword.Reserved */
+.codehilite .kt { color: #902000 } /* Keyword.Type */
+.codehilite .m { color: #40A070 } /* Literal.Number */
+.codehilite .s { color: #4070A0 } /* Literal.String */
+.codehilite .na { color: #4070A0 } /* Name.Attribute */
+.codehilite .nb { color: #007020 } /* Name.Builtin */
+.codehilite .nc { color: #0E84B5; font-weight: bold } /* Name.Class */
+.codehilite .no { color: #60ADD5 } /* Name.Constant */
+.codehilite .nd { color: #555; font-weight: bold } /* Name.Decorator */
+.codehilite .ni { color: #D55537; font-weight: bold } /* Name.Entity */
+.codehilite .ne { color: #007020 } /* Name.Exception */
+.codehilite .nf { color: #06287E } /* Name.Function */
+.codehilite .nl { color: #002070; font-weight: bold } /* Name.Label */
+.codehilite .nn { color: #0E84B5; font-weight: bold } /* Name.Namespace */
+.codehilite .nt { color: #062873; font-weight: bold } /* Name.Tag */
+.codehilite .nv { color: #BB60D5 } /* Name.Variable */
+.codehilite .ow { color: #007020; font-weight: bold } /* Operator.Word */
+.codehilite .w { color: #BBB } /* Text.Whitespace */
+.codehilite .mb { color: #40A070 } /* Literal.Number.Bin */
+.codehilite .mf { color: #40A070 } /* Literal.Number.Float */
+.codehilite .mh { color: #40A070 } /* Literal.Number.Hex */
+.codehilite .mi { color: #40A070 } /* Literal.Number.Integer */
+.codehilite .mo { color: #40A070 } /* Literal.Number.Oct */
+.codehilite .sa { color: #4070A0 } /* Literal.String.Affix */
+.codehilite .sb { color: #4070A0 } /* Literal.String.Backtick */
+.codehilite .sc { color: #4070A0 } /* Literal.String.Char */
+.codehilite .dl { color: #4070A0 } /* Literal.String.Delimiter */
+.codehilite .sd { color: #4070A0; font-style: italic } /* Literal.String.Doc */
+.codehilite .s2 { color: #4070A0 } /* Literal.String.Double */
+.codehilite .se { color: #4070A0; font-weight: bold } /* Literal.String.Escape */
+.codehilite .sh { color: #4070A0 } /* Literal.String.Heredoc */
+.codehilite .si { color: #70A0D0; font-style: italic } /* Literal.String.Interpol */
+.codehilite .sx { color: #C65D09 } /* Literal.String.Other */
+.codehilite .sr { color: #235388 } /* Literal.String.Regex */
+.codehilite .s1 { color: #4070A0 } /* Literal.String.Single */
+.codehilite .ss { color: #517918 } /* Literal.String.Symbol */
+.codehilite .bp { color: #007020 } /* Name.Builtin.Pseudo */
+.codehilite .fm { color: #06287E } /* Name.Function.Magic */
+.codehilite .vc { color: #BB60D5 } /* Name.Variable.Class */
+.codehilite .vg { color: #BB60D5 } /* Name.Variable.Global */
+.codehilite .vi { color: #BB60D5 } /* Name.Variable.Instance */
+.codehilite .vm { color: #BB60D5 } /* Name.Variable.Magic */
+.codehilite .il { color: #40A070 } /* Literal.Number.Integer.Long */</style>
+<script>
+(function(){
+  try {
+    var t = localStorage.getItem('theme');
+    if (t) document.documentElement.setAttribute('data-theme', t);
+  } catch (e) {}
+})();
+function getEffectiveTheme(){
+  var attr = document.documentElement.getAttribute('data-theme');
+  if (attr) return attr;
+  return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+}
+function toggleTheme(){
+  var next = getEffectiveTheme() === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  try { localStorage.setItem('theme', next); } catch (e) {}
+  updateThemeToggleIcon();
+}
+function updateThemeToggleIcon(){
+  var btn = document.querySelector('.theme-toggle');
+  if (btn) btn.textContent = getEffectiveTheme() === 'dark' ? '☀️' : '🌙';
+}
+document.addEventListener('DOMContentLoaded', updateThemeToggleIcon);
+</script>
+</head><body>
+<nav class="topnav">
+<a class="back" href="../../project/leetcode-prep.html">&larr; Back to LeetCode Prep</a>
+<div class="phase-pills"><div class="phase-pill-wrap"><a class="pill current" href="../../project/leetcode-prep.html" title="LeetCode Prep">LeetCode Prep</a><div class="phase-dropdown"><a href="../../project/leetcode-prep.html#arrays-hashing">Arrays &amp; Hashing</a><a href="../../project/leetcode-prep.html#two-pointers">Two Pointers</a><a href="../../project/leetcode-prep.html#sliding-window">Sliding Window</a><a href="../../project/leetcode-prep.html#stack">Stack</a><a href="../../project/leetcode-prep.html#binary-search">Binary Search</a><a href="../../project/leetcode-prep.html#linked-list">Linked List</a><a href="../../project/leetcode-prep.html#trees">Trees</a><a href="../../project/leetcode-prep.html#heap-priority-queue">Heap / Priority Queue</a><a href="../../project/leetcode-prep.html#backtracking">Backtracking</a><a href="../../project/leetcode-prep.html#tries">Tries</a><a href="../../project/leetcode-prep.html#graphs">Graphs</a><a href="../../project/leetcode-prep.html#advanced-graphs">Advanced Graphs</a><a href="../../project/leetcode-prep.html#1d-dp">1-D Dynamic Programming</a><a href="../../project/leetcode-prep.html#2d-dp">2-D Dynamic Programming</a><a href="../../project/leetcode-prep.html#greedy">Greedy</a><a href="../../project/leetcode-prep.html#intervals">Intervals</a><a href="../../project/leetcode-prep.html#math-geometry">Math &amp; Geometry</a><a href="../../project/leetcode-prep.html#bit-manipulation">Bit Manipulation</a></div></div><span class="sep">|</span><div class="phase-pill-wrap"><a class="pill" href="../../index.html#phase-1" title="Phase 1">Phase1</a><div class="phase-dropdown"><a href="../../notes/phase-1-foundations/1.1-programming-fundamentals.html">1.1 Programming Fundamentals</a><a href="../../notes/phase-1-foundations/1.2-git-github-essentials.html">1.2 Git &amp; GitHub Essentials</a><a href="../../notes/phase-1-foundations/1.3-big-o-algorithmic-thinking.html">1.3 Big-O and Algorithmic Thinking</a><a href="../../notes/phase-1-foundations/1.4-arrays-strings.html">1.4 Arrays &amp; Strings</a><a href="../../notes/phase-1-foundations/1.5-linked-lists.html">1.5 Linked Lists</a><a href="../../notes/phase-1-foundations/1.6-stacks-queues.html">1.6 Stacks &amp; Queues</a><a href="../../notes/phase-1-foundations/1.7-hash-tables.html">1.7 Hash Tables</a><a href="../../notes/phase-1-foundations/1.8-recursion-backtracking.html">1.8 Recursion &amp; Backtracking</a><a href="../../notes/phase-1-foundations/1.9-sorting-searching.html">1.9 Sorting &amp; Searching</a><a href="../../notes/phase-1-foundations/1.10-trees-bst.html">1.10 Trees &amp; Binary Search Trees</a><a href="../../notes/phase-1-foundations/1.11-heaps-priority-queues.html">1.11 Heaps &amp; Priority Queues</a><a href="../../notes/phase-1-foundations/1.12-graphs.html">1.12 Graphs</a><a href="../../notes/phase-1-foundations/1.13-dp-greedy.html">1.13 Dynamic Programming &amp; Greedy</a><a href="../../notes/phase-1-foundations/1.14-phase-capstone.html">1.14 Phase Capstone</a></div></div><div class="phase-pill-wrap"><a class="pill" href="../../index.html#phase-2" title="Phase 2">Phase2</a><div class="phase-dropdown"><a href="../../notes/phase-2-backend-skills/2.1-relational-db-design-normalization.html">2.1 Relational DB Design &amp; Normalization</a><a href="../../notes/phase-2-backend-skills/2.2-sql-querying.html">2.2 SQL Querying</a><a href="../../notes/phase-2-backend-skills/2.3-indexing-query-performance.html">2.3 Indexing &amp; Query Performance</a><a href="../../notes/phase-2-backend-skills/2.4-rest-api-design-principles.html">2.4 REST API Design Principles</a><a href="../../notes/phase-2-backend-skills/2.5-building-apis-with-fastapi.html">2.5 Building APIs with FastAPI</a><a href="../../notes/phase-2-backend-skills/2.6-debugging-techniques-tools.html">2.6 Debugging Techniques &amp; Tools</a><a href="../../notes/phase-2-backend-skills/2.7-testing-fundamentals-tdd.html">2.7 Testing Fundamentals &amp; TDD</a><a href="../../notes/phase-2-backend-skills/2.8-phase-capstone.html">2.8 Phase Capstone</a></div></div><div class="phase-pill-wrap"><a class="pill" href="../../index.html#phase-3" title="Phase 3">Phase3</a><div class="phase-dropdown"><a href="../../notes/phase-3-language-internals/3.1-python-object-model-memory.html">3.1 Python Object Model &amp; Memory</a><a href="../../notes/phase-3-language-internals/3.2-collections-internals.html">3.2 Collections Internals</a><a href="../../notes/phase-3-language-internals/3.3-gil-multithreading.html">3.3 The GIL &amp; Multithreading</a><a href="../../notes/phase-3-language-internals/3.4-multiprocessing-asyncio.html">3.4 Multiprocessing &amp; Asyncio</a><a href="../../notes/phase-3-language-internals/3.5-phase-capstone.html">3.5 Phase Capstone</a></div></div><div class="phase-pill-wrap"><a class="pill" href="../../index.html#phase-4" title="Phase 4">Phase4</a><div class="phase-dropdown"><a href="../../notes/phase-4-design-thinking/4.1-oop-foundations-refresher.html">4.1 OOP Foundations Refresher</a><a href="../../notes/phase-4-design-thinking/4.2-solid-principles.html">4.2 SOLID Principles</a><a href="../../notes/phase-4-design-thinking/4.3-creational-design-patterns.html">4.3 Creational Design Patterns</a><a href="../../notes/phase-4-design-thinking/4.4-structural-design-patterns.html">4.4 Structural Design Patterns</a><a href="../../notes/phase-4-design-thinking/4.5-behavioral-design-patterns.html">4.5 Behavioral Design Patterns</a><a href="../../notes/phase-4-design-thinking/4.6-uml-lld-process.html">4.6 UML &amp; the LLD Process</a><a href="../../notes/phase-4-design-thinking/4.7-lld-practice-problems.html">4.7 LLD Practice Problems</a><a href="../../notes/phase-4-design-thinking/4.8-system-design-hld-fundamentals.html">4.8 System Design / HLD Fundamentals</a><a href="../../notes/phase-4-design-thinking/4.9-hld-case-studies.html">4.9 HLD Case Studies</a><a href="../../notes/phase-4-design-thinking/4.10-phase-capstone.html">4.10 Phase Capstone</a></div></div><div class="phase-pill-wrap"><a class="pill" href="../../index.html#phase-5" title="Phase 5">Phase5</a><div class="phase-dropdown"><a href="../../notes/phase-5-scaling-distributed-systems/5.1-caching-strategies-redis.html">5.1 Caching Strategies &amp; Redis</a><a href="../../notes/phase-5-scaling-distributed-systems/5.2-distributed-systems-fundamentals.html">5.2 Distributed Systems Fundamentals</a><a href="../../notes/phase-5-scaling-distributed-systems/5.3-idempotency-reliable-apis.html">5.3 Idempotency &amp; Reliable APIs</a><a href="../../notes/phase-5-scaling-distributed-systems/5.4-message-queues-streaming.html">5.4 Message Queues &amp; Streaming</a><a href="../../notes/phase-5-scaling-distributed-systems/5.5-security-ssl-tls.html">5.5 Security: SSL/TLS</a><a href="../../notes/phase-5-scaling-distributed-systems/5.6-security-jwt-oauth.html">5.6 Security: JWT &amp; OAuth</a><a href="../../notes/phase-5-scaling-distributed-systems/5.7-phase-capstone.html">5.7 Phase Capstone</a></div></div><div class="phase-pill-wrap"><a class="pill" href="../../index.html#phase-6" title="Phase 6">Phase6</a><div class="phase-dropdown"><a href="../../notes/phase-6-production-ops/6.1-docker-fundamentals.html">6.1 Docker Fundamentals</a><a href="../../notes/phase-6-production-ops/6.2-kubernetes-fundamentals.html">6.2 Kubernetes Fundamentals</a><a href="../../notes/phase-6-production-ops/6.3-cicd-github-actions.html">6.3 CI/CD with GitHub Actions</a><a href="../../notes/phase-6-production-ops/6.4-monitoring-logging.html">6.4 Monitoring &amp; Logging</a><a href="../../notes/phase-6-production-ops/6.5-phase-capstone.html">6.5 Phase Capstone</a></div></div></div>
+<button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle color theme" title="Toggle color theme">🌙</button>
+</nav>
+<div class="page">
+<h1>19. Reverse Linked List</h1>
+<p><strong>LeetCode:</strong> <a href="https://leetcode.com/problems/reverse-linked-list/">#206 - Reverse Linked List</a> · <strong>Topic:</strong> <a href="../topics/06-linked-list.html">Linked List</a> · <strong>Difficulty:</strong> Easy</p>
+<h2>Problem statement</h2>
+<p>Given the <code>head</code> of a singly linked list, reverse the list, and return the new head.</p>
+<p><strong>Example:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="n">Input</span><span class="o">:</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="mi">4</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="mi">5</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">None</span>
+<span class="kr">Output</span><span class="o">:</span><span class="w"> </span><span class="mi">5</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="mi">4</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="mi">3</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="mi">2</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">None</span>
+</code></pre></div>
+
+<h2>Applicable approaches</h2>
+<ul>
+<li><strong>Brute Force — Convert to array, rebuild reversed.</strong> Works, but defeats the point of practicing linked list manipulation.</li>
+<li><strong>Optimal — Iterative pointer reversal.</strong> The standard, expected O(n) time, O(1) space solution.</li>
+<li><strong>Optimal (alternative) — Recursive.</strong> Elegant, but O(n) space due to the call stack.</li>
+</ul>
+<h2>Approach 1: Brute Force — Convert to Array</h2>
+<h3>Intuition</h3>
+<p>Walk the list, collect all values into a Python list (where random access and easy reversal are trivial), then rebuild a brand new linked list with the values in reverse order. This works because a linked list's <em>values</em>, once extracted, no longer have the "must walk node by node" restriction — but reconstructing brand-new nodes means we're not actually reversing the given list's structure, just producing a list with the same values in reverse order, which happens to satisfy the problem's output but sidesteps the pointer-manipulation skill the problem is testing.</p>
+<h3>Python code</h3>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">ListNode</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="nb">next</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">val</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">next</span> <span class="o">=</span> <span class="nb">next</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">reverseList</span><span class="p">(</span><span class="n">head</span><span class="p">):</span>
+    <span class="n">values</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">node</span> <span class="o">=</span> <span class="n">head</span>
+    <span class="k">while</span> <span class="n">node</span><span class="p">:</span>
+        <span class="n">values</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">node</span><span class="o">.</span><span class="n">val</span><span class="p">)</span>
+        <span class="n">node</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">next</span>
+
+    <span class="n">dummy</span> <span class="o">=</span> <span class="n">ListNode</span><span class="p">()</span>
+    <span class="n">current</span> <span class="o">=</span> <span class="n">dummy</span>
+    <span class="k">for</span> <span class="n">val</span> <span class="ow">in</span> <span class="nb">reversed</span><span class="p">(</span><span class="n">values</span><span class="p">):</span>
+        <span class="n">current</span><span class="o">.</span><span class="n">next</span> <span class="o">=</span> <span class="n">ListNode</span><span class="p">(</span><span class="n">val</span><span class="p">)</span>
+        <span class="n">current</span> <span class="o">=</span> <span class="n">current</span><span class="o">.</span><span class="n">next</span>
+
+    <span class="k">return</span> <span class="n">dummy</span><span class="o">.</span><span class="n">next</span>
+</code></pre></div>
+
+<h3>Time &amp; space complexity</h3>
+<ul>
+<li><strong>Time: O(n)</strong> — one pass to collect values, one pass to rebuild.</li>
+<li><strong>Space: O(n)</strong> for the <code>values</code> list and the newly allocated nodes — this is the real cost: the optimal approach below achieves the same result using the <em>existing</em> nodes, with zero new allocation.</li>
+</ul>
+<p><em>(This works, but it doesn't demonstrate the actual pointer-manipulation skill the problem is testing, and uses more memory than necessary — shown mainly as a bridge before the "real" solution.)</em></p>
+<hr />
+<h2>Approach 2: Optimal — Iterative Pointer Reversal</h2>
+<h3>Intuition</h3>
+<p>Reversing a linked list means: for every node, its <code>.next</code> pointer should point to what used to be <strong>before</strong> it, instead of what used to come after it. We walk through the list once, and at each node, flip its <code>.next</code> pointer to point backward. The one thing that makes this genuinely tricky, and the entire reason the topic overview's "save before overwrite" warning exists: <strong>the moment we flip <code>current.next</code> to point backward, we lose the only reference we had to what comes next in the original list</strong> — so we must capture that reference <em>before</em> performing the flip, every single iteration, with no exceptions.</p>
+<h3>Algorithm</h3>
+<ol>
+<li>Keep two pointers: <code>prev</code> (starts as <code>None</code> — nothing comes before the original head) and <code>current</code> (starts at <code>head</code>).</li>
+<li>While <code>current</code> is not <code>None</code>:
+   - Save <code>next_node = current.next</code> (before we overwrite it — this is the non-negotiable first step).
+   - Reverse the link: <code>current.next = prev</code>.
+   - Move both pointers forward: <code>prev = current</code>, <code>current = next_node</code>.</li>
+<li>When the loop ends (<code>current</code> is <code>None</code>), <code>prev</code> is now the new head of the reversed list.</li>
+</ol>
+<h3>Python code</h3>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">reverseList</span><span class="p">(</span><span class="n">head</span><span class="p">):</span>
+    <span class="n">prev</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">current</span> <span class="o">=</span> <span class="n">head</span>
+
+    <span class="k">while</span> <span class="n">current</span><span class="p">:</span>
+        <span class="n">next_node</span> <span class="o">=</span> <span class="n">current</span><span class="o">.</span><span class="n">next</span>  <span class="c1"># save before overwriting</span>
+        <span class="n">current</span><span class="o">.</span><span class="n">next</span> <span class="o">=</span> <span class="n">prev</span>       <span class="c1"># reverse the pointer</span>
+        <span class="n">prev</span> <span class="o">=</span> <span class="n">current</span>             <span class="c1"># advance prev</span>
+        <span class="n">current</span> <span class="o">=</span> <span class="n">next_node</span>        <span class="c1"># advance current</span>
+
+    <span class="k">return</span> <span class="n">prev</span>  <span class="c1"># prev is the new head</span>
+</code></pre></div>
+
+<h3>Line-by-line explanation</h3>
+<ul>
+<li><code>prev = None</code> — represents "what should come before the current node in the reversed list" — initially nothing, since the original head will become the new <em>tail</em>, and a tail's <code>.next</code> should correctly be <code>None</code>.</li>
+<li><code>current = head</code> — our walking pointer through the original list.</li>
+<li><code>while current:</code> — keep going until we've processed every node (reached the original list's natural end, <code>None</code>).</li>
+<li><code>next_node = current.next</code> — <strong>this is the critical line, and it must run first, before anything else in the loop body touches <code>current.next</code>.</strong> It saves where the list continues <em>before</em> that pointer gets destroyed on the next line.</li>
+<li><code>current.next = prev</code> — the actual reversal: this node now points backward, to whatever came before it in our walk (which is the reversed direction, since we're walking the original list forward but building the new list's links backward).</li>
+<li><code>prev = current</code> — the node we just processed becomes the new "previous" for the next iteration.</li>
+<li><code>current = next_node</code> — move to the node we saved earlier, continuing the original forward walk — this is <em>only</em> possible because we captured <code>next_node</code> before overwriting <code>current.next</code>; without that saved reference, this line would have nothing to advance to.</li>
+<li><code>return prev</code> — once <code>current</code> becomes <code>None</code> (we've walked off the end of the original list), <code>prev</code> is sitting on the <em>last</em> node we processed — which was the original list's last node, now correctly the new head.</li>
+</ul>
+<h3>Dry run</h3>
+<p><code>1 -&gt; 2 -&gt; 3 -&gt; None</code></p>
+<table>
+<thead>
+<tr>
+<th>step</th>
+<th>prev</th>
+<th>current</th>
+<th>next_node = current.next</th>
+<th>current.next = prev (rewire)</th>
+<th>prev = current</th>
+<th>current = next_node</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>start</td>
+<td>None</td>
+<td>1</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+<td>-</td>
+</tr>
+<tr>
+<td>1</td>
+<td>None</td>
+<td>1</td>
+<td>2</td>
+<td>node(1).next = None</td>
+<td>prev = 1</td>
+<td>current = 2</td>
+</tr>
+<tr>
+<td>2</td>
+<td>1</td>
+<td>2</td>
+<td>3</td>
+<td>node(2).next = 1</td>
+<td>prev = 2</td>
+<td>current = 3</td>
+</tr>
+<tr>
+<td>3</td>
+<td>2</td>
+<td>3</td>
+<td>None</td>
+<td>node(3).next = 2</td>
+<td>prev = 3</td>
+<td>current = None</td>
+</tr>
+</tbody>
+</table>
+<p>Loop ends (<code>current is None</code>). Return <code>prev = 3</code>.</p>
+<p>Resulting list, following <code>.next</code> from the returned head: <code>3 -&gt; 2 -&gt; 1 -&gt; None</code> ✅ (node 3 points to node 2 — set in step 3; node 2 points to node 1 — set in step 2; node 1 points to <code>None</code> — set in step 1). Notice this required <em>zero</em> new node allocation — every node from the original list is reused, just rewired.</p>
+<h3>Time &amp; space complexity</h3>
+<ul>
+<li><strong>Time: O(n)</strong> — visits each node exactly once, doing O(1) work per node.</li>
+<li><strong>Space: O(1)</strong> — only a few pointer variables, no new nodes created, entirely in-place. This is the real advantage over Approach 1.</li>
+</ul>
+<hr />
+<h2>Approach 3: Optimal (alternative) — Recursive</h2>
+<h3>Intuition</h3>
+<p>"Reverse a list starting at <code>head</code>" can be thought of recursively: "reverse everything <em>after</em> <code>head</code> first (a smaller version of the exact same problem), and once that's done, attach the original <code>head</code> to the <em>end</em> of that now-reversed sub-list." This is a genuine recursive decomposition — the sub-problem (reversing <code>head.next</code> onward) is strictly smaller and identical in shape to the original problem, which is what justifies the recursive structure.</p>
+<h3>Algorithm</h3>
+<ol>
+<li><strong>Base case:</strong> if <code>head</code> is <code>None</code> or <code>head.next</code> is <code>None</code> (0 or 1 nodes), it's already "reversed" (trivially) — return it as-is.</li>
+<li>Recursively reverse everything after <code>head</code>, and capture the new head of that reversed sub-list (<code>new_head</code>).</li>
+<li>After the recursive call, <code>head.next</code> (the node right after <code>head</code>) is now the <strong>tail</strong> of the reversed sub-list. Make it point back to <code>head</code>: <code>head.next.next = head</code>.</li>
+<li>Set <code>head.next = None</code> (since <code>head</code> is now the new tail of the <em>whole</em> reversed list, it must point to nothing).</li>
+<li>Return <code>new_head</code> (unchanged all the way up the recursion — it's always the <em>original last node</em> of the list, found once at the deepest base case).</li>
+</ol>
+<h3>Python code</h3>
+<div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">reverseList</span><span class="p">(</span><span class="n">head</span><span class="p">):</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">head</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">head</span><span class="o">.</span><span class="n">next</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">head</span>
+
+    <span class="n">new_head</span> <span class="o">=</span> <span class="n">reverseList</span><span class="p">(</span><span class="n">head</span><span class="o">.</span><span class="n">next</span><span class="p">)</span>
+    <span class="n">head</span><span class="o">.</span><span class="n">next</span><span class="o">.</span><span class="n">next</span> <span class="o">=</span> <span class="n">head</span>
+    <span class="n">head</span><span class="o">.</span><span class="n">next</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="k">return</span> <span class="n">new_head</span>
+</code></pre></div>
+
+<h3>Line-by-line explanation</h3>
+<ul>
+<li><code>if not head or not head.next: return head</code> — base case: an empty list or a single node needs no reversal — it's already correct as-is.</li>
+<li><code>new_head = reverseList(head.next)</code> — recursively reverse everything after <code>head</code>. By the time this line finishes, everything after <code>head</code> is already fully reversed <em>among itself</em>, and <code>new_head</code> holds a reference to what will become the final head of the <em>entire</em> reversed list — the same value bubbles up unchanged through every subsequent stack frame.</li>
+<li><code>head.next.next = head</code> — <code>head.next</code> is the node that used to come right after <code>head</code> in the original list — after the recursive reversal, that node is now the <strong>last</strong> node of the reversed sub-list (its own <code>.next</code> is currently <code>None</code>). Point its <code>.next</code> back to <code>head</code>, extending the reversed chain to include <code>head</code> at the end.</li>
+<li><code>head.next = None</code> — <code>head</code> will become the new tail once everything is reversed, so it must point to nothing — <strong>this line runs <em>after</em> <code>head.next.next = head</code>, and the order matters</strong>: if you set <code>head.next = None</code> first, you'd lose the reference to <code>head.next</code> needed for the line above.</li>
+<li><code>return new_head</code> — pass the same "true new head" (found once, at the bottom of the recursion) back up through every level, unchanged.</li>
+</ul>
+<h3>Dry run</h3>
+<p><code>1 -&gt; 2 -&gt; 3 -&gt; None</code></p>
+<p>Recursive calls go <strong>down</strong> first: <code>reverseList(1)</code> calls <code>reverseList(2)</code> calls <code>reverseList(3)</code>.
+- <code>reverseList(3)</code>: <code>head.next</code> is <code>None</code> → base case → return <code>3</code> (node 3 itself). This becomes <code>new_head</code> at every level above.
+- Back in <code>reverseList(2)</code>: <code>new_head = 3</code>. <code>head.next.next = head</code> → <code>node(3).next = node(2)</code>. <code>head.next = None</code> → <code>node(2).next = None</code>. Return <code>new_head = 3</code>.
+- Back in <code>reverseList(1)</code>: <code>new_head = 3</code>. <code>head.next.next = head</code> → <code>node(2).next = node(1)</code>. <code>head.next = None</code> → <code>node(1).next = None</code>. Return <code>new_head = 3</code>.</p>
+<p>Final structure, starting from the returned <code>new_head</code> (node 3): <code>3 -&gt; 2 -&gt; 1 -&gt; None</code> ✅ (matches: node 3 → node 2 set in the <code>reverseList(2)</code> frame, node 2 → node 1 set in the <code>reverseList(1)</code> frame, node 1 → None set in the same frame).</p>
+<h3>Time &amp; space complexity</h3>
+<ul>
+<li><strong>Time: O(n)</strong> — each node is processed once across all recursive calls.</li>
+<li><strong>Space: O(n)</strong> — the recursion uses the <strong>call stack</strong>, going n frames deep before any of the rewiring work happens (all the base-case returns happen first, then the rewiring unwinds back up) — this is a real, measurable cost, unlike the O(1) space of the iterative version, and for a very long list, this could risk hitting Python's recursion depth limit, which the iterative version never can.</li>
+</ul>
+<hr />
+<h2>Common mistakes &amp; misconceptions</h2>
+<ol>
+<li><strong>Overwriting <code>current.next</code> before saving it.</strong> This is <em>the</em> signature bug for this entire topic, not just this problem — once <code>current.next = prev</code> executes, the original next node is unreachable unless it was saved first. There is no recovery once this happens.</li>
+<li><strong>Setting <code>head.next = None</code> before <code>head.next.next = head</code> in the recursive version.</strong> This destroys the reference needed for the line that should come first — order matters here in a way it's easy to get backward under time pressure.</li>
+<li><strong>Returning <code>current</code> instead of <code>prev</code> at the end of the iterative version.</strong> By the time the loop exits, <code>current</code> is <code>None</code> — the natural instinct to "return the last thing I was looking at" is wrong here; <code>prev</code> is the actual last node processed, and therefore the new head.</li>
+<li><strong>Assuming the recursive version is "just as good" as the iterative one because it's shorter.</strong> It has the same O(n) time, but genuinely worse space (O(n) call stack vs. O(1)) — for interview purposes, the iterative version is usually the expected primary answer, with the recursive version offered as a secondary, more elegant-looking alternative if asked.</li>
+</ol>
+<h2>Summary</h2>
+<table>
+<thead>
+<tr>
+<th>Approach</th>
+<th>Time</th>
+<th>Space</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Convert to array</td>
+<td>O(n)</td>
+<td>O(n)</td>
+<td>Works, but doesn't practice pointer manipulation, and allocates new nodes.</td>
+</tr>
+<tr>
+<td>Iterative reversal</td>
+<td>O(n)</td>
+<td>O(1)</td>
+<td>The standard, best-in-class solution.</td>
+</tr>
+<tr>
+<td>Recursive</td>
+<td>O(n)</td>
+<td>O(n) (call stack)</td>
+<td>Elegant to write, but costs stack space; good to know both.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Key takeaway:</strong> the "save the next reference before you overwrite the current pointer" discipline in the iterative approach is the single most important habit for linked list problems — almost every bug in linked list code comes from breaking this rule and permanently losing access to part of the list.</p>
+<div class="nav"><a href="../../project/leetcode-prep.html">&larr; Back to LeetCode Prep</a></div>
+</div>
+</body>
+</html>

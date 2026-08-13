@@ -1,0 +1,311 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Topic 6: Linked List</title>
+<style>
+:root {
+  --bg: #fdfdfb; --fg: #24292f; --muted: #5b6470; --border: #e1e4e8;
+  --code-bg: #f3f4f6; --link: #0b5fff; --accent: #6a3fd1; --chip: #f0edfb;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) { --bg:#1a1d23; --fg:#dadee3; --muted:#98a0ab; --border:#2f343c; --code-bg:#20242b; --link:#7aa2ff; --accent:#b79cff; --chip:#242233; }
+}
+:root[data-theme="dark"] { --bg:#1a1d23; --fg:#dadee3; --muted:#98a0ab; --border:#2f343c; --code-bg:#20242b; --link:#7aa2ff; --accent:#b79cff; --chip:#242233; }
+.theme-toggle { margin-left: .5rem; background: none; border: 1px solid var(--border); border-radius: 999px; width: 1.9rem; height: 1.9rem; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; font-size: .95rem; color: var(--fg); line-height: 1; padding: 0; }
+.theme-toggle:hover { border-color: var(--accent); }
+.phase-pills .sep { color: var(--muted); font-size: .8rem; }
+* { box-sizing: border-box; }
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  line-height: 1.65; margin: 0;
+}
+.page { max-width: 860px; margin: 0 auto; padding: 2rem 1.5rem 6rem; }
+.topnav {
+  position: sticky; top: 0; z-index: 100;
+  display: flex; align-items: center; flex-wrap: wrap; gap: .9rem;
+  background: var(--bg); border-bottom: 1px solid var(--border);
+  padding: .7rem 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,.08);
+}
+.topnav a.back, .topnav .home { text-decoration: none; font-weight: 600; font-size: .92rem; white-space: nowrap; color: var(--fg); }
+.phase-pills { display: flex; gap: .35rem; flex-wrap: wrap; margin-left: auto; }
+.phase-pills .pill {
+  text-decoration: none; color: var(--muted); font-size: .8rem; font-weight: 600;
+  border: 1px solid var(--border); border-radius: 999px; padding: .2rem .6rem;
+}
+.phase-pills .pill:hover { border-color: var(--accent); color: var(--accent); }
+.phase-pills .pill.current { background: var(--accent); border-color: var(--accent); color: #fff; }
+.phase-pill-wrap { position: relative; display: inline-block; padding-bottom: .6rem; margin-bottom: -.6rem; }
+.phase-dropdown {
+  display: none; position: absolute; top: 100%; right: 0;
+  background: var(--bg); border: 1px solid var(--border); border-radius: 8px;
+  padding: .35rem; min-width: 240px; max-height: 70vh; overflow-y: auto;
+  box-shadow: 0 6px 20px rgba(0,0,0,.15); z-index: 200;
+}
+.phase-pill-wrap:hover .phase-dropdown, .phase-pill-wrap:focus-within .phase-dropdown { display: block; }
+.phase-dropdown a {
+  display: block; text-decoration: none; color: var(--fg); font-size: .82rem; font-weight: 500;
+  padding: .35rem .55rem; border-radius: 6px; white-space: nowrap;
+}
+.phase-dropdown a:hover { background: var(--chip); color: var(--accent); }
+.phase-dropdown a.current { color: var(--accent); font-weight: 700; }
+[id] { scroll-margin-top: 4.5rem; }
+h1, h2, h3, h4 { line-height: 1.3; }
+h1 { font-size: 1.9rem; border-bottom: 2px solid var(--accent); padding-bottom: .5rem; }
+h2 { font-size: 1.4rem; margin-top: 2.5rem; border-bottom: 1px solid var(--border); padding-bottom: .3rem; }
+h3 { font-size: 1.15rem; margin-top: 2rem; color: var(--accent); }
+a { color: var(--link); }
+p code, li code, td code { background: var(--code-bg); padding: .15em .4em; border-radius: 4px; font-size: .9em; word-break: break-word; }
+pre { background: var(--code-bg); padding: 1rem; border-radius: 8px; overflow-x: auto; border: 1px solid var(--border); }
+pre code { background: none; padding: 0; }
+table { border-collapse: collapse; width: 100%; margin: 1rem 0; display: block; overflow-x: auto; }
+th, td { border: 1px solid var(--border); padding: .5rem .75rem; text-align: left; }
+th { background: var(--code-bg); }
+blockquote { border-left: 3px solid var(--accent); margin: 1rem 0; padding: .2rem 1rem; color: var(--muted); }
+hr { border: none; border-top: 1px solid var(--border); margin: 2rem 0; }
+.nav { margin-bottom: 1.5rem; font-size: .9rem; }
+.nav a { text-decoration: none; }
+ul, ol { padding-left: 1.4rem; }
+li { margin: .3rem 0; }
+img { max-width: 100%; }
+.chk { display: inline-block; width: .9em; height: .9em; border: 1.5px solid var(--muted); border-radius: 3px; margin-right: .4em; vertical-align: middle; }
+.chk.done { background: var(--accent); border-color: var(--accent); color: #fff; text-align: center; line-height: .85em; font-size: .75em; }
+.codehilite { background: var(--code-bg) !important; border-radius: 8px; }
+pre { line-height: 125%; }
+td.linenos .normal { color: #666666; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+span.linenos { color: #666666; background-color: transparent; padding-left: 5px; padding-right: 5px; }
+td.linenos .special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+span.linenos.special { color: #000000; background-color: #ffffc0; padding-left: 5px; padding-right: 5px; }
+.codehilite .hll { background-color: #ffffcc }
+.codehilite { background: #f0f0f0; }
+.codehilite .c { color: #60A0B0; font-style: italic } /* Comment */
+.codehilite .err { border: 1px solid #F00 } /* Error */
+.codehilite .k { color: #007020; font-weight: bold } /* Keyword */
+.codehilite .o { color: #666 } /* Operator */
+.codehilite .ch { color: #60A0B0; font-style: italic } /* Comment.Hashbang */
+.codehilite .cm { color: #60A0B0; font-style: italic } /* Comment.Multiline */
+.codehilite .cp { color: #007020 } /* Comment.Preproc */
+.codehilite .cpf { color: #60A0B0; font-style: italic } /* Comment.PreprocFile */
+.codehilite .c1 { color: #60A0B0; font-style: italic } /* Comment.Single */
+.codehilite .cs { color: #60A0B0; background-color: #FFF0F0 } /* Comment.Special */
+.codehilite .gd { color: #A00000 } /* Generic.Deleted */
+.codehilite .ge { font-style: italic } /* Generic.Emph */
+.codehilite .ges { font-weight: bold; font-style: italic } /* Generic.EmphStrong */
+.codehilite .gr { color: #F00 } /* Generic.Error */
+.codehilite .gh { color: #000080; font-weight: bold } /* Generic.Heading */
+.codehilite .gi { color: #00A000 } /* Generic.Inserted */
+.codehilite .go { color: #888 } /* Generic.Output */
+.codehilite .gp { color: #C65D09; font-weight: bold } /* Generic.Prompt */
+.codehilite .gs { font-weight: bold } /* Generic.Strong */
+.codehilite .gu { color: #800080; font-weight: bold } /* Generic.Subheading */
+.codehilite .gt { color: #04D } /* Generic.Traceback */
+.codehilite .kc { color: #007020; font-weight: bold } /* Keyword.Constant */
+.codehilite .kd { color: #007020; font-weight: bold } /* Keyword.Declaration */
+.codehilite .kn { color: #007020; font-weight: bold } /* Keyword.Namespace */
+.codehilite .kp { color: #007020 } /* Keyword.Pseudo */
+.codehilite .kr { color: #007020; font-weight: bold } /* Keyword.Reserved */
+.codehilite .kt { color: #902000 } /* Keyword.Type */
+.codehilite .m { color: #40A070 } /* Literal.Number */
+.codehilite .s { color: #4070A0 } /* Literal.String */
+.codehilite .na { color: #4070A0 } /* Name.Attribute */
+.codehilite .nb { color: #007020 } /* Name.Builtin */
+.codehilite .nc { color: #0E84B5; font-weight: bold } /* Name.Class */
+.codehilite .no { color: #60ADD5 } /* Name.Constant */
+.codehilite .nd { color: #555; font-weight: bold } /* Name.Decorator */
+.codehilite .ni { color: #D55537; font-weight: bold } /* Name.Entity */
+.codehilite .ne { color: #007020 } /* Name.Exception */
+.codehilite .nf { color: #06287E } /* Name.Function */
+.codehilite .nl { color: #002070; font-weight: bold } /* Name.Label */
+.codehilite .nn { color: #0E84B5; font-weight: bold } /* Name.Namespace */
+.codehilite .nt { color: #062873; font-weight: bold } /* Name.Tag */
+.codehilite .nv { color: #BB60D5 } /* Name.Variable */
+.codehilite .ow { color: #007020; font-weight: bold } /* Operator.Word */
+.codehilite .w { color: #BBB } /* Text.Whitespace */
+.codehilite .mb { color: #40A070 } /* Literal.Number.Bin */
+.codehilite .mf { color: #40A070 } /* Literal.Number.Float */
+.codehilite .mh { color: #40A070 } /* Literal.Number.Hex */
+.codehilite .mi { color: #40A070 } /* Literal.Number.Integer */
+.codehilite .mo { color: #40A070 } /* Literal.Number.Oct */
+.codehilite .sa { color: #4070A0 } /* Literal.String.Affix */
+.codehilite .sb { color: #4070A0 } /* Literal.String.Backtick */
+.codehilite .sc { color: #4070A0 } /* Literal.String.Char */
+.codehilite .dl { color: #4070A0 } /* Literal.String.Delimiter */
+.codehilite .sd { color: #4070A0; font-style: italic } /* Literal.String.Doc */
+.codehilite .s2 { color: #4070A0 } /* Literal.String.Double */
+.codehilite .se { color: #4070A0; font-weight: bold } /* Literal.String.Escape */
+.codehilite .sh { color: #4070A0 } /* Literal.String.Heredoc */
+.codehilite .si { color: #70A0D0; font-style: italic } /* Literal.String.Interpol */
+.codehilite .sx { color: #C65D09 } /* Literal.String.Other */
+.codehilite .sr { color: #235388 } /* Literal.String.Regex */
+.codehilite .s1 { color: #4070A0 } /* Literal.String.Single */
+.codehilite .ss { color: #517918 } /* Literal.String.Symbol */
+.codehilite .bp { color: #007020 } /* Name.Builtin.Pseudo */
+.codehilite .fm { color: #06287E } /* Name.Function.Magic */
+.codehilite .vc { color: #BB60D5 } /* Name.Variable.Class */
+.codehilite .vg { color: #BB60D5 } /* Name.Variable.Global */
+.codehilite .vi { color: #BB60D5 } /* Name.Variable.Instance */
+.codehilite .vm { color: #BB60D5 } /* Name.Variable.Magic */
+.codehilite .il { color: #40A070 } /* Literal.Number.Integer.Long */</style>
+<script>
+(function(){
+  try {
+    var t = localStorage.getItem('theme');
+    if (t) document.documentElement.setAttribute('data-theme', t);
+  } catch (e) {}
+})();
+function getEffectiveTheme(){
+  var attr = document.documentElement.getAttribute('data-theme');
+  if (attr) return attr;
+  return (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) ? 'dark' : 'light';
+}
+function toggleTheme(){
+  var next = getEffectiveTheme() === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  try { localStorage.setItem('theme', next); } catch (e) {}
+  updateThemeToggleIcon();
+}
+function updateThemeToggleIcon(){
+  var btn = document.querySelector('.theme-toggle');
+  if (btn) btn.textContent = getEffectiveTheme() === 'dark' ? '☀️' : '🌙';
+}
+document.addEventListener('DOMContentLoaded', updateThemeToggleIcon);
+</script>
+</head><body>
+<nav class="topnav">
+<a class="back" href="../../project/leetcode-prep.html">&larr; Back to LeetCode Prep</a>
+<div class="phase-pills"><div class="phase-pill-wrap"><a class="pill current" href="../../project/leetcode-prep.html" title="LeetCode Prep">LeetCode Prep</a><div class="phase-dropdown"><a href="../../project/leetcode-prep.html#arrays-hashing">Arrays &amp; Hashing</a><a href="../../project/leetcode-prep.html#two-pointers">Two Pointers</a><a href="../../project/leetcode-prep.html#sliding-window">Sliding Window</a><a href="../../project/leetcode-prep.html#stack">Stack</a><a href="../../project/leetcode-prep.html#binary-search">Binary Search</a><a href="../../project/leetcode-prep.html#linked-list">Linked List</a><a href="../../project/leetcode-prep.html#trees">Trees</a><a href="../../project/leetcode-prep.html#heap-priority-queue">Heap / Priority Queue</a><a href="../../project/leetcode-prep.html#backtracking">Backtracking</a><a href="../../project/leetcode-prep.html#tries">Tries</a><a href="../../project/leetcode-prep.html#graphs">Graphs</a><a href="../../project/leetcode-prep.html#advanced-graphs">Advanced Graphs</a><a href="../../project/leetcode-prep.html#1d-dp">1-D Dynamic Programming</a><a href="../../project/leetcode-prep.html#2d-dp">2-D Dynamic Programming</a><a href="../../project/leetcode-prep.html#greedy">Greedy</a><a href="../../project/leetcode-prep.html#intervals">Intervals</a><a href="../../project/leetcode-prep.html#math-geometry">Math &amp; Geometry</a><a href="../../project/leetcode-prep.html#bit-manipulation">Bit Manipulation</a></div></div><span class="sep">|</span><div class="phase-pill-wrap"><a class="pill" href="../../index.html#phase-1" title="Phase 1">Phase1</a><div class="phase-dropdown"><a href="../../notes/phase-1-foundations/1.1-programming-fundamentals.html">1.1 Programming Fundamentals</a><a href="../../notes/phase-1-foundations/1.2-git-github-essentials.html">1.2 Git &amp; GitHub Essentials</a><a href="../../notes/phase-1-foundations/1.3-big-o-algorithmic-thinking.html">1.3 Big-O and Algorithmic Thinking</a><a href="../../notes/phase-1-foundations/1.4-arrays-strings.html">1.4 Arrays &amp; Strings</a><a href="../../notes/phase-1-foundations/1.5-linked-lists.html">1.5 Linked Lists</a><a href="../../notes/phase-1-foundations/1.6-stacks-queues.html">1.6 Stacks &amp; Queues</a><a href="../../notes/phase-1-foundations/1.7-hash-tables.html">1.7 Hash Tables</a><a href="../../notes/phase-1-foundations/1.8-recursion-backtracking.html">1.8 Recursion &amp; Backtracking</a><a href="../../notes/phase-1-foundations/1.9-sorting-searching.html">1.9 Sorting &amp; Searching</a><a href="../../notes/phase-1-foundations/1.10-trees-bst.html">1.10 Trees &amp; Binary Search Trees</a><a href="../../notes/phase-1-foundations/1.11-heaps-priority-queues.html">1.11 Heaps &amp; Priority Queues</a><a href="../../notes/phase-1-foundations/1.12-graphs.html">1.12 Graphs</a><a href="../../notes/phase-1-foundations/1.13-dp-greedy.html">1.13 Dynamic Programming &amp; Greedy</a><a href="../../notes/phase-1-foundations/1.14-phase-capstone.html">1.14 Phase Capstone</a></div></div><div class="phase-pill-wrap"><a class="pill" href="../../index.html#phase-2" title="Phase 2">Phase2</a><div class="phase-dropdown"><a href="../../notes/phase-2-backend-skills/2.1-relational-db-design-normalization.html">2.1 Relational DB Design &amp; Normalization</a><a href="../../notes/phase-2-backend-skills/2.2-sql-querying.html">2.2 SQL Querying</a><a href="../../notes/phase-2-backend-skills/2.3-indexing-query-performance.html">2.3 Indexing &amp; Query Performance</a><a href="../../notes/phase-2-backend-skills/2.4-rest-api-design-principles.html">2.4 REST API Design Principles</a><a href="../../notes/phase-2-backend-skills/2.5-building-apis-with-fastapi.html">2.5 Building APIs with FastAPI</a><a href="../../notes/phase-2-backend-skills/2.6-debugging-techniques-tools.html">2.6 Debugging Techniques &amp; Tools</a><a href="../../notes/phase-2-backend-skills/2.7-testing-fundamentals-tdd.html">2.7 Testing Fundamentals &amp; TDD</a><a href="../../notes/phase-2-backend-skills/2.8-phase-capstone.html">2.8 Phase Capstone</a></div></div><div class="phase-pill-wrap"><a class="pill" href="../../index.html#phase-3" title="Phase 3">Phase3</a><div class="phase-dropdown"><a href="../../notes/phase-3-language-internals/3.1-python-object-model-memory.html">3.1 Python Object Model &amp; Memory</a><a href="../../notes/phase-3-language-internals/3.2-collections-internals.html">3.2 Collections Internals</a><a href="../../notes/phase-3-language-internals/3.3-gil-multithreading.html">3.3 The GIL &amp; Multithreading</a><a href="../../notes/phase-3-language-internals/3.4-multiprocessing-asyncio.html">3.4 Multiprocessing &amp; Asyncio</a><a href="../../notes/phase-3-language-internals/3.5-phase-capstone.html">3.5 Phase Capstone</a></div></div><div class="phase-pill-wrap"><a class="pill" href="../../index.html#phase-4" title="Phase 4">Phase4</a><div class="phase-dropdown"><a href="../../notes/phase-4-design-thinking/4.1-oop-foundations-refresher.html">4.1 OOP Foundations Refresher</a><a href="../../notes/phase-4-design-thinking/4.2-solid-principles.html">4.2 SOLID Principles</a><a href="../../notes/phase-4-design-thinking/4.3-creational-design-patterns.html">4.3 Creational Design Patterns</a><a href="../../notes/phase-4-design-thinking/4.4-structural-design-patterns.html">4.4 Structural Design Patterns</a><a href="../../notes/phase-4-design-thinking/4.5-behavioral-design-patterns.html">4.5 Behavioral Design Patterns</a><a href="../../notes/phase-4-design-thinking/4.6-uml-lld-process.html">4.6 UML &amp; the LLD Process</a><a href="../../notes/phase-4-design-thinking/4.7-lld-practice-problems.html">4.7 LLD Practice Problems</a><a href="../../notes/phase-4-design-thinking/4.8-system-design-hld-fundamentals.html">4.8 System Design / HLD Fundamentals</a><a href="../../notes/phase-4-design-thinking/4.9-hld-case-studies.html">4.9 HLD Case Studies</a><a href="../../notes/phase-4-design-thinking/4.10-phase-capstone.html">4.10 Phase Capstone</a></div></div><div class="phase-pill-wrap"><a class="pill" href="../../index.html#phase-5" title="Phase 5">Phase5</a><div class="phase-dropdown"><a href="../../notes/phase-5-scaling-distributed-systems/5.1-caching-strategies-redis.html">5.1 Caching Strategies &amp; Redis</a><a href="../../notes/phase-5-scaling-distributed-systems/5.2-distributed-systems-fundamentals.html">5.2 Distributed Systems Fundamentals</a><a href="../../notes/phase-5-scaling-distributed-systems/5.3-idempotency-reliable-apis.html">5.3 Idempotency &amp; Reliable APIs</a><a href="../../notes/phase-5-scaling-distributed-systems/5.4-message-queues-streaming.html">5.4 Message Queues &amp; Streaming</a><a href="../../notes/phase-5-scaling-distributed-systems/5.5-security-ssl-tls.html">5.5 Security: SSL/TLS</a><a href="../../notes/phase-5-scaling-distributed-systems/5.6-security-jwt-oauth.html">5.6 Security: JWT &amp; OAuth</a><a href="../../notes/phase-5-scaling-distributed-systems/5.7-phase-capstone.html">5.7 Phase Capstone</a></div></div><div class="phase-pill-wrap"><a class="pill" href="../../index.html#phase-6" title="Phase 6">Phase6</a><div class="phase-dropdown"><a href="../../notes/phase-6-production-ops/6.1-docker-fundamentals.html">6.1 Docker Fundamentals</a><a href="../../notes/phase-6-production-ops/6.2-kubernetes-fundamentals.html">6.2 Kubernetes Fundamentals</a><a href="../../notes/phase-6-production-ops/6.3-cicd-github-actions.html">6.3 CI/CD with GitHub Actions</a><a href="../../notes/phase-6-production-ops/6.4-monitoring-logging.html">6.4 Monitoring &amp; Logging</a><a href="../../notes/phase-6-production-ops/6.5-phase-capstone.html">6.5 Phase Capstone</a></div></div></div>
+<button class="theme-toggle" onclick="toggleTheme()" aria-label="Toggle color theme" title="Toggle color theme">🌙</button>
+</nav>
+<div class="page">
+<h1>Topic 6: Linked List</h1>
+<h2>Core concepts / data structures</h2>
+<h3>Linked List</h3>
+<p><strong>What it is:</strong> a sequence of items where each item (a "node") holds a value <strong>and</strong> a reference (pointer) to the <em>next</em> node in the sequence. Unlike an array, the nodes are <strong>not</strong> stored next to each other in memory — each one just knows where to find the next one.</p>
+<p><strong>Simple explanation:</strong> think of a treasure hunt where each clue tells you where to find the <em>next</em> clue, rather than a numbered map where you can jump straight to clue #7. To reach clue #7, you must walk through clues 1 through 6 first — you can't skip ahead the way array indexing lets you — but adding a brand new clue between two existing ones is easy (just change what one clue points to), you don't have to renumber everything after it.</p>
+<p><strong>Why this is the direct opposite trade-off from an array, not just "a different structure":</strong> recall from the Arrays &amp; Hashing topic that arrays are fast to index (O(1), via direct address arithmetic) but slow to insert/delete in the middle (O(n), because everything must physically shift to preserve the "no gaps" property the addressing math depends on). A linked list makes the <em>opposite</em> trade: because nodes aren't required to be contiguous in memory, inserting a node is just rewiring two pointers (O(1), once you're already at the right spot) — but there's no addressing formula that gets you to "the 7th node," because a node's memory location has no arithmetic relationship to its position in the sequence. You must walk the chain, one pointer at a time.</p>
+<p><strong>Node structure in Python (typical definition you'll see in problems):</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">ListNode</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">val</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="nb">next</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">val</span> <span class="o">=</span> <span class="n">val</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">next</span> <span class="o">=</span> <span class="nb">next</span>
+</code></pre></div>
+
+<p>A linked list is just a chain of these, starting from a <code>head</code> node:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># building 1 -&gt; 2 -&gt; 3</span>
+<span class="n">third</span> <span class="o">=</span> <span class="n">ListNode</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
+<span class="n">second</span> <span class="o">=</span> <span class="n">ListNode</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="n">third</span><span class="p">)</span>
+<span class="n">head</span> <span class="o">=</span> <span class="n">ListNode</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">second</span><span class="p">)</span>
+</code></pre></div>
+
+<h3>Array vs. Linked List: the fundamental trade-off</h3>
+<table>
+<thead>
+<tr>
+<th>Operation</th>
+<th>Array</th>
+<th>Linked List</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Access element at position i</td>
+<td>O(1) — direct index</td>
+<td>O(n) — must walk from the head</td>
+<td>Array position maps to a memory address by arithmetic; a linked list node's position has no such formula, only a chain of pointers to follow.</td>
+</tr>
+<tr>
+<td>Insert/delete at the <strong>front</strong></td>
+<td>O(n) — everything shifts</td>
+<td>O(1) — just change a couple of pointers</td>
+<td>Array elements must stay contiguous with no gaps; linked list nodes don't need to be adjacent in memory at all.</td>
+</tr>
+<tr>
+<td>Insert/delete at a <strong>known node</strong> (with a reference to it)</td>
+<td>O(n) — shifting required</td>
+<td>O(1) — no shifting, just re-link pointers</td>
+<td>Same reasoning as above.</td>
+</tr>
+<tr>
+<td>Extra memory per element</td>
+<td>none</td>
+<td>one extra pointer per node</td>
+<td>The trade-off's literal cost: flexibility in insertion is paid for with a per-node memory overhead.</td>
+</tr>
+</tbody>
+</table>
+<p><strong>The core trade-off, stated plainly:</strong> arrays are fast to <em>read</em> by position but slow to insert/delete in the middle; linked lists are slow to <em>read</em> by position (no shortcuts, must walk node by node) but fast to insert/delete once you're already at the right spot. Neither is strictly better — which one to use depends on whether a problem does more reading-by-position or more inserting/deleting.</p>
+<h3>The dummy node trick</h3>
+<p>A very common technique: when building or modifying a linked list (especially when the <strong>head itself might change</strong>, e.g. removing the first node), create a throwaway <code>dummy</code> node that points to the real head <em>before</em> you start, do all your work, then return <code>dummy.next</code> at the end. This avoids writing special-case code for "what if the node I need to modify is the head" — with a dummy node, the head is never special, it's just "the node after <code>dummy</code>," treated the same as every other node.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">dummy</span> <span class="o">=</span> <span class="n">ListNode</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">head</span><span class="p">)</span>
+<span class="c1"># ... do work, possibly changing what the &quot;real&quot; head is ...</span>
+<span class="k">return</span> <span class="n">dummy</span><span class="o">.</span><span class="n">next</span>
+</code></pre></div>
+
+<h2>Common patterns / techniques in this topic</h2>
+<table>
+<thead>
+<tr>
+<th>Pattern</th>
+<th>When it applies</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Iterative traversal with pointer re-linking</strong></td>
+<td>Reversing a list, deleting a node, inserting a node — carefully rewire <code>.next</code> pointers one step at a time.</td>
+</tr>
+<tr>
+<td><strong>Fast &amp; slow pointers (Floyd's algorithm)</strong></td>
+<td>Detecting a cycle, finding the middle node, finding where a cycle begins — the fast pointer moves 2 steps for every 1 step the slow pointer takes.</td>
+</tr>
+<tr>
+<td><strong>Dummy head node</strong></td>
+<td>Any operation where the head of the list might change, to avoid special-casing "is this the head?"</td>
+</tr>
+<tr>
+<td><strong>Merging two lists</strong></td>
+<td>Walk both lists simultaneously with two pointers, always attaching the smaller current node to the result, advancing that list's pointer.</td>
+</tr>
+<tr>
+<td><strong>Recursion</strong></td>
+<td>Many linked list operations (like reversal) have an elegant recursive form, since "the rest of the list" is itself a smaller linked list problem — though iterative solutions are usually preferred for O(1) space, since recursion pays for the call stack.</td>
+</tr>
+</tbody>
+</table>
+<h2>Key terminology</h2>
+<ul>
+<li><strong>Node</strong> — a single element, holding a value and a pointer (<code>.next</code>) to the following node.</li>
+<li><strong>Head</strong> — the first node of the list; <strong>Tail</strong> — the last node (its <code>.next</code> is <code>None</code>/null).</li>
+<li><strong>Pointer / reference</strong> — a variable holding "where to find" a node, not the node's value directly.</li>
+<li><strong>Dangling pointer / losing the reference</strong> — a classic bug: if you change <code>node.next</code> <em>before</em> saving a reference to what it used to point to, you permanently lose access to the rest of the list beyond that point — there's no way to recover it, since nothing else in the program remembers that address.</li>
+<li><strong>Cycle</strong> — when a node's <code>.next</code> chain eventually loops back to a node already visited, instead of ending at <code>None</code>.</li>
+<li><strong>Floyd's Tortoise and Hare</strong> — the formal name for the fast/slow pointer technique used for cycle detection.</li>
+<li><strong>Sentinel / dummy node</strong> — a placeholder node used to simplify edge cases (see above).</li>
+</ul>
+<h2>Common beginner mistakes</h2>
+<ol>
+<li><strong>Losing the rest of the list by overwriting <code>.next</code> too early.</strong> When reversing or rewiring, always save <code>next_node = current.next</code> <strong>before</strong> changing <code>current.next</code>, or you permanently lose access to everything after <code>current</code> — there's no "undo," since the only way to reach those nodes was through the pointer you just overwrote.</li>
+<li><strong>Forgetting to handle an empty list (<code>head is None</code>) or a single-node list.</strong> These edge cases often break naive implementations that implicitly assume at least 2 nodes exist (e.g. code that accesses <code>head.next.next</code> without checking <code>head.next</code> isn't <code>None</code> first).</li>
+<li><strong>Off-by-one with fast/slow pointers.</strong> Starting both pointers at the head vs. starting the slow pointer at the head and fast at <code>head.next</code> changes whether you land on the first or second middle node for even-length lists — be deliberate about which convention a specific problem needs, and verify with a concrete small example rather than assuming.</li>
+<li><strong>Not updating the previous node's <code>.next</code></strong> after modifying/removing a node, leaving a "dangling" connection that still points to the old (now removed or moved) node — the list <em>looks</em> modified from the node you changed, but anything still holding a reference to the old previous node sees stale structure.</li>
+<li><strong>Converting to an array first to make things "easier."</strong> This defeats the O(1) space advantage the linked-list-native solution usually offers, and isn't what these problems are testing — the whole point is building comfort with pointer manipulation, not sidestepping it.</li>
+<li><strong>Mutating a node's value instead of relinking pointers, when the problem expects pointer manipulation — or the reverse.</strong> Always check what a problem specifically wants; some problems (like "delete a node given only that node," without access to the head) actually <em>require</em> a value-copying trick specifically because you can't relink around a node without knowing its predecessor.</li>
+</ol>
+<h2>Starter problems (easy, to warm up)</h2>
+<ol>
+<li><strong>Reverse Linked List</strong> (LeetCode #206) — the foundational linked-list manipulation exercise. Also in your Blind 75 list.</li>
+<li><strong>Merge Two Sorted Lists</strong> (LeetCode #21) — also in your Blind 75 list; a great two-pointer-across-two-lists warm-up.</li>
+<li><strong>Linked List Cycle</strong> (LeetCode #141) — also in your Blind 75 list; the canonical fast/slow pointer problem.</li>
+<li><strong>Middle of the Linked List</strong> (LeetCode #876) — not in Blind 75, but a very clean fast/slow pointer warm-up before tackling more complex versions of the pattern.</li>
+</ol>
+<h2>How this compares to Arrays &amp; Hashing / Two Pointers</h2>
+<p>The fast/slow pointer technique you'll use here is a direct descendant of the Two Pointers topic — same core idea (two indices/references moving through a sequence at different rates or from different starting points, each move justified by a provable guarantee), just applied to a structure where you <em>can't</em> jump to an arbitrary index the way you can with an array. Because random access is impossible, almost every linked-list technique compensates by using pointers cleverly instead of indices — this is the main mental shift from array-based topics, and it's why the "save before overwrite" discipline matters so much more here than in array problems (an array index is never destroyed by reading it; a linked list pointer <em>can</em> be destroyed by overwriting it).</p>
+<h2>What carries over from here</h2>
+<p>Fast/slow pointers and "explicit pointer manipulation instead of relying on indices" are the two biggest takeaways, and they don't reappear in a totally new form later — but the <em>discipline</em> of carefully reasoning about references (not losing access to data, being careful about order of operations when rewiring) is exactly the same discipline you'll need for <strong>Tree</strong> problems next, since a tree node's <code>.left</code>/<code>.right</code> pointers are conceptually the same idea as a linked list node's <code>.next</code> pointer, just with two links instead of one.</p>
+<div class="nav"><a href="../../project/leetcode-prep.html">&larr; Back to LeetCode Prep</a></div>
+</div>
+</body>
+</html>
