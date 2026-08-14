@@ -200,7 +200,6 @@ document.addEventListener('DOMContentLoaded', updateThemeToggleIcon);
 <span class="w">      </span><span class="nt">labels</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">{</span><span class="nt"> app</span><span class="p">:</span><span class="w"> </span><span class="nv">api</span><span class="w"> </span><span class="p p-Indicator">}</span>
 <span class="w">    </span><span class="nt">spec</span><span class="p">:</span>
 <span class="w">      </span><span class="nt">containers</span><span class="p">:</span>
-
 <span class="w">      </span><span class="p p-Indicator">-</span><span class="w"> </span><span class="nt">name</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">api</span>
 <span class="w">        </span><span class="nt">image</span><span class="p">:</span><span class="w"> </span><span class="l l-Scalar l-Scalar-Plain">myapp:latest</span>
 <span class="w">        </span><span class="nt">ports</span><span class="p">:</span><span class="w"> </span><span class="p p-Indicator">[{</span><span class="nt"> containerPort</span><span class="p">:</span><span class="w"> </span><span class="nv">8000</span><span class="w"> </span><span class="p p-Indicator">}]</span>
@@ -211,6 +210,7 @@ kubectl<span class="w"> </span>get<span class="w"> </span>pods<span class="w">  
 kubectl<span class="w"> </span>delete<span class="w"> </span>pod<span class="w"> </span>api-deployment-xyz<span class="w">       </span><span class="c1"># kill one manually -- Deployment automatically replaces it</span>
 </code></pre></div>
 
+<p><strong>Why "desired state vs. actual state reconciliation" is worth understanding as a general Kubernetes principle, not just a Deployment-specific detail:</strong> the Deployment controller runs a continuous loop, constantly comparing "how many pods matching this label selector currently exist" against "how many the spec says should exist," and takes corrective action (create or delete pods) whenever they diverge. This exact same reconciliation pattern - declare the desired end state, let a controller continuously work to make reality match it - is how nearly every Kubernetes resource type operates (Services keeping their endpoint list current, ReplicaSets maintaining pod counts, and so on), which is why understanding it once, clearly, pays off across the whole system rather than being a one-off Deployment quirk.</p>
 <hr />
 <h2>6.2b Services, ConfigMaps/Secrets &amp; Rolling Updates</h2>
 <p>Pods are <strong>ephemeral</strong> (IP changes every time one is recreated), so a <strong>Service</strong> provides a stable network address (fixed virtual IP + DNS name) that automatically load-balances traffic across whichever pods <em>currently</em> match its label selector. Types: <strong>ClusterIP</strong> (internal-only, default), <strong>NodePort</strong> (exposes a static port on every node), <strong>LoadBalancer</strong> (provisions an external cloud load balancer - the typical production public entry point).</p>
@@ -232,12 +232,24 @@ kubectl<span class="w"> </span>delete<span class="w"> </span>pod<span class="w">
 <span class="w">  </span><span class="nt">DATABASE_URL</span><span class="p">:</span><span class="w"> </span><span class="s">&quot;postgres://db:5432/mydb&quot;</span>
 </code></pre></div>
 
+<p><strong>Why a Service's label selector, not a fixed list of pod IPs, is what makes it stable under constant pod churn:</strong> the Service continuously watches for which currently-running pods match its <code>selector</code> (here, <code>app: api</code>) and routes to whichever set that currently is - a pod being deleted and replaced doesn't require anyone to update the Service's configuration, because the Service was never pointing at that specific pod's IP in the first place, only at "whatever currently has this label." This is the exact same "reconciliation, not a static reference" principle from 6.2a, applied to networking instead of pod count.</p>
 <p><strong>Rolling update:</strong></p>
 <div class="codehilite"><pre><span></span><code>kubectl<span class="w"> </span><span class="nb">set</span><span class="w"> </span>image<span class="w"> </span>deployment/api-deployment<span class="w"> </span><span class="nv">api</span><span class="o">=</span>myapp:v2
 kubectl<span class="w"> </span>rollout<span class="w"> </span>status<span class="w"> </span>deployment/api-deployment
 </code></pre></div>
 
 <p><strong>What Kubernetes does during it:</strong> gradually creates new pods on the new image, waits for each to pass health checks ("ready"), then terminates a corresponding old pod - a few at a time (<code>maxSurge</code>/<code>maxUnavailable</code>), never taking the whole Deployment down at once, so the Service always has <em>some</em> healthy pods (old or new) to route traffic to throughout the update. This is the mechanism behind zero-downtime deploys.</p>
+<p><strong>Why waiting for health checks before terminating an old pod is the specific detail that makes this "zero-downtime," not just "gradual":</strong> if new pods were created and old ones torn down without confirming each new pod is actually ready to serve traffic, there could be a window where neither the (already-terminated) old pod nor the (not-yet-ready) new pod is available to handle requests routed to it - a real, if brief, outage. Explicitly gating each step on a passed health check guarantees the Service always has a pool of genuinely-ready pods (some mix of old and new) throughout the entire rollout, which is precisely what "zero-downtime" means in concrete, mechanical terms, not just a marketing phrase.</p>
+<hr />
+<h2>Common mistakes &amp; misconceptions</h2>
+<ol>
+<li><strong>Creating bare Pods directly instead of a Deployment</strong>, losing the automatic crash-recovery and rolling-update machinery a Deployment provides - as stated above, this is almost never the right default; Deployments exist specifically because managing Pods by hand doesn't scale to real production needs.</li>
+<li><strong>Assuming a Pod's IP address is stable and safe to reference directly.</strong> Pods are explicitly ephemeral - any component that needs to reliably reach "the API," rather than one specific, possibly-already-replaced Pod instance, must go through a Service, not a captured IP.</li>
+<li><strong>Putting sensitive values (passwords, API keys) into a ConfigMap instead of a Secret.</strong> ConfigMaps are not access-restricted or treated with the same handling precautions Secrets receive - the distinction exists specifically to separate "fine to view/log/share freely" configuration from "must be protected" credentials.</li>
+<li><strong>Believing base64 encoding in a Secret provides meaningful confidentiality.</strong> As with JWTs (5.6a), base64 is an encoding, not encryption - anyone with read access to the Secret object can trivially decode it; genuine protection comes from Kubernetes' access controls (RBAC) restricting <em>who</em> can read Secret objects in the first place, not from the encoding itself.</li>
+<li><strong>Choosing ClusterIP for a Service that needs to be reachable from outside the cluster</strong>, or LoadBalancer for a purely internal service that never needs external exposure - each Service type exists for a specific reachability scope, and mismatching them either breaks external access entirely or unnecessarily exposes an internal-only service to the public internet.</li>
+<li><strong>Assuming a rolling update is instantaneous or that Kubernetes tears down all old pods immediately upon <code>kubectl set image</code>.</strong> As explained above, the process is deliberately gradual and health-check-gated specifically to avoid any window with zero healthy pods - watching <code>kubectl rollout status</code> (rather than assuming the update completed the instant the command was issued) is the correct way to confirm it actually finished.</li>
+</ol>
 <hr />
 <h2>Watch / Read / Do / Checkpoint</h2>
 <p><strong>Watch:</strong> <a href="https://www.youtube.com/watch?v=s_o8dwzRlu4">Kubernetes Crash Course for Absolute Beginners - TechWorld with Nana</a><br />

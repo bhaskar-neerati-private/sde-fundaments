@@ -193,6 +193,7 @@ document.addEventListener('DOMContentLoaded', updateThemeToggleIcon);
 <li><strong>Inheritance</strong> - "is-a" (hollow triangle arrow pointing to the parent).</li>
 </ul>
 <p><em>Analogy:</em> a UML diagram is an architect's blueprint drawn <em>before</em> construction begins - it lets you (and reviewers) catch a structural problem ("this load-bearing wall conflicts with that room's placement") cheaply, on paper, instead of discovering it after the walls are already built (i.e. after a bunch of code needs a costly rewrite).</p>
+<p><strong>Why composition vs. aggregation is worth getting precisely right, not just a diamond-shape detail:</strong> the distinction directly predicts a real lifecycle behavior - delete a <code>House</code> and its <code>Room</code>s should logically cease to exist too (composition: the parent owns the children's lifetime), but delete a <code>University</code> and its <code>Student</code>s obviously still exist and can enroll elsewhere (aggregation: ownership is shared/independent). Getting this backward in a design has concrete downstream consequences: a composition-modeled relationship implemented as if it were aggregation might leak orphaned child objects that were supposed to be cleaned up with their parent; the reverse might destroy data (like a <code>Student</code> record) that should have outlived the specific <code>University</code> object being deleted.</p>
 <p><strong>The process, concretely:</strong></p>
 <ol>
 <li>Read requirements carefully, extract the <strong>nouns</strong> (candidate classes) and <strong>verbs</strong> (candidate methods/responsibilities).</li>
@@ -202,8 +203,8 @@ document.addEventListener('DOMContentLoaded', updateThemeToggleIcon);
 </ol>
 <p><strong>Worked mini-example - turning a requirements sentence into a skeleton.</strong> Requirement: <em>"A library has books. A member can borrow a book if it's available, and return it later."</em></p>
 <ul>
-<li><strong>Nouns → classes:</strong> <code>Library</code>, <code>Book</code>, <code>Member</code>.</li>
-<li><strong>Verbs → methods:</strong> <code>borrow_book()</code>, <code>return_book()</code>.</li>
+<li><strong>Nouns -&gt; classes:</strong> <code>Library</code>, <code>Book</code>, <code>Member</code>.</li>
+<li><strong>Verbs -&gt; methods:</strong> <code>borrow_book()</code>, <code>return_book()</code>.</li>
 <li><strong>Relationship:</strong> <code>Library</code> <strong>has</strong> many <code>Book</code>s (composition - books don't exist independently of some library owning them); <code>Member</code> <strong>uses</strong> <code>Library</code> (association, not ownership).</li>
 </ul>
 <p>Only <em>after</em> that sketch exists do you write:</p>
@@ -229,7 +230,18 @@ document.addEventListener('DOMContentLoaded', updateThemeToggleIcon);
         <span class="n">book</span><span class="o">.</span><span class="n">is_available</span> <span class="o">=</span> <span class="kc">True</span>
 </code></pre></div>
 
-<p>Notice the code is almost a direct transcription of step 1–3 above - that's the point of doing the design first: by the time you type <code>class Library:</code>, there's nothing left to figure out, only to translate.</p>
+<p>Notice the code is almost a direct transcription of step 1-3 above - that's the point of doing the design first: by the time you type <code>class Library:</code>, there's nothing left to figure out, only to translate.</p>
+<p><strong>Why "nouns become classes, verbs become methods" is a heuristic, not a mechanical algorithm:</strong> not every noun in a requirements paragraph deserves its own class (some are just attributes - "a book has a title" doesn't need a separate <code>Title</code> class), and not every verb maps to exactly one method on exactly one class. The heuristic is a fast starting point for generating candidate classes and responsibilities, which then needs to be refined by judgment (informed by SRP and the other principles from 4.2) about what actually deserves to be its own first-class concept in the design versus what's just a detail of another class.</p>
+<hr />
+<h2>Common mistakes &amp; misconceptions</h2>
+<ol>
+<li><strong>Jumping straight to code without a design pass</strong>, then discovering structural problems (wrong relationships, a class doing too much) partway through implementation, when they're far more expensive to fix than they would have been on paper. This is precisely the discipline this lesson's objective calls out as the actual tested skill.</li>
+<li><strong>Treating UML notation mastery as the goal</strong>, rather than the underlying design thinking it's meant to support. Interviewers evaluating LLD care about whether the class structure is sound and the responsibilities are well-assigned - not whether every diamond and arrowhead is textbook-perfect.</li>
+<li><strong>Confusing composition and aggregation</strong>, or not distinguishing them at all ("it's all just 'has-a'"). As explained above, this distinction predicts real lifecycle/ownership behavior that matters once the design becomes actual code - collapsing them loses real information the diagram was supposed to capture.</li>
+<li><strong>Letting the code and diagram silently diverge during implementation.</strong> If a design decision changes mid-coding (a new class is needed, a relationship turns out to be wrong), the diagram should be updated to match - an LLD process where the "design" and the actual code drift apart defeats the entire purpose of designing first, since the diagram no longer reflects the truth of the system.</li>
+<li><strong>Creating a class for every single noun mechanically</strong>, without judgment about which nouns are genuinely independent concepts (with their own state and behavior) versus which are just attributes of another class. Over-applying the noun-to-class heuristic produces an unnecessarily fragmented design with classes that have no real independent responsibility.</li>
+<li><strong>Skipping the "assign responsibilities to the right class" step</strong> and instead dumping most logic into whichever class happens to be created first or feels most "central" - this is exactly how SRP violations (4.2a) get baked into a design from the very start, before a single line of implementation code exists.</li>
+</ol>
 <hr />
 <h2>Watch / Read / Do / Checkpoint</h2>
 <p><strong>Watch:</strong> <a href="https://www.youtube.com/watch?v=lXTKMnSD_WA">How to crack LLD (Low Level Design) Interview? - GeeksforGeeks</a><br />

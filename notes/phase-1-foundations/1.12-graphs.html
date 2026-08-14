@@ -184,7 +184,8 @@ document.addEventListener('DOMContentLoaded', updateThemeToggleIcon);
 <p>Objective: implement BFS, DFS, topological sort, and Dijkstra's algorithm from scratch; recognize which traversal a problem needs.</p>
 <hr />
 <h2>1.12a Graph Representation, BFS &amp; DFS</h2>
-<p><strong>Adjacency list</strong> (dict of node → list of neighbors): O(V+E) space, efficient for sparse graphs, iterating a node's neighbors costs O(degree). <strong>Adjacency matrix</strong> (2D array, <code>matrix[i][j]</code> = edge weight/presence): O(V²) space, O(1) edge-existence check, wasteful for sparse graphs. Default to adjacency lists unless the graph is dense or you need O(1) edge lookups constantly.</p>
+<p><strong>Adjacency list</strong> (dict of node -&gt; list of neighbors): O(V+E) space, efficient for sparse graphs, iterating a node's neighbors costs O(degree). <strong>Adjacency matrix</strong> (2D array, <code>matrix[i][j]</code> = edge weight/presence): O(V²) space, O(1) edge-existence check, wasteful for sparse graphs. Default to adjacency lists unless the graph is dense or you need O(1) edge lookups constantly.</p>
+<p><strong>Why the space difference matters concretely:</strong> a social network with 1 million users, each following ~200 others, has ~200 million edges - an adjacency list costs O(V+E) ≈ 201 million entries, while an adjacency matrix would need 10¹² cells (a trillion), the overwhelming majority representing "no edge" - a completely impractical amount of wasted memory for a graph this sparse.</p>
 <p><strong>BFS</strong> (see 1.6b for the full breakdown): queue-based, explores level by level, guarantees shortest path in an unweighted graph.</p>
 <p><strong>DFS:</strong> explores as deep as possible down one path before backtracking, using either explicit recursion (the call stack) or an explicit stack.</p>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">dfs_recursive</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="n">node</span><span class="p">,</span> <span class="n">visited</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
@@ -208,9 +209,10 @@ document.addEventListener('DOMContentLoaded', updateThemeToggleIcon);
 </code></pre></div>
 
 <p><em>Analogy:</em> DFS is solving a maze by always taking the first unexplored path and going as deep as possible before backtracking (like keeping one hand on the left wall). BFS is ripples spreading outward evenly from a dropped stone - same underlying "swap the container" relationship as 1.6b: DFS uses a stack (LIFO), BFS uses a queue (FIFO).</p>
+<p><strong>Why the <code>visited</code> set is non-negotiable for graphs (unlike trees):</strong> a tree has no cycles by construction, so a traversal can never revisit a node by walking a different path back to it. A graph can - without tracking <code>visited</code>, DFS/BFS on a graph containing a cycle would loop forever, repeatedly re-discovering the same nodes through the cycle.</p>
 <hr />
 <h2>1.12b Topological Sort</h2>
-<p>Orders the nodes of a <strong>DAG</strong> (Directed Acyclic Graph) so that for every edge <code>u → v</code>, <code>u</code> comes before <code>v</code> - only possible if the graph has <strong>no cycles</strong>. <strong>Kahn's algorithm:</strong> repeatedly remove nodes with <strong>in-degree 0</strong> (no remaining prerequisites), append to the result, and decrement the in-degree of their neighbors as they're "removed." If every node gets processed, that's a valid order; if some remain stuck (in-degree never reaches 0), the graph has a cycle.</p>
+<p>Orders the nodes of a <strong>DAG</strong> (Directed Acyclic Graph) so that for every edge <code>u -&gt; v</code>, <code>u</code> comes before <code>v</code> - only possible if the graph has <strong>no cycles</strong>. <strong>Kahn's algorithm:</strong> repeatedly remove nodes with <strong>in-degree 0</strong> (no remaining prerequisites), append to the result, and decrement the in-degree of their neighbors as they're "removed." If every node gets processed, that's a valid order; if some remain stuck (in-degree never reaches 0), the graph has a cycle.</p>
 <p><em>Analogy:</em> doing tasks with prerequisites - you can only start a task once all its prerequisites are done. Repeatedly pick any currently-available task (no unfinished prerequisites), do it, then check which new tasks just became available.</p>
 <div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">collections</span><span class="w"> </span><span class="kn">import</span> <span class="n">deque</span>
 
@@ -233,6 +235,7 @@ document.addEventListener('DOMContentLoaded', updateThemeToggleIcon);
     <span class="k">return</span> <span class="n">order</span>
 </code></pre></div>
 
+<p><strong>Why <code>len(order) != num_nodes</code> correctly detects a cycle:</strong> every node whose in-degree eventually reaches 0 gets processed and added to <code>order</code>. A node stuck in a cycle has at least one prerequisite that itself depends (directly or transitively) on it - a circular wait where nothing in the cycle can ever reach in-degree 0, since each node in the cycle is always waiting on another node in that same cycle. Those nodes simply never enter the queue, so the final <code>order</code> falls short of <code>num_nodes</code> precisely when (and only when) a cycle exists.</p>
 <hr />
 <h2>1.12c Dijkstra's Algorithm</h2>
 <p>Finds shortest paths from a source to all other nodes in a graph with <strong>non-negative</strong> edge weights, using a min-heap to always process the currently-closest unvisited node next, and <strong>relaxing</strong> (updating) neighbor distances whenever a shorter path through the current node is found.</p>
@@ -257,8 +260,19 @@ document.addEventListener('DOMContentLoaded', updateThemeToggleIcon);
     <span class="k">return</span> <span class="n">distances</span>
 </code></pre></div>
 
-<p>O((V+E) log V) with a binary heap.</p>
-<p><strong>Why non-negative weights are required:</strong> if negative weights were allowed, a node already finalized (popped, visited) might later be reachable more cheaply via a path through a negative edge - breaking the greedy guarantee that popping = done. (Bellman-Ford handles negative weights instead, outside this lesson's scope.)</p>
+<p>O((V+E) log V) with a binary heap - each edge can trigger at most one heap push (O(log V) each), and each node is popped and finalized at most once.</p>
+<p><strong>Why <code>if node in visited: continue</code> is needed:</strong> the same node can be pushed onto the heap multiple times with different distance values (once for each time a shorter path to it was discovered before it was finalized) - <code>visited</code> ensures that once a node's <em>true</em> shortest distance is finalized (the first time it's popped, which is guaranteed to be its smallest pushed distance, since the heap always returns the current minimum), any later, larger, now-stale entries for that same node are simply skipped rather than incorrectly reprocessed.</p>
+<p><strong>Why non-negative weights are required:</strong> if negative weights were allowed, a node already finalized (popped, visited) might later be reachable more cheaply via a path through a negative edge - breaking the greedy guarantee that popping = done. The entire correctness argument rests on "every path to a not-yet-visited node can only get more expensive from here," which a negative edge directly violates. (Bellman-Ford handles negative weights instead, outside this lesson's scope.)</p>
+<hr />
+<h2>Common mistakes &amp; misconceptions</h2>
+<ol>
+<li><strong>Forgetting the <code>visited</code> set on a graph traversal</strong>, assuming tree-traversal habits carry over directly. As explained above, this isn't optional on a graph - a cycle without cycle protection causes genuine infinite recursion/looping, not just redundant work.</li>
+<li><strong>Using DFS when the problem specifically needs shortest path in an unweighted graph.</strong> DFS finds <em>a</em> path, not necessarily the shortest one, since it commits to going deep down one branch before trying alternatives - only BFS's level-by-level discovery order guarantees the first time a node is reached is via the fewest possible edges.</li>
+<li><strong>Believing topological sort works on any directed graph.</strong> It's only well-defined for DAGs - a cycle makes a valid ordering logically impossible (node A must come before B, which must come before A), and Kahn's algorithm's "not everyone got processed" check is exactly how that impossibility surfaces in code.</li>
+<li><strong>Applying Dijkstra's algorithm to a graph with negative edge weights</strong> and getting silently wrong answers rather than an obvious error - the algorithm doesn't detect this misuse on its own; the non-negative-weights requirement has to be verified by whoever chooses to use it.</li>
+<li><strong>Forgetting to skip already-visited nodes when popping from Dijkstra's priority queue.</strong> Without this check, a node could be "relaxed" again using a stale, already-superseded distance value pulled from an old heap entry, potentially processing the same node's neighbors multiple times - not incorrect in the sense of wrong final distances (since it would just waste redundant work rather than produce wrong values, as the relaxation check <code>new_dist &lt; distances[neighbor]</code> still holds), but a real and avoidable performance cost.</li>
+<li><strong>Defaulting to an adjacency matrix out of familiarity, on a large sparse graph.</strong> As shown in the concrete social-network example above, this can mean the difference between a data structure that comfortably fits in memory and one that doesn't fit at all - always check whether the graph is dense or sparse before choosing a representation.</li>
+</ol>
 <hr />
 <h2>Watch / Read / Do / Checkpoint</h2>
 <p><strong>Watch:</strong> the Graphs section of <a href="https://www.youtube.com/watch?v=pkYVOmU3MgA">Data Structures and Algorithms in Python (freeCodeCamp)</a><br />

@@ -206,6 +206,7 @@ docker<span class="w"> </span>run<span class="w"> </span>-p<span class="w"> </sp
 </code></pre></div>
 
 <p>If <code>COPY . .</code> came <em>before</em> <code>RUN pip install</code>, every source change (even a one-line fix) would invalidate the cache for the <code>pip install</code> layer too, forcing a full dependency reinstall on every rebuild even though dependencies never changed.</p>
+<p><strong>Why "invalidating a layer invalidates every layer after it" is the actual mechanism, not just a rule of thumb:</strong> each layer's cache key is derived from both its own instruction <em>and</em> the state of the layer beneath it - so once any layer's inputs change, every subsequent layer is, by construction, starting from a different base than it was cached against, and Docker has no way to know those later layers would have produced the same result. This is exactly why layer <em>order</em> (not just which instructions exist) is a deliberate performance decision: putting the most volatile instructions last maximizes how many layers stay valid and reusable across rebuilds.</p>
 <hr />
 <h2>6.1b Multi-Stage Builds &amp; Docker Compose</h2>
 <p>A <strong>multi-stage build</strong> uses multiple <code>FROM</code> statements in one Dockerfile; later stages selectively copy artifacts from earlier stages <em>without</em> including those stages' full contents (build tools, intermediate files) in the final image - a much smaller, more minimal production image with only the built artifact and runtime dependencies.</p>
@@ -228,6 +229,7 @@ docker<span class="w"> </span>run<span class="w"> </span>-p<span class="w"> </sp
 </code></pre></div>
 
 <p><strong>Non-root user:</strong> a container running as root by default means that if an attacker breaks <em>out</em> of the container's isolation (a container escape), they'd have root on the <em>host</em> too - a non-root user limits that blast radius.</p>
+<p><strong>Why "root inside the container = root on the host" is possible at all, given containers are supposed to be isolated:</strong> containers share the host's kernel (unlike a VM, as stated above) - isolation is enforced by the kernel's namespace/cgroup boundaries, not by running an entirely separate operating system. A vulnerability that lets a process escape those boundaries (a "container escape") drops the attacker directly onto the shared host kernel with whatever privilege level the escaping process had - if that process was root inside the container, it's effectively root on the host too. Running as a non-root user doesn't prevent every possible escape, but it means a successful one lands with far less privilege to do damage.</p>
 <p><strong>Docker Compose</strong> orchestrates multiple containers (app, database, cache) declaratively in one YAML file, started/stopped together, with an automatic shared network so containers reach each other by service name.</p>
 <div class="codehilite"><pre><span></span><code><span class="nt">services</span><span class="p">:</span>
 <span class="w">  </span><span class="nt">api</span><span class="p">:</span>
@@ -244,6 +246,17 @@ docker<span class="w"> </span>run<span class="w"> </span>-p<span class="w"> </sp
 <div class="codehilite"><pre><span></span><code>docker<span class="w"> </span>compose<span class="w"> </span>up<span class="w">    </span><span class="c1"># brings up all 3 containers together, wired to talk by service name (&quot;db&quot;, &quot;redis&quot;)</span>
 </code></pre></div>
 
+<p><strong>Why containers can reach each other "by service name" specifically, without hardcoded IPs:</strong> Compose automatically creates a shared internal network and registers each service's name as a DNS entry resolvable by every other container on that network - the <code>api</code> service can connect to <code>postgres://db:5432/...</code> because Compose's built-in DNS resolves <code>db</code> to whichever container is currently running as the <code>db</code> service, regardless of that container's actual (and potentially changing) internal IP address. This is a smaller-scale preview of the exact same problem Kubernetes Services (6.2b) solve at a larger, more dynamic scale.</p>
+<hr />
+<h2>Common mistakes &amp; misconceptions</h2>
+<ol>
+<li><strong>Placing <code>COPY . .</code> before the dependency-installation step</strong>, invalidating the expensive dependency layer's cache on every source code change - as explained above, this is a direct, measurable build-time cost, not a stylistic preference.</li>
+<li><strong>Shipping build tools (compilers, dev dependencies) in the production image</strong> instead of using a multi-stage build - unnecessarily increasing both image size and attack surface (more installed software means more potential vulnerabilities an attacker could exploit, even if that software is never actually used at runtime).</li>
+<li><strong>Running the container's main process as root by default</strong>, without a specific reason - as explained above, this directly increases the potential damage of a container-escape vulnerability, a real and known class of attack, not a theoretical concern.</li>
+<li><strong>Believing a container provides the same isolation guarantees as a virtual machine.</strong> Containers share the host kernel; VMs run an entirely separate OS with hardware-level virtualization boundaries - this is precisely why kernel-level vulnerabilities and container escapes are a genuine category of risk for containers that doesn't have a direct equivalent for properly-isolated VMs.</li>
+<li><strong>Hardcoding another service's IP address instead of relying on Compose's (or Kubernetes') service-name-based DNS resolution.</strong> Container IPs are not stable across restarts/recreations - the entire reason service-name resolution exists is to avoid depending on an address that can silently change out from under a hardcoded reference.</li>
+<li><strong>Forgetting a <code>.dockerignore</code> file</strong>, causing <code>COPY . .</code> to include unnecessary files (local virtual environments, <code>.git</code> history, secrets, large local artifacts) in the build context and final image - bloating the image and potentially leaking files that were never meant to ship.</li>
+</ol>
 <hr />
 <h2>Watch / Read / Do / Checkpoint</h2>
 <p><strong>Watch:</strong> <a href="https://www.youtube.com/watch?v=3c-iBn73dDE">Docker Tutorial for Beginners [Full Course in 3 Hours]</a><br />

@@ -200,6 +200,7 @@ document.addEventListener('DOMContentLoaded', updateThemeToggleIcon);
 <span class="c1"># elsewhere: from config import settings -- everyone shares the same dict object, no class needed</span>
 </code></pre></div>
 
+<p><strong>Why Singleton's global state specifically hurts testability:</strong> a test that runs after another test which already mutated the singleton's internal state inherits that mutation - there's no clean way to get a fresh instance per test, since "exactly one instance ever" is the entire point of the pattern. This is precisely why DIP (4.2c, "depend on injected abstractions") is often the better fit even when "there's only one of these in production" is true: injecting an explicit dependency still allows tests to substitute a fresh instance per test, while a true Singleton structurally cannot.</p>
 <p><strong>Factory Method:</strong> delegates object creation to a separate method, letting it decide <em>which</em> concrete class to instantiate based on input, without the caller needing to know the concrete class names.</p>
 <p><em>Analogy:</em> Singleton is a country having exactly one currently-serving president - a fixed global access point. Factory Method is a restaurant order window - you name the dish, the kitchen decides internally which chef/recipe produces it; you never need to know how.</p>
 <div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">Shape</span><span class="p">:</span>
@@ -218,6 +219,7 @@ document.addEventListener('DOMContentLoaded', updateThemeToggleIcon);
 <span class="n">shape</span> <span class="o">=</span> <span class="n">shape_factory</span><span class="p">(</span><span class="s2">&quot;circle&quot;</span><span class="p">)</span>     <span class="c1"># caller never references the Circle class directly</span>
 </code></pre></div>
 
+<p><strong>Why decoupling "which concrete class" from the caller is the actual point, not just indirection for its own sake:</strong> if callers directly wrote <code>Circle()</code> or <code>Square()</code> throughout the codebase, adding a new shape type would require finding and updating every call site that might need to produce it. With <code>shape_factory</code>, adding <code>Triangle</code> means updating the factory's internal mapping in one place - every caller that goes through <code>shape_factory</code> automatically gains the new capability without any of them needing to change. This is the Open/Closed Principle (4.2a) applied specifically to object <em>creation</em>.</p>
 <hr />
 <h2>4.3b Builder</h2>
 <p>Constructs a complex object step by step, via chained method calls (a "fluent interface") each setting one piece of configuration, culminating in a <code>build()</code> call - used instead of a constructor with many optional parameters (the "telescoping constructor" problem).</p>
@@ -261,6 +263,18 @@ document.addEventListener('DOMContentLoaded', updateThemeToggleIcon);
     <span class="o">.</span><span class="n">build</span><span class="p">())</span>
 </code></pre></div>
 
+<p><strong>Why every setter method returns <code>self</code>, mechanically:</strong> each call like <code>.url(...)</code> needs to return <em>something</em> that the next <code>.method(...)</code> call can be chained onto. Returning <code>self</code> means the returned value is the same builder instance, still holding all previously-set state, letting the next call in the chain continue mutating that same instance - remove <code>return self</code> and the chain breaks immediately, since <code>None</code> (Python's implicit return) has no <code>.method()</code> to call.</p>
+<p><strong>Why "the telescoping constructor problem" is a real, not hypothetical, pain point:</strong> compare <code>HttpRequest("https://...", "POST", {}, None, True, False, 30, None)</code> - what does the 5th positional argument mean without checking the constructor's signature? - against the builder's named, self-documenting <code>.method("POST").header(...)</code> chain. The builder trades a small amount of extra boilerplate (the builder class itself) for call sites that stay readable and correct regardless of how many optional parameters exist.</p>
+<hr />
+<h2>Common mistakes &amp; misconceptions</h2>
+<ol>
+<li><strong>Reaching for Singleton as a default "there should only be one" solution without considering dependency injection.</strong> As explained above, Singleton's global mutable state specifically undermines testability - a class that's merely constructed once and passed around via DI achieves the same "one shared instance in practice" outcome without that cost.</li>
+<li><strong>Implementing Singleton via <code>__new__</code> out of habit (a translation of the classic Java/C++ pattern) instead of using a Python module</strong>, which is a singleton by construction (imported once, cached in <code>sys.modules</code>, shared by every importer) with far less boilerplate - the "more Pythonic alternative" noted above is frequently the better real-world choice.</li>
+<li><strong>Using a Factory Method when a plain constructor call would do</strong>, i.e. when there's only ever one concrete class and no meaningful decision being delegated - the pattern's value is specifically in centralizing a <em>choice</em> among multiple concrete types; applying it where no such choice exists is pure unnecessary indirection.</li>
+<li><strong>Forgetting <code>return self</code> in a Builder's setter methods</strong>, breaking the fluent chaining the entire pattern depends on - a very easy, very common mistake when first implementing this pattern.</li>
+<li><strong>Using a Builder for an object with only 2-3 simple, always-required parameters.</strong> The telescoping constructor problem specifically arises from <em>many optional</em> parameters - for a small, fully-required parameter list, a plain constructor is simpler and the Builder's extra ceremony is unjustified overhead.</li>
+<li><strong>Believing these three patterns are interchangeable "ways to create objects."</strong> Each solves a genuinely different creation problem: Singleton controls <em>instance count</em> (exactly one), Factory Method controls <em>which concrete type</em> gets created based on input, Builder controls <em>how a complex object's many optional pieces get assembled</em> - misapplying one where another actually fits produces code that technically works but obscures the real problem being solved.</li>
+</ol>
 <hr />
 <h2>Watch / Read / Do / Checkpoint</h2>
 <p><strong>Watch:</strong> the Creational Patterns entries in <a href="https://www.youtube.com/playlist?list=PLrhzvIcii6GNjpARdnO4ueTUAVR9eMBpc">Design Patterns in Object Oriented Programming - Christopher Okhravi</a><br />

@@ -185,7 +185,7 @@ document.addEventListener('DOMContentLoaded', updateThemeToggleIcon);
 <hr />
 <h2>1.4a Two Pointers</h2>
 <p>Uses two index variables traversing a structure, moving per a problem-specific rule, so total combined work stays O(n) instead of the O(n²) from checking every pair with nested loops - typically O(1) extra space.</p>
-<p><em>Plain English:</em> brute force checks every pair (O(n²)). Two pointers exploits a structural fact (most commonly: sorted data, or a symmetric check) to move intelligently - each pointer only moves forward, so total movement across the run is bounded by n.</p>
+<p><em>Plain English:</em> brute force checks every pair (O(n²)). Two pointers exploits a structural fact (most commonly: sorted data, or a symmetric check) to move intelligently - each pointer only moves forward, so total movement across the run is bounded by n, meaning the <em>combined</em> work across the whole run, not per step, is what actually stays linear.</p>
 <p>Two shapes: <strong>converging</strong> (start at both ends, move toward each other) and <strong>fast/slow</strong> (both start near the beginning, move at different rates/conditions).</p>
 <p><em>Analogy:</em> converging - two people at opposite ends of a size-sorted shoe rack, looking for a pair summing to a target; whoever's sum is too big/small steps inward on the appropriate side, converging in the middle, covering the whole rack once. Fast/slow - a librarian's one hand marking "last confirmed-good spot" while the other scans ahead.</p>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">two_sum_sorted</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">target</span><span class="p">):</span>          <span class="c1"># converging</span>
@@ -214,11 +214,12 @@ document.addEventListener('DOMContentLoaded', updateThemeToggleIcon);
     <span class="k">return</span> <span class="n">slow</span> <span class="o">+</span> <span class="mi">1</span>
 </code></pre></div>
 
-<p><strong>Recognize on sight:</strong> sorted array + pair/triplet sum condition → converging. Symmetric check (palindrome) → converging. In-place dedup/partition → fast/slow. Merging two sorted sequences → one pointer per sequence.</p>
+<p><strong>Why <code>two_sum_sorted</code> is correct, not just fast - the actual argument, not just the mechanism:</strong> because the array is sorted, if <code>arr[lo] + arr[hi]</code> is too small, increasing <code>lo</code> is the <em>only</em> useful move - decreasing <code>hi</code> could never help (it only makes the sum smaller, moving further from target), and every pair involving the old <code>lo</code> paired with anything <em>before</em> <code>hi</code> was already implicitly ruled out by this same logic on earlier iterations. This is what makes it safe to permanently discard <code>lo</code> (or <code>hi</code>) rather than needing to check it against every remaining candidate - sortedness turns "which pointer to move" into a determined, non-guessing decision.</p>
+<p><strong>Recognize on sight:</strong> sorted array + pair/triplet sum condition -&gt; converging. Symmetric check (palindrome) -&gt; converging. In-place dedup/partition -&gt; fast/slow. Merging two sorted sequences -&gt; one pointer per sequence.</p>
 <hr />
 <h2>1.4b Sliding Window</h2>
 <p>Maintains a contiguous subrange ("window") bounded by two pointers, <strong>incrementally updating</strong> a running state as the window moves, instead of recomputing from scratch per window - O(n) instead of O(n·k)/O(n²).</p>
-<p><em>Plain English:</em> consecutive windows overlap heavily; recomputing each independently is wasteful. Keep a running state (sum, frequency map) and just remove what left / add what entered.</p>
+<p><em>Plain English:</em> consecutive windows overlap heavily; recomputing each independently is wasteful. Keep a running state (sum, frequency map) and just remove what left / add what entered - this is the exact same "don't redo work you've already done" principle behind memoization in dynamic programming, applied to a moving range instead of a set of subproblems.</p>
 <p>Two flavors: <strong>fixed-size</strong> (given constant k, slide one in/one out) and <strong>variable-size</strong> (expand until a condition breaks/is met, contract to restore validity, repeat).</p>
 <p><em>Analogy:</em> fixed - a cashier's running total in a fixed viewing frame on a conveyor belt; subtract what scrolled out, add what scrolled in. Variable - an accordion: pull open (expand) until a note's too loud (condition breaks), squeeze shut (contract) until quiet again, repeat across the whole piece.</p>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">max_sum_subarray</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>                  <span class="c1"># fixed-size</span>
@@ -249,8 +250,8 @@ document.addEventListener('DOMContentLoaded', updateThemeToggleIcon);
     <span class="k">return</span> <span class="n">max_len</span>
 </code></pre></div>
 
-<p><strong>Why the nested-looking <code>while</code> in <code>min_subarray_len</code> is still O(n):</strong> <code>left</code> only ever moves forward, at most n times total across the <em>entire</em> run, regardless of how many times the outer loop triggers the inner <code>while</code>. Combined movement of both pointers ≤ 2n - O(n) amortized, not O(n²).</p>
-<p><strong>Recognize on sight:</strong> "contiguous subarray"/"substring" (not "subsequence" - that's non-contiguous, a different pattern) + a sum/count/length/frequency condition. Explicit fixed <code>k</code> → fixed window. Min/max length satisfying a condition → variable window.</p>
+<p><strong>Why the nested-looking <code>while</code> in <code>min_subarray_len</code> is still O(n):</strong> <code>left</code> only ever moves forward, at most n times total across the <em>entire</em> run, regardless of how many times the outer loop triggers the inner <code>while</code>. Combined movement of both pointers ≤ 2n - O(n) amortized, not O(n²). This is exactly the same amortized-cost argument as the monotonic stack in 1.6a: bound the <em>total</em> work across the whole run, not the worst case of a single step.</p>
+<p><strong>Recognize on sight:</strong> "contiguous subarray"/"substring" (not "subsequence" - that's non-contiguous, a different pattern) + a sum/count/length/frequency condition. Explicit fixed <code>k</code> -&gt; fixed window. Min/max length satisfying a condition -&gt; variable window.</p>
 <hr />
 <h2>1.4c Prefix Sums</h2>
 <p>A precomputed auxiliary array where index i holds the cumulative sum from the start through index i. O(n) to build, O(n) space, but then <strong>any range-sum query is O(1)</strong> via subtraction instead of O(n) per query.</p>
@@ -265,8 +266,8 @@ document.addEventListener('DOMContentLoaded', updateThemeToggleIcon);
     <span class="k">return</span> <span class="n">prefix</span><span class="p">[</span><span class="n">j</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]</span> <span class="o">-</span> <span class="n">prefix</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
 </code></pre></div>
 
-<p><strong>Why length n+1 with <code>prefix[0] = 0</code>:</strong> padding avoids a special case for <code>i == 0</code> in <code>range_sum</code> - the leading 0 ("sum of zero elements") lets one formula work uniformly for every <code>i</code>. General pattern: when a formula needs a special case only at a boundary, look for a padding value that makes the boundary behave like everything else.</p>
-<p><strong>Boundary of the technique:</strong> only works because the combining operation has an inverse (sum ↔ subtraction; XOR ↔ itself). Does <strong>not</strong> work for range min/max - no operation "undoes" a min - those need different structures (sparse tables, segment trees).</p>
+<p><strong>Why length n+1 with <code>prefix[0] = 0</code>:</strong> padding avoids a special case for <code>i == 0</code> in <code>range_sum</code> - the leading 0 ("sum of zero elements") lets one formula work uniformly for every <code>i</code>. General pattern: when a formula needs a special case only at a boundary, look for a padding value that makes the boundary behave like everything else - this is the identical trick used by the dummy-head node in 1.5b's linked-list merge.</p>
+<p><strong>Boundary of the technique:</strong> only works because the combining operation has an inverse (sum &lt;-&gt; subtraction; XOR &lt;-&gt; itself). Does <strong>not</strong> work for range min/max - no operation "undoes" a min - those need different structures (sparse tables, segment trees). This is worth being explicit about: prefix sums are not a general "precompute range queries" trick, they're specifically an "invertible combining operation" trick, and reaching for them on a min/max range-query problem is a common and understandable but incorrect instinct.</p>
 <p><strong>Composes with a hash map</strong> - count subarrays summing to exactly k:</p>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">subarray_sum_equals_k</span><span class="p">(</span><span class="n">arr</span><span class="p">,</span> <span class="n">k</span><span class="p">):</span>
     <span class="n">count</span><span class="p">,</span> <span class="n">running_sum</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">0</span>
@@ -278,7 +279,17 @@ document.addEventListener('DOMContentLoaded', updateThemeToggleIcon);
     <span class="k">return</span> <span class="n">count</span>
 </code></pre></div>
 
-<p>If <code>running_sum - k</code> was seen before as a prefix sum, the subarray between that point and now sums to exactly k. O(n) time/space.</p>
+<p>If <code>running_sum - k</code> was seen before as a prefix sum, the subarray between that point and now sums to exactly k. O(n) time/space. The <code>seen = {0: 1}</code> seed is the same padding trick again: without it, a subarray starting from index 0 that itself sums to exactly <code>k</code> would never be counted, since there'd be no earlier "prefix sum of 0" to subtract against.</p>
+<hr />
+<h2>Common mistakes &amp; misconceptions</h2>
+<ol>
+<li><strong>Applying two pointers to unsorted data expecting the same converging logic to work.</strong> The correctness argument for moving <code>lo</code> or <code>hi</code> relies entirely on sortedness (see above) - on unsorted data, moving one pointer inward doesn't rule out anything, and the technique silently gives wrong answers rather than an obvious error.</li>
+<li><strong>Using <code>list.pop(0)</code> or <code>list.insert(0, x)</code> inside what's meant to be an O(n) two-pointer or sliding-window solution.</strong> Both are O(n) operations on a Python list (everything shifts), quietly turning an intended O(n) algorithm into O(n²) - this is the array-specific version of the same trap flagged for queues in 1.6b.</li>
+<li><strong>Confusing "subsequence" (non-contiguous, elements can be skipped) with "substring"/"subarray" (contiguous).</strong> Sliding window only applies to the contiguous case - a problem asking about subsequences needs a different technique entirely (often dynamic programming), and misreading the problem statement here leads to solving the wrong problem correctly.</li>
+<li><strong>Forgetting to shrink the window in a variable-size sliding-window problem</strong>, ending up with a window that's grown but never correctly contracted back down - always double check that every code path that could make the window invalid is followed by contraction logic, not just the "happy path."</li>
+<li><strong>Reaching for prefix sums on a range min/max or range GCD query.</strong> As stated above, prefix sums fundamentally require the combining operation to have an inverse - min/max/GCD don't, so subtracting two prefix values gives nonsense, not a valid range answer.</li>
+<li><strong>Off-by-one errors in prefix-sum indexing</strong> - forgetting whether <code>prefix[i]</code> means "sum through index i" or "sum through index i-1" is the single most common source of bugs in this technique; always fix the convention explicitly (as the padded <code>prefix[0] = 0</code> convention here does) and stay consistent with it throughout.</li>
+</ol>
 <hr />
 <h2>Watch / Read / Do / Checkpoint</h2>
 <p><strong>Watch:</strong> the Arrays/Strings sections of <a href="https://www.youtube.com/watch?v=pkYVOmU3MgA">Data Structures and Algorithms in Python (freeCodeCamp)</a><br />

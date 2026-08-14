@@ -207,6 +207,7 @@ document.addEventListener('DOMContentLoaded', updateThemeToggleIcon);
     <span class="k">return</span> <span class="ow">not</span> <span class="n">stack</span>
 </code></pre></div>
 
+<p>The final <code>return not stack</code> matters as much as the loop itself: a string like <code>"(("</code> never triggers the <code>return False</code> path (every closer it does see matches correctly), but leaves unclosed openers sitting on the stack - only checking that the stack is empty at the very end catches this "everything matched but nothing was ever closed" case.</p>
 <p><strong>Monotonic stack:</strong> a stack kept strictly increasing (or decreasing) bottom-to-top. When a new element would violate that order, pop elements off - each pop <em>resolving</em> something - until order is restored, then push. Answers "next greater/smaller element" queries in O(n) total, since each element is pushed once, popped at most once.</p>
 <p><em>Analogy:</em> a line of people of different heights; walking down the line looking for each person's next-taller person. When someone tall shows up, every shorter person still "waiting" gets resolved on the spot.</p>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">daily_temperatures</span><span class="p">(</span><span class="n">temps</span><span class="p">):</span>
@@ -221,8 +222,8 @@ document.addEventListener('DOMContentLoaded', updateThemeToggleIcon);
     <span class="k">return</span> <span class="n">result</span>
 </code></pre></div>
 
-<p>On <code>[73,74,75,71,69,72,76,73]</code> → <code>[1,1,4,2,1,1,0,0]</code> (indices 6,7 never resolve, stay 0).</p>
-<p><strong>Why O(n) despite the nested-looking <code>while</code> inside <code>for</code>:</strong> each index is pushed exactly once and popped at most once across the whole run - total push+pop ≤ 2n, not n².</p>
+<p>On <code>[73,74,75,71,69,72,76,73]</code> -&gt; <code>[1,1,4,2,1,1,0,0]</code> (indices 6,7 never resolve, stay 0).</p>
+<p><strong>Why O(n) despite the nested-looking <code>while</code> inside <code>for</code>:</strong> each index is pushed exactly once and popped at most once across the whole run - total push+pop ≤ 2n, not n². This is the exact same amortized-cost argument used for the sliding window's inner <code>while</code> loop in 1.4b - whenever you see a <code>while</code> nested inside a <code>for</code> and worry about O(n²), the first question to ask is "does each element get processed by the inner loop only a bounded number of times <em>in total</em> across the whole run," not "how many times could the inner loop run on a single outer iteration."</p>
 <hr />
 <h2>1.6b Queues &amp; BFS Ordering</h2>
 <p><strong>Queue:</strong> strict <strong>First-In-First-Out (FIFO)</strong> - <strong>enqueue</strong> (add to back), <strong>dequeue</strong> (remove from front), O(1) each. Earliest-added is always removed first.</p>
@@ -237,6 +238,7 @@ document.addEventListener('DOMContentLoaded', updateThemeToggleIcon);
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_items</span><span class="o">.</span><span class="n">popleft</span><span class="p">()</span>                     <span class="c1"># O(1)</span>
 </code></pre></div>
 
+<p><strong>Why <code>deque</code> and not a plain <code>list</code>:</strong> a <code>list</code> is implemented as a contiguous, resizable array - removing from the <em>front</em> (<code>list.pop(0)</code>) requires shifting every remaining element one position left, an O(n) operation. <code>deque</code> (double-ended queue) is implemented internally as a doubly linked structure of fixed-size blocks, giving true O(1) operations at <em>both</em> ends - this is precisely why Python's standard library ships a separate type for this instead of just using <code>list</code> everywhere.</p>
 <p><strong>Trap:</strong> using a plain <code>list</code> and <code>list.pop(0)</code> for dequeue is <strong>O(n)</strong> - every remaining element shifts left. <code>deque</code> gives O(1) at both ends; <code>list</code> is only O(1) at the end.</p>
 <p><strong>Why BFS specifically needs a queue:</strong> BFS visits all nodes at distance 1 before any at distance 2, by enqueuing the source, then repeatedly dequeuing a node and enqueuing its unvisited neighbors - guaranteeing processing order matches discovery order. That's exactly FIFO. Swap the queue for a stack in the <em>same code</em> and you get DFS instead - tunneling deep down one path before returning to the others.</p>
 <p><em>Analogy:</em> ripples from a stone in water - BFS finishes "ripple ring 1" before starting "ripple ring 2," matching FIFO's "whoever arrived first gets served first." A stack would instead chase the most recent ripple, tunneling outward along one direction.</p>
@@ -254,7 +256,17 @@ document.addEventListener('DOMContentLoaded', updateThemeToggleIcon);
     <span class="k">return</span> <span class="n">distances</span>
 </code></pre></div>
 
-<p>This is the standard tool for shortest-path-in-an-unweighted-graph, precisely because of the discovery-order guarantee - all of a node's direct neighbors resolve fully (including discovering their own neighbors) before any of those grandchildren nodes are dequeued and processed themselves.</p>
+<p>This is the standard tool for shortest-path-in-an-unweighted-graph, precisely because of the discovery-order guarantee - all of a node's direct neighbors resolve fully (including discovering their own neighbors) before any of those grandchildren nodes are dequeued and processed themselves. Note also <code>visited.add(neighbor)</code> happens at <em>enqueue</em> time, not dequeue time - marking a node visited only when it's finally dequeued would let the same neighbor be enqueued multiple times by different in-progress nodes before any of them dequeue it, wasting work (though not breaking correctness, since re-processing an already-visited node would just be redundant, not wrong).</p>
+<hr />
+<h2>Common mistakes &amp; misconceptions</h2>
+<ol>
+<li><strong>Checking <code>stack.pop() != pairs[ch]</code> without first checking <code>not stack</code>.</strong> Popping from an empty stack raises <code>IndexError</code> - the <code>not stack or</code> short-circuit in <code>is_valid_parens</code> is load-bearing, not defensive boilerplate; removing it crashes on any string with an unmatched closing bracket.</li>
+<li><strong>Forgetting the final <code>return not stack</code> check</strong>, as explained above - a string of only unclosed openers passes every check inside the loop and needs this final verification to be correctly rejected.</li>
+<li><strong>Using <code>list.pop(0)</code> for a queue "because it works,"</strong> without registering that it's O(n) per call - this is one of the most common accidental performance bugs in interview code, since the list-based queue <em>looks</em> correct and passes small test cases, only revealing its O(n²) total cost on larger inputs.</li>
+<li><strong>Believing a monotonic stack needs to check every existing stack element against the new one.</strong> It doesn't - the <code>while</code> loop only ever needs to compare the new element against the <em>current top</em>, because by the stack's maintained invariant (strictly increasing/decreasing), if the new element beats the top, it necessarily also beats whatever's now newly exposed as the top after that pop, and so on - each comparison is O(1), and the loop's total iterations are bounded by the total number of pushes, per the amortized argument above.</li>
+<li><strong>Swapping a queue for a stack (or vice versa) without realizing this changes the traversal order entirely</strong>, particularly when adapting BFS code into what's meant to be DFS or vice versa - the data structure choice <em>is</em> the algorithm's defining characteristic here, not an implementation detail that can be swapped freely.</li>
+<li><strong>Assuming <code>deque</code> is only useful for queues.</strong> It supports O(1) append/pop at <em>both</em> ends, so it's equally the right choice for a stack that also occasionally needs front access, a sliding-window's underlying storage, or any structure needing efficient operations at both ends simultaneously - not exclusively a "queue data structure."</li>
+</ol>
 <hr />
 <h2>Watch / Read / Do / Checkpoint</h2>
 <p><strong>Watch:</strong> the Stacks/Queues section of <a href="https://www.youtube.com/watch?v=pkYVOmU3MgA">Data Structures and Algorithms in Python (freeCodeCamp)</a><br />

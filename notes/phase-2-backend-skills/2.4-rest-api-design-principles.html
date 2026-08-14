@@ -186,6 +186,7 @@ document.addEventListener('DOMContentLoaded', updateThemeToggleIcon);
 <p><strong>REST</strong> (REpresentational State Transfer) is an architectural style organizing APIs around <strong>resources</strong> (nouns, e.g. <code>/users</code>, <code>/orders</code>) manipulated via a small, standard set of HTTP <strong>methods</strong> (verbs: <code>GET</code>, <code>POST</code>, <code>PUT</code>, <code>PATCH</code>, <code>DELETE</code>) mapping to CRUD-like operations, using HTTP status codes to communicate outcome, with each request <strong>stateless</strong> - the server holds no memory of prior requests; all necessary context travels with each request.</p>
 <p><em>Plain English:</em> instead of inventing custom action-named endpoints for everything (<code>/getUserById</code>, <code>/createNewOrder</code> - "RPC-style"), REST organizes around resources: the <em>same</em> URL (<code>/users/42</code>) means different things depending on which HTTP verb is used (<code>GET</code> = fetch, <code>PUT</code>/<code>PATCH</code> = update, <code>DELETE</code> = remove). A small, predictable, reusable vocabulary instead of an ever-growing list of bespoke endpoint names.</p>
 <p><em>Analogy:</em> resources are shelf locations in a warehouse; HTTP verbs are a small fixed set of actions a forklift operator can perform at <em>any</em> shelf (pick up = <code>GET</code>, place a new item = <code>POST</code>, replace what's there = <code>PUT</code>, remove it = <code>DELETE</code>) - no unique tool needed per shelf, because the action is decoupled from which shelf you're at.</p>
+<p><strong>Why statelessness specifically matters, not just as a style preference:</strong> if the server held per-client session state in memory, that client's requests would need to always reach the <em>same</em> server instance, complicating load balancing and making horizontal scaling (adding more server instances) much harder - a crashed server would also silently lose that client's context. Statelessness means any server instance can handle any request as long as it has access to the same backing data store, which is exactly what makes REST APIs straightforward to scale horizontally.</p>
 <p><strong>Resource naming:</strong> plural nouns for collections (<code>/users</code>, not <code>/getUsers</code>); nested resources for relationships (<code>/users/42/orders</code>); avoid verbs in URLs where possible - model actions as state changes instead (<code>PATCH /orders/42</code> with <code>{"status": "cancelled"}</code> rather than <code>/orders/42/cancel</code>, though the latter is borderline-acceptable for actions that don't map cleanly to CRUD).</p>
 <p><strong>HTTP methods:</strong></p>
 <table>
@@ -222,6 +223,7 @@ document.addEventListener('DOMContentLoaded', updateThemeToggleIcon);
 </tr>
 </tbody>
 </table>
+<p><strong>Why <code>PUT</code> and <code>PATCH</code> are genuinely different, not interchangeable:</strong> <code>PUT</code> means "replace this resource entirely with what I'm sending" - any field omitted from the request body is conceptually treated as absent/reset in the new version. <code>PATCH</code> means "apply only these specific changes" - omitted fields stay untouched. Sending a partial payload to a <code>PUT</code> endpoint can silently wipe out fields the client didn't intend to touch, which is exactly the failure mode <code>PATCH</code> exists to avoid.</p>
 <p><strong>Status codes:</strong></p>
 <table>
 <thead>
@@ -269,8 +271,11 @@ document.addEventListener('DOMContentLoaded', updateThemeToggleIcon);
 </tr>
 </tbody>
 </table>
+<p><strong>Why 401 and 403 are distinct, not synonyms for "access denied":</strong> 401 means the server doesn't know who's asking (missing or invalid credentials - the fix is to authenticate). 403 means the server <em>does</em> know who's asking, and that identity is specifically not allowed to do this (the fix is not "log in differently," it's "this account genuinely lacks permission"). Conflating them gives clients misleading signals about what action would actually resolve the error.</p>
+<p><strong>Why 400 and 422 are distinct:</strong> 400 means the request itself is malformed at a structural level (invalid JSON, missing required headers) - the server can't even meaningfully parse what was sent. 422 means the request was well-formed and parseable, but the <em>content</em> fails validation rules (e.g. an email field containing a syntactically valid JSON string that isn't a valid email address). This distinction lets clients tell "I sent garbage" apart from "I sent a well-structured but invalid value."</p>
 <p><strong>Versioning:</strong> URL versioning (<code>/v1/users</code> - simplest, most visible) vs. header versioning (<code>Accept: application/vnd.myapi.v1+json</code> - cleaner URLs, less discoverable). URL versioning is the more common default in practice.</p>
 <p><strong>Pagination:</strong> offset/limit (<code>?offset=20&amp;limit=10</code> - simple, but can skip/duplicate items if data changes mid-pagination) vs. cursor-based (<code>?cursor=abc123</code> - stable under concurrent inserts/deletes, preferred for large or frequently-changing datasets).</p>
+<p><strong>Why offset/limit pagination can skip or duplicate items concretely:</strong> if a new row is inserted before the current page's offset while a client is paging through results, every subsequent page's <code>offset</code> now points one row later than intended relative to the <em>original</em> ordering - the row that would have been at position 20 shifts to position 21, causing the client's next <code>offset=20</code> request to either re-show a row already seen (duplicate) or skip one entirely, depending on the direction of the shift. Cursor-based pagination avoids this by anchoring to a specific row's identity/position (e.g. "everything after row with ID X") rather than a numeric position that shifts as the underlying data changes.</p>
 <p><strong>Putting it together - what actual requests/responses look like:</strong></p>
 <div class="codehilite"><pre><span></span><code>POST /users HTTP/1.1
 Content-Type: application/json
@@ -306,6 +311,16 @@ Content-Type: application/json
 </code></pre></div>
 
 <p>Three separate requests to the <em>same</em> general shape of URL (<code>/users</code>), each producing a different, predictable status code and body - this predictability, not any specific framework, is what "RESTful" actually buys you.</p>
+<hr />
+<h2>Common mistakes &amp; misconceptions</h2>
+<ol>
+<li><strong>Using verbs in URLs out of habit from RPC-style API design</strong> (<code>/getUser</code>, <code>/createOrder</code>), instead of modeling the action as an HTTP verb applied to a resource noun. This isn't just a style preference - it defeats the predictable, reusable vocabulary that makes REST APIs learnable at a glance, forcing clients to learn a bespoke endpoint name per action instead of a small fixed set of verbs.</li>
+<li><strong>Using <code>PUT</code> for a partial update.</strong> As explained above, <code>PUT</code> semantically means full replacement - sending only the changed fields to a <code>PUT</code> endpoint can silently null out or reset every omitted field, a genuinely dangerous and easy-to-miss bug.</li>
+<li><strong>Returning 200 OK for every response regardless of what actually happened</strong>, including error cases communicated only via a body field like <code>{"success": false}</code>. This defeats the purpose of HTTP status codes (which let clients, proxies, caches, and monitoring tools react correctly without parsing the response body) and is a common anti-pattern in APIs that don't fully embrace REST conventions.</li>
+<li><strong>Conflating 401 and 403</strong>, or 400 and 422, as interchangeable "something went wrong" codes. As explained above, each pair signals a meaningfully different required fix, and collapsing the distinction gives API consumers less actionable information.</li>
+<li><strong>Using offset/limit pagination for a large, frequently-changing dataset</strong> without considering the skip/duplicate risk explained above - cursor-based pagination is the standard fix specifically for this failure mode, not just a marginal optimization.</li>
+<li><strong>Assuming REST <em>requires</em> JSON, or requires resource URLs to exactly mirror the database schema.</strong> Neither is true - REST is an architectural style about resources/verbs/statelessness/status codes, not a specific data format or a mandate that every API resource map 1:1 to a database table; a resource can be a computed/aggregated view that has no single corresponding table at all.</li>
+</ol>
 <hr />
 <h2>Watch / Read / Do / Checkpoint</h2>
 <p><strong>Watch:</strong> <a href="https://www.youtube.com/watch?v=k5abZLzsQc0">FastAPI Intro – Full CRUD REST API Tutorial</a> (~1 hr, watch for the design/conventions parts - you'll build it in 2.5)<br />

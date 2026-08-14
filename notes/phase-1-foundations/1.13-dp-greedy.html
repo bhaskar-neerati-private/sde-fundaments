@@ -213,10 +213,11 @@ document.addEventListener('DOMContentLoaded', updateThemeToggleIcon);
     <span class="k">return</span> <span class="n">prev1</span>
 </code></pre></div>
 
-<p>The progression: naive recomputes the same subproblems exponentially many times; memoization caches each distinct subproblem's answer the first time (still uses the recursion stack); tabulation flips it bottom-up, avoiding recursion entirely, and often unlocks further space optimization since only the last few table entries are usually needed, not the whole table.</p>
+<p>The progression: naive recomputes the same subproblems exponentially many times (<code>fib_naive(n)</code> calls <code>fib_naive(n-2)</code> both directly and indirectly through <code>fib_naive(n-1)</code>, and this duplication compounds at every level, producing a call tree with 2ⁿ nodes); memoization caches each distinct subproblem's answer the first time (still uses the recursion stack, so it's O(n) space just for that, on top of the cache); tabulation flips it bottom-up, avoiding recursion entirely (no stack usage at all, just the loop), and often unlocks further space optimization since only the last few table entries are usually needed, not the whole table.</p>
+<p><strong>Why memoization and tabulation are the <em>same</em> underlying recurrence, not two unrelated techniques:</strong> both compute <code>fib(i) = fib(i-1) + fib(i-2)</code> for every <code>i</code> from <code>0</code> to <code>n</code>, exactly once each. The only difference is <em>direction</em> - memoization discovers which subproblems are needed by recursing top-down and filling the cache as a side effect, while tabulation decides in advance (bottom-up, in order) that every subproblem from <code>0</code> to <code>n</code> will be needed and just computes them all directly. If you can write one, you can mechanically derive the other.</p>
 <hr />
 <h2>1.13b Classic DP Patterns</h2>
-<p><strong>0/1 Knapsack:</strong> maximize total value of items within a weight capacity, each item usable at most once.<br />
+<p><strong>0/1 Knapsack:</strong> maximize total value of items within a weight capacity, each item usable at most once.
 Recurrence: <code>dp[i][w]</code> = best value using the first <code>i</code> items with capacity <code>w</code>.</p>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">knapsack</span><span class="p">(</span><span class="n">weights</span><span class="p">,</span> <span class="n">values</span><span class="p">,</span> <span class="n">capacity</span><span class="p">):</span>
     <span class="n">n</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">weights</span><span class="p">)</span>
@@ -256,6 +257,7 @@ Recurrence: <code>dp[i][w]</code> = best value using the first <code>i</code> it
 </code></pre></div>
 
 <p>(An O(n log n) version exists using binary search + patience sorting - know the O(n²) DP baseline cold first.)</p>
+<p><strong>What these three patterns have in common:</strong> each defines <code>dp[...]</code> as "the best answer to a smaller, well-defined version of the same problem," and each transition either <em>extends</em> a smaller subproblem's answer by one unit (LCS/LIS on a match) or <em>chooses the better of including/excluding</em> the current element (knapsack, and LIS's <code>max</code> over all valid <code>j</code>). Recognizing which of these two shapes - "extend" or "include vs. exclude" - a new problem fits is most of the work in setting up its DP recurrence.</p>
 <hr />
 <h2>1.13c Greedy Algorithms</h2>
 <p>A <strong>greedy algorithm</strong> builds a solution by repeatedly making the <strong>locally optimal choice</strong> at each step, never reconsidering it, hoping - and for provably-greedy problems, <em>guaranteeing</em> - that the sequence of local choices produces a globally optimal solution. Greedy is <strong>not always correct</strong>: it only works for problems with the right structure (the "greedy-choice property" plus optimal substructure); applying it elsewhere gives a locally-sensible but globally wrong answer.</p>
@@ -278,7 +280,18 @@ Recurrence: <code>dp[i][w]</code> = best value using the first <code>i</code> it
     <span class="k">return</span> <span class="kc">True</span>
 </code></pre></div>
 
+<p><strong>Concrete counterexample showing greedy fails on 0/1 knapsack:</strong> items with (weight, value) <code>(10, 60), (20, 100), (30, 120)</code>, capacity 50. Greedy-by-value-density picks item 1 (value/weight = 6) first, then item 2 (value/weight = 5), filling capacity 30/50 for value 160, unable to fit item 3. The true optimal is items 2+3 (weight 50, value 220) - greedy's "best per-unit-weight first" choice locked in a combination that a full DP search would have avoided, precisely because 0/1 knapsack lacks the greedy-choice property (an early locally-superior choice can still foreclose a better global combination).</p>
 <p><strong>How to tell if greedy is actually valid:</strong> try to construct an <strong>exchange argument</strong> - show that any optimal solution can be modified to include the greedy choice without making it worse. If you can't construct one, and can't find a counterexample either, don't trust greedy blindly - default to DP unless greedy correctness is provable.</p>
+<hr />
+<h2>Common mistakes &amp; misconceptions</h2>
+<ol>
+<li><strong>Treating memoization and tabulation as unrelated techniques to memorize separately.</strong> As explained above, they compute the exact same recurrence - the practical difference is top-down-with-a-cache vs. bottom-up-with-a-loop, and being able to convert fluently between the two (rather than re-deriving one from scratch) is a genuinely useful skill.</li>
+<li><strong>Getting the DP array's off-by-one indexing wrong</strong>, especially around whether <code>dp[i]</code> means "using the first i elements" or "considering element i itself" - a very common source of bugs across knapsack, LCS, and similar two-dimensional DPs, worth being explicit about the convention before writing the transition.</li>
+<li><strong>Applying a greedy strategy without first checking whether it's actually provably correct for the specific problem</strong>, rather than just "seeming reasonable." As the 0/1 knapsack counterexample shows, a locally sensible greedy rule can produce a plausible-looking but genuinely wrong answer with no obvious symptom - it just silently returns a suboptimal result.</li>
+<li><strong>Assuming greedy is always a faster, "cheat mode" version of DP.</strong> It's not a shortcut applicable to every optimization problem - it's a fundamentally different technique that only works when the problem's structure specifically guarantees no early choice can ever need to be revisited. Most problems don't have this property; DP is the more generally applicable tool precisely because it keeps every viable option open until enough information is available to decide.</li>
+<li><strong>Confusing "subsequence" (LCS, LIS - order-preserved, elements can be skipped) with "substring"/"subarray" (contiguous).</strong> This mix-up leads to solving a completely different (and differently-structured) problem than the one actually being asked.</li>
+<li><strong>Forgetting that memoization's cache key must capture every varying input to the recursive call.</strong> <code>fib_memo</code>'s cache only needs <code>n</code> as the key because that's the only thing that varies between calls; a function with multiple varying parameters needs a compound key (e.g. a tuple) capturing all of them, or two calls with different values for the "forgotten" parameter will incorrectly share a cached result that's only valid for one of them.</li>
+</ol>
 <hr />
 <h2>Watch / Read / Do / Checkpoint</h2>
 <p><strong>Watch:</strong> the DP/Greedy section of <a href="https://www.youtube.com/watch?v=pkYVOmU3MgA">Data Structures and Algorithms in Python (freeCodeCamp)</a><br />

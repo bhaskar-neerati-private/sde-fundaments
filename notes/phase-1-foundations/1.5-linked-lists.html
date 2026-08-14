@@ -241,15 +241,15 @@ document.addEventListener('DOMContentLoaded', updateThemeToggleIcon);
     <span class="bp">self</span><span class="o">.</span><span class="n">head</span> <span class="o">=</span> <span class="n">prev</span>
 </code></pre></div>
 
-<p>Trace on <code>1 → 2 → 3 → None</code>:</p>
+<p>Trace on <code>1 -&gt; 2 -&gt; 3 -&gt; None</code>:</p>
 <ul>
 <li>Start: <code>prev=None</code>, <code>curr=1</code></li>
 <li>Iter1: <code>next_node=2</code>; <code>1.next=None</code>; <code>prev=1</code>, <code>curr=2</code></li>
 <li>Iter2: <code>next_node=3</code>; <code>2.next=1</code>; <code>prev=2</code>, <code>curr=3</code></li>
-<li>Iter3: <code>next_node=None</code>; <code>3.next=2</code>; <code>prev=3</code>, <code>curr=None</code> → loop ends</li>
-<li><code>head = prev = 3</code> → <code>3 → 2 → 1 → None</code></li>
+<li>Iter3: <code>next_node=None</code>; <code>3.next=2</code>; <code>prev=3</code>, <code>curr=None</code> -&gt; loop ends</li>
+<li><code>head = prev = 3</code> -&gt; <code>3 -&gt; 2 -&gt; 1 -&gt; None</code></li>
 </ul>
-<p>The reason this is O(1) space: <code>next_node</code> is saved <strong>before</strong> <code>curr.next</code> is overwritten, so the rest of the original list is never lost mid-rewire. Overwrite-then-save would strand it, unreachable.</p>
+<p>The reason this is O(1) space: <code>next_node</code> is saved <strong>before</strong> <code>curr.next</code> is overwritten, so the rest of the original list is never lost mid-rewire. Overwrite-then-save would strand it, unreachable - once <code>curr.next</code> is overwritten without saving the old value first, there is no other reference anywhere in the program pointing at the rest of the original list, so it becomes permanently unreachable (and, incidentally, garbage-collected) with no way to recover it, not merely "harder to find."</p>
 <hr />
 <h2>1.5b Doubly Linked Lists, Cycle Detection &amp; Merging</h2>
 <p><strong>Doubly linked list:</strong> each node holds a value plus <strong>two</strong> references - <code>next</code> and <code>prev</code> - enabling traversal in both directions; typically keeps both <code>head</code> and <code>tail</code>.</p>
@@ -282,8 +282,8 @@ document.addEventListener('DOMContentLoaded', updateThemeToggleIcon);
         <span class="k">else</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">tail</span> <span class="o">=</span> <span class="n">node</span><span class="o">.</span><span class="n">prev</span>
 </code></pre></div>
 
-<p><strong>Cycle detection - Floyd's Tortoise and Hare:</strong> advance a <strong>slow</strong> pointer 1 node/step and a <strong>fast</strong> pointer 2 nodes/step; if they ever become equal, there's a cycle. No cycle → <code>fast</code> reaches <code>None</code> first.</p>
-<p><em>Plain English:</em> without a cycle, the faster pointer just reaches the end first. With a cycle, <code>fast</code> closes the gap on <code>slow</code> by exactly one extra step every iteration, so it's guaranteed to eventually land on <code>slow</code>'s position.</p>
+<p><strong>Cycle detection - Floyd's Tortoise and Hare:</strong> advance a <strong>slow</strong> pointer 1 node/step and a <strong>fast</strong> pointer 2 nodes/step; if they ever become equal, there's a cycle. No cycle -&gt; <code>fast</code> reaches <code>None</code> first.</p>
+<p><em>Plain English:</em> without a cycle, the faster pointer just reaches the end first. With a cycle, <code>fast</code> closes the gap on <code>slow</code> by exactly one extra step every iteration, so it's guaranteed to eventually land on <code>slow</code>'s position - the gap between them shrinks by exactly 1 each iteration, and since it's a whole number bounded by the cycle length, it must hit exactly 0 at some point rather than "jumping over" it.</p>
 <p><em>Analogy:</em> two runners on a track, one twice as fast. Straight finite road (no cycle) - faster one just finishes, never "catches" the other. Looped track (cycle) - faster runner eventually laps the slower one, landing at the same spot.</p>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">has_cycle</span><span class="p">(</span><span class="n">head</span><span class="p">):</span>
     <span class="n">slow</span> <span class="o">=</span> <span class="n">fast</span> <span class="o">=</span> <span class="n">head</span>
@@ -310,7 +310,7 @@ document.addEventListener('DOMContentLoaded', updateThemeToggleIcon);
     <span class="k">return</span> <span class="n">ptr</span>
 </code></pre></div>
 
-<p>Why this works: let <code>a</code> = steps from head to cycle start, <code>c</code> = cycle length, <code>x</code> = steps <code>slow</code> took inside the cycle before meeting <code>fast</code>. At the meeting point, <code>fast</code> traveled exactly double <code>slow</code>'s distance, so the extra distance (<code>a + x</code>) must be a whole number of laps: <code>a + x = k·c</code>. That means the remaining distance from the meeting point forward to the cycle start (<code>c - x</code>) is congruent to <code>a</code> - so a pointer walking <code>a</code> steps from <code>head</code>, and one walking that same distance from the meeting point, land together exactly at the cycle's start.</p>
+<p>Why this works: let <code>a</code> = steps from head to cycle start, <code>c</code> = cycle length, <code>x</code> = steps <code>slow</code> took inside the cycle before meeting <code>fast</code>. At the meeting point, <code>fast</code> traveled exactly double <code>slow</code>'s distance, so the extra distance (<code>a + x</code>) must be a whole number of laps: <code>a + x = k·c</code>. That means the remaining distance from the meeting point forward to the cycle start (<code>c - x</code>) is congruent to <code>a</code> - so a pointer walking <code>a</code> steps from <code>head</code>, and one walking that same distance from the meeting point, land together exactly at the cycle's start. This is worth working through on paper once with concrete numbers (e.g. <code>a=2, c=5, k=1</code>) rather than just trusting the algebra - it's the kind of proof that clicks much faster with a drawn diagram than a symbolic derivation.</p>
 <p><strong>Merging two sorted linked lists</strong> - O(n+m) time, O(1) extra space (pure pointer rewiring, no new nodes):</p>
 <div class="codehilite"><pre><span></span><code><span class="k">def</span><span class="w"> </span><span class="nf">merge_two_sorted</span><span class="p">(</span><span class="n">l1</span><span class="p">,</span> <span class="n">l2</span><span class="p">):</span>
     <span class="n">dummy</span> <span class="o">=</span> <span class="n">Node</span><span class="p">(</span><span class="kc">None</span><span class="p">)</span>
@@ -326,7 +326,17 @@ document.addEventListener('DOMContentLoaded', updateThemeToggleIcon);
 </code></pre></div>
 
 <p><em>Analogy:</em> merging two sorted decks of cards face-up, always taking the smaller visible top card; once one deck empties, dump the rest of the other (already sorted) on top.</p>
-<p>The <strong>dummy head</strong> node is the same "padding avoids a special case" trick as 1.4c's padded prefix-sum array - it absorbs "what's the first node of the result" so the loop never needs an <code>if this is the first node</code> branch.</p>
+<p>The <strong>dummy head</strong> node is the same "padding avoids a special case" trick as 1.4c's padded prefix-sum array - it absorbs "what's the first node of the result" so the loop never needs an <code>if this is the first node</code> branch. Note also <code>tail.next = l1 if l1 else l2</code> at the end: whichever list still has remaining nodes is <em>already sorted</em>, so the whole remaining chain can be attached in one O(1) pointer assignment - there's no need to keep looping node-by-node once one list is exhausted.</p>
+<hr />
+<h2>Common mistakes &amp; misconceptions</h2>
+<ol>
+<li><strong>Overwriting <code>curr.next</code> before saving it during reversal.</strong> As explained above, this isn't just "losing track of a variable" - it permanently severs the only reference to the rest of the original list, making it unrecoverable. Always save the needed reference <em>before</em> the line that would destroy it.</li>
+<li><strong>Using <code>slow.next</code> and <code>fast.next.next</code> without first checking <code>fast and fast.next</code>.</strong> If <code>fast</code> is <code>None</code> or <code>fast.next</code> is <code>None</code>, <code>fast.next.next</code> raises <code>AttributeError</code> - the loop condition must check both, in that order (short-circuit evaluation means <code>fast.next</code> is only evaluated once <code>fast</code> is confirmed non-<code>None</code>), or the cycle-detection code crashes on a list with an even number of nodes and no cycle.</li>
+<li><strong>Believing Floyd's algorithm needs an auxiliary set of visited nodes to detect a cycle.</strong> It deliberately doesn't - that would work too (and is a valid alternative), but costs O(n) space; the two-pointer version achieves the same result in O(1) space, which is exactly why it's the standard answer.</li>
+<li><strong>Forgetting to update <code>tail</code> (or <code>head</code>) in a doubly linked list's delete/insert operations</strong>, particularly at the boundaries (deleting the head or tail node) - since these operations wire up to 4 pointers, it's easy to correctly rewire <code>next</code>/<code>prev</code> on the neighboring nodes but forget that <code>self.head</code>/<code>self.tail</code> themselves may also need to move.</li>
+<li><strong>Manually looping to append the remaining nodes at the end of <code>merge_two_sorted</code></strong> instead of the one-line <code>tail.next = l1 if l1 else l2</code>. Not incorrect, just a missed recognition that once one list is exhausted, the other is already a valid sorted chain that can be attached directly - explicitly looping through it node-by-node adds unnecessary code without changing the result.</li>
+<li><strong>Assuming a doubly linked list is strictly "better" than a singly linked list.</strong> It trades roughly double the per-node memory and more pointer bookkeeping on every mutation for O(1) deletion-given-a-node and backward traversal - worth it when those specific operations matter, genuinely wasteful overhead when they don't.</li>
+</ol>
 <hr />
 <h2>Watch / Read / Do / Checkpoint</h2>
 <p><strong>Watch:</strong> the Linked Lists section of <a href="https://www.youtube.com/watch?v=pkYVOmU3MgA">Data Structures and Algorithms in Python (freeCodeCamp)</a><br />

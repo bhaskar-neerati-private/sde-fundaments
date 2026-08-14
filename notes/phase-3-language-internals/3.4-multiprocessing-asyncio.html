@@ -201,6 +201,8 @@ document.addEventListener('DOMContentLoaded', updateThemeToggleIcon);
     <span class="c1"># each process has its own GIL, unlike the threading version in 3.3</span>
 </code></pre></div>
 
+<p><strong>Why the serialization cost is a genuine trade-off, not just a minor inconvenience:</strong> every argument passed into <code>pool.map</code> and every return value passed back must be pickled (serialized to bytes) and sent through inter-process communication, then unpickled on the receiving end - for small, simple data this overhead is negligible relative to the CPU-bound work being parallelized, but for very large or complex objects passed frequently between processes, this overhead can itself become the bottleneck, potentially eating into or even exceeding the parallelism gains.</p>
+<p><strong>Why <code>if __name__ == "__main__":</code> matters here specifically:</strong> on some platforms, <code>multiprocessing</code> starts new processes by re-importing the launching script from scratch. Without this guard, each new child process would re-execute the top-level <code>Pool(...)</code> creation code itself, recursively spawning more processes - an infinite spawning loop. The guard ensures the pool-creation code only runs in the original, top-level invocation, not in every re-imported child.</p>
 <hr />
 <h2>3.4b Asyncio</h2>
 <p><code>asyncio</code> provides <strong>cooperative concurrency within a single thread</strong> - an <code>async</code> function voluntarily <strong>yields control</strong> at each <code>await</code> point back to an <strong>event loop</strong>, which runs some other pending task while the first waits (e.g. on I/O), resuming the original once its awaited operation completes. Best for <strong>high-volume</strong> I/O-bound work (many concurrent network calls, DB queries) where managing many OS threads/processes would itself become the bottleneck.</p>
@@ -221,6 +223,7 @@ document.addEventListener('DOMContentLoaded', updateThemeToggleIcon);
 <span class="c1"># all 4 tasks&#39; 1-second sleeps overlap -- total runtime ~1s, not ~4s, with ONE thread</span>
 </code></pre></div>
 
+<p><strong>Why <code>await</code> is a genuinely explicit, cooperative handoff, unlike threading's OS-driven preemption:</strong> the OS can pause and resume a real thread at essentially any point, without that thread's code needing to do anything special (preemptive scheduling). An <code>async</code> function, by contrast, only ever yields control at points it explicitly marks with <code>await</code> - between those points, it runs uninterrupted, with the event loop having no ability to switch to another task. This is exactly why a long-running, non-<code>await</code>-ing computation inside an <code>async</code> function blocks the <em>entire</em> event loop, starving every other concurrent task - the cooperative model only works if every task actually cooperates by yielding regularly.</p>
 <p><strong>Choosing between them - the actual interview-relevant skill:</strong></p>
 <table>
 <thead>
@@ -245,6 +248,16 @@ document.addEventListener('DOMContentLoaded', updateThemeToggleIcon);
 </tbody>
 </table>
 <p>Using multiprocessing for I/O-bound work wastes heavy process overhead on work that was never CPU-limited. Using threading for CPU-bound work doesn't help at all - still bottlenecked by the single GIL.</p>
+<hr />
+<h2>Common mistakes &amp; misconceptions</h2>
+<ol>
+<li><strong>Choosing multiprocessing for I/O-bound work "to be safe."</strong> Process startup and inter-process serialization overhead is real and unnecessary when the actual bottleneck is waiting on external I/O, not CPU computation - threading or asyncio are the correct fit for that shape of workload.</li>
+<li><strong>Choosing threading for CPU-bound work, expecting a speedup.</strong> As 3.3 established, the GIL prevents any actual parallel bytecode execution within a single process regardless of thread count - only multiprocessing (separate processes, separate GILs) achieves genuine parallelism for CPU-bound Python code.</li>
+<li><strong>Forgetting the <code>if __name__ == "__main__":</code> guard when using <code>multiprocessing</code></strong> on platforms where it matters, causing runaway recursive process spawning - as explained above, this isn't a stylistic nicety, it's required for correct behavior on those platforms.</li>
+<li><strong>Writing a long-running, non-yielding computation inside an <code>async</code> function</strong> and being surprised the whole event loop appears to freeze. As explained above, cooperative scheduling only yields control at <code>await</code> points - a CPU-heavy stretch with no <code>await</code> blocks every other concurrently-running task until it finishes.</li>
+<li><strong>Mixing blocking (non-async-aware) library calls inside <code>async</code> code without realizing they block the entire event loop.</strong> A regular (non-async) blocking call made inside an <code>async</code> function doesn't yield control at all - it blocks the single underlying thread the same way it would in synchronous code, defeating the concurrency asyncio is meant to provide. Async-compatible libraries (or running blocking calls in a thread pool via <code>asyncio.to_thread</code>) are required to avoid this.</li>
+<li><strong>Assuming the serialization overhead in multiprocessing is negligible regardless of data size/frequency.</strong> As explained above, for workloads that pass large or frequent data between processes, this overhead can meaningfully offset or even exceed the parallelism gains - worth actually measuring, not just assuming multiprocessing is a free win whenever CPU-bound work is involved.</li>
+</ol>
 <hr />
 <h2>Watch / Read / Do / Checkpoint</h2>
 <p><strong>Watch:</strong> <a href="https://www.youtube.com/watch?v=fKl2JW_qrso">Python Multiprocessing Tutorial - Corey Schafer</a><br />
